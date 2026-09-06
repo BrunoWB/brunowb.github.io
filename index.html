@@ -74,25 +74,35 @@
       cursor: pointer;
       padding: 4px 10px;
       border-radius: 8px;
-      color: rgba(230, 246, 248, 0.4);
-      transition: color 0.25s ease, text-shadow 0.25s ease;
+      color: rgba(230, 246, 248, 0.35); /* 1. Not selected: muted baseline */
+      font-weight: 600;
+      transition: color 0.25s ease, text-shadow 0.25s ease, background-color 0.25s ease, filter 0.25s ease;
       position: relative;
       user-select: none;
       outline: none;
     }
 
-    .lang-trigger:hover,
-    .lang-trigger:focus-visible {
-      color: #e6f6f8;
-      text-shadow: 0 0 16px rgba(0, 229, 255, 0.7);
+    /* 2. Hover state: distinctly in-between selected and not selected */
+    .lang-trigger:hover:not(.active),
+    .lang-trigger:focus-visible:not(.active) {
+      color: rgba(230, 246, 248, 0.72);
+      text-shadow: 0 0 10px rgba(0, 210, 235, 0.35);
+      background: rgba(0, 210, 235, 0.07);
     }
 
+    /* 3. Currently selected: ALWAYS STRONGEST */
     .lang-trigger.active {
       color: #ffffff;
       background: linear-gradient(135deg, #ffffff 40%, #5ce1e6 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      font-weight: 700;
       text-shadow: none;
+      filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.45));
+    }
+
+    .lang-trigger.active:hover {
+      filter: drop-shadow(0 0 12px rgba(0, 229, 255, 0.75));
     }
 
     /* Sliding & stretching underline indicator */
@@ -573,8 +583,8 @@
         }
       };
 
-      let currentLang = 'en';
-      let pinnedLang = 'en';
+      let selectedLang = 'en';
+      let previewLang = null;
       let leaveTimeout = null;
       const triggers = document.querySelectorAll('.lang-trigger');
       const greetingsContainer = document.querySelector('.hero-greetings');
@@ -582,7 +592,7 @@
 
       function updateIndicator(targetTrigger) {
         if (!indicator || !greetingsContainer) return;
-        const trigger = targetTrigger || greetingsContainer.querySelector(`.lang-trigger[data-lang="${currentLang}"]`);
+        const trigger = targetTrigger || greetingsContainer.querySelector(`.lang-trigger[data-lang="${selectedLang}"]`);
         if (!trigger) return;
 
         const parentRect = greetingsContainer.getBoundingClientRect();
@@ -595,20 +605,8 @@
         indicator.style.opacity = '1';
       }
 
-      function updateDOM(lang) {
+      function updateContent(lang) {
         document.documentElement.lang = lang;
-        let activeTrigger = null;
-        triggers.forEach(t => {
-          if (t.getAttribute('data-lang') === lang) {
-            t.classList.add('active');
-            activeTrigger = t;
-          } else {
-            t.classList.remove('active');
-          }
-        });
-
-        updateIndicator(activeTrigger);
-
         document.querySelectorAll('[data-i18n]').forEach(el => {
           const key = el.getAttribute('data-i18n');
           let text;
@@ -626,13 +624,40 @@
         });
       }
 
-      function switchLanguage(lang) {
-        if (currentLang === lang) return;
-        currentLang = lang;
+      function setSelectedLanguage(lang) {
+        selectedLang = lang;
+        previewLang = null;
+
+        let activeTrigger = null;
+        triggers.forEach(t => {
+          if (t.getAttribute('data-lang') === lang) {
+            t.classList.add('active');
+            activeTrigger = t;
+          } else {
+            t.classList.remove('active');
+          }
+        });
+
+        // Slide and stretch indicator to newly selected language
+        updateIndicator(activeTrigger);
+
+        // Update full page translation
         if (window.i18next && typeof i18next.changeLanguage === 'function') {
-          i18next.changeLanguage(lang, () => updateDOM(lang));
+          i18next.changeLanguage(lang, () => updateContent(lang));
         } else {
-          updateDOM(lang);
+          updateContent(lang);
+        }
+      }
+
+      function previewLanguage(lang) {
+        if (previewLang === lang) return;
+        previewLang = lang;
+
+        // Update page translation during hover preview
+        if (window.i18next && typeof i18next.changeLanguage === 'function') {
+          i18next.changeLanguage(lang, () => updateContent(lang));
+        } else {
+          updateContent(lang);
         }
       }
 
@@ -643,40 +668,38 @@
           fallbackLng: 'en',
           resources: resources
         }, function() {
-          updateDOM('en');
+          setSelectedLanguage('en');
         });
       } else {
-        updateDOM('en');
+        setSelectedLanguage('en');
       }
 
       triggers.forEach(trigger => {
         const lang = trigger.getAttribute('data-lang');
 
-        // Hover switches language dynamically without flicker
+        // Hover: preview page in hovered language while trigger takes intermediate hover state
         trigger.addEventListener('mouseenter', () => {
           if (leaveTimeout) {
             clearTimeout(leaveTimeout);
             leaveTimeout = null;
           }
-          switchLanguage(lang);
+          previewLanguage(lang);
         });
 
-        // Click or keyboard activation pins the language
+        // Click or keyboard: permanently selects language (underline slides & stretches)
         trigger.addEventListener('click', () => {
-          pinnedLang = lang;
-          switchLanguage(lang);
+          setSelectedLanguage(lang);
         });
 
         trigger.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            pinnedLang = lang;
-            switchLanguage(lang);
+            setSelectedLanguage(lang);
           }
         });
       });
 
-      // Smoothly revert to pinned language when cursor leaves the greetings group
+      // Smoothly revert page translation when mouse leaves greetings group without clicking
       if (greetingsContainer) {
         greetingsContainer.addEventListener('mouseenter', () => {
           if (leaveTimeout) {
@@ -688,8 +711,8 @@
         greetingsContainer.addEventListener('mouseleave', () => {
           if (leaveTimeout) clearTimeout(leaveTimeout);
           leaveTimeout = setTimeout(() => {
-            if (currentLang !== pinnedLang) {
-              switchLanguage(pinnedLang);
+            if (previewLang && previewLang !== selectedLang) {
+              previewLanguage(selectedLang);
             }
           }, 220);
         });
