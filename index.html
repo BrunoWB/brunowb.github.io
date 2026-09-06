@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bruno Barcellos | hello-web</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #03141a;
+      color: #e6f6f8;
+    }
+
+    /* Hero Section (100vh) */
+    .hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: radial-gradient(circle at center, #094757 0%, #03232c 60%, #021319 100%);
+      text-align: center;
+      padding: 24px;
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    .avatar-glow {
+      position: absolute;
+      inset: -6px;
+      background: radial-gradient(circle, #00e5ff 0%, transparent 70%);
+      filter: blur(16px);
+      opacity: 0.6;
+      border-radius: 50%;
+    }
+
+    .avatar {
+      position: relative;
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      border: 3px solid #00d2eb;
+      box-shadow: 0 10px 30px rgba(0, 210, 235, 0.25);
+      object-fit: cover;
+      background-color: #0b323c;
+    }
+
+    .hero h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #ffffff 40%, #5ce1e6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: #92c5cf;
+      max-width: 500px;
+      line-height: 1.5;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: #5ce1e6;
+      font-size: 0.875rem;
+      text-decoration: none;
+      opacity: 0.8;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      animation: bounce 2s infinite ease-in-out;
+    }
+
+    .scroll-hint:hover {
+      opacity: 1;
+      transform: translateY(2px);
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(6px); }
+    }
+
+    /* Projects Section (> 100vh) */
+    .projects-section {
+      min-height: 100vh;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 100px 24px;
+    }
+
+    .section-header {
+      margin-bottom: 40px;
+    }
+
+    .section-header h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+    }
+
+    .section-header p {
+      color: #7ba8b2;
+      font-size: 1rem;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .project-card {
+      background: rgba(8, 40, 50, 0.6);
+      border: 1px solid rgba(0, 210, 235, 0.2);
+      border-radius: 16px;
+      padding: 24px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      backdrop-filter: blur(8px);
+      transition: all 0.25s ease;
+    }
+
+    .project-card:hover {
+      transform: translateY(-4px);
+      border-color: #00d2eb;
+      box-shadow: 0 12px 30px rgba(0, 210, 235, 0.18);
+      background: rgba(12, 50, 62, 0.85);
+    }
+
+    .project-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #5ce1e6;
+      margin-bottom: 8px;
+    }
+
+    .project-desc {
+      color: #a4cdd4;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .project-tag {
+      align-self: flex-start;
+      background: rgba(0, 210, 235, 0.12);
+      color: #5ce1e6;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      border: 1px solid rgba(0, 210, 235, 0.25);
+    }
+  </style>
+</head>
+<body>
+  <!-- Hero (100vh) -->
+  <section class="hero">
+    <div class="avatar-wrapper">
+      <div class="avatar-glow"></div>
+      <img
+        class="avatar"
+        src="https://github.com/BrunoWB.png"
+        alt="Bruno Barcellos"
+      />
+    </div>
+    <h1>Hello, World!</h1>
+    <p>Welcome to my personal web corner</p>
+
+    <a href="#projects" class="scroll-hint">
+      <span>Scroll for projects</span>
+      <span>↓</span>
+    </a>
+  </section>
+
+  <!-- Projects Section (Reveals upon scrolling past 100vh) -->
+  <section id="projects" class="projects-section">
+    <div class="section-header">
+      <h2>Web Projects</h2>
+      <p>Explorations, tools, and interactive applications</p>
+    </div>
+
+    <div class="projects-grid">
+      <a href="https://github.com/brunowb/zmk-display-builder" target="_blank" rel="noopener noreferrer" class="project-card">
+        <div>
+          <div class="project-title">brunowb/zmk-display-builder</div>
+          <p class="project-desc">Interactive web builder and designer for custom ZMK keyboard display layouts and graphics.</p>
+        </div>
+        <span class="project-tag">Web App</span>
+      </a>
+    </div>
+  </section>
+</body>
+</html>
