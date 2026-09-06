@@ -60,21 +60,22 @@
       font-size: 2.8rem;
       font-weight: 700;
       letter-spacing: -0.02em;
-      margin-bottom: 12px;
-      display: flex;
+      margin-bottom: 16px;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       flex-wrap: wrap;
-      gap: 2px;
+      position: relative;
+      padding-bottom: 8px;
     }
 
     .lang-trigger {
       display: inline-block;
       cursor: pointer;
-      padding: 2px 8px;
+      padding: 4px 10px;
       border-radius: 8px;
       color: rgba(230, 246, 248, 0.4);
-      transition: all 0.25s ease;
+      transition: color 0.25s ease, text-shadow 0.25s ease;
       position: relative;
       user-select: none;
       outline: none;
@@ -84,7 +85,6 @@
     .lang-trigger:focus-visible {
       color: #e6f6f8;
       text-shadow: 0 0 16px rgba(0, 229, 255, 0.7);
-      transform: translateY(-2px);
     }
 
     .lang-trigger.active {
@@ -95,22 +95,28 @@
       text-shadow: none;
     }
 
-    .lang-trigger.active::after {
-      content: "";
+    /* Sliding & stretching underline indicator */
+    .lang-indicator {
       position: absolute;
-      bottom: -2px;
-      left: 8px;
-      right: 8px;
-      height: 2px;
+      bottom: 2px;
+      left: 0;
+      height: 3px;
       background: #00d2eb;
-      border-radius: 2px;
-      box-shadow: 0 0 8px #00d2eb;
+      border-radius: 9999px;
+      box-shadow: 0 0 12px #00e5ff, 0 0 4px #00d2eb;
+      pointer-events: none;
+      transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1),
+                  width 0.35s cubic-bezier(0.25, 1, 0.5, 1),
+                  opacity 0.2s ease;
+      opacity: 0;
+      transform-origin: left center;
     }
 
     .greeting-punct {
       color: #5ce1e6;
       opacity: 0.5;
-      margin-right: 4px;
+      margin-right: 2px;
+      user-select: none;
     }
 
     .hero p, .hero-subtitle {
@@ -124,10 +130,6 @@
 
     [data-i18n] {
       transition: opacity 0.18s ease;
-    }
-
-    body.i18n-updating [data-i18n] {
-      opacity: 0.4;
     }
 
     @media (max-width: 640px) {
@@ -413,6 +415,7 @@
       <span class="lang-trigger active" data-lang="en" tabindex="0" role="button" aria-label="Switch language to English">Hello</span><span class="greeting-punct">,</span>
       <span class="lang-trigger" data-lang="fr" tabindex="0" role="button" aria-label="Switch language to French">Bonjour</span><span class="greeting-punct">,</span>
       <span class="lang-trigger" data-lang="pt" tabindex="0" role="button" aria-label="Switch language to Portuguese">Olá!</span>
+      <span class="lang-indicator" aria-hidden="true"></span>
     </h1>
     <p class="hero-subtitle" data-i18n="hero.subtitle">Spacetime drifter powered by coffee</p>
 
@@ -572,18 +575,39 @@
 
       let currentLang = 'en';
       let pinnedLang = 'en';
+      let leaveTimeout = null;
       const triggers = document.querySelectorAll('.lang-trigger');
       const greetingsContainer = document.querySelector('.hero-greetings');
+      const indicator = document.querySelector('.lang-indicator');
+
+      function updateIndicator(targetTrigger) {
+        if (!indicator || !greetingsContainer) return;
+        const trigger = targetTrigger || greetingsContainer.querySelector(`.lang-trigger[data-lang="${currentLang}"]`);
+        if (!trigger) return;
+
+        const parentRect = greetingsContainer.getBoundingClientRect();
+        const triggerRect = trigger.getBoundingClientRect();
+        const left = triggerRect.left - parentRect.left;
+        const width = triggerRect.width;
+
+        indicator.style.transform = `translateX(${left}px)`;
+        indicator.style.width = `${width}px`;
+        indicator.style.opacity = '1';
+      }
 
       function updateDOM(lang) {
         document.documentElement.lang = lang;
+        let activeTrigger = null;
         triggers.forEach(t => {
           if (t.getAttribute('data-lang') === lang) {
             t.classList.add('active');
+            activeTrigger = t;
           } else {
             t.classList.remove('active');
           }
         });
+
+        updateIndicator(activeTrigger);
 
         document.querySelectorAll('[data-i18n]').forEach(el => {
           const key = el.getAttribute('data-i18n');
@@ -628,8 +652,12 @@
       triggers.forEach(trigger => {
         const lang = trigger.getAttribute('data-lang');
 
-        // Hover switches language dynamically
+        // Hover switches language dynamically without flicker
         trigger.addEventListener('mouseenter', () => {
+          if (leaveTimeout) {
+            clearTimeout(leaveTimeout);
+            leaveTimeout = null;
+          }
           switchLanguage(lang);
         });
 
@@ -648,14 +676,33 @@
         });
       });
 
-      // When cursor leaves the greetings group, revert to the pinned language
+      // Smoothly revert to pinned language when cursor leaves the greetings group
       if (greetingsContainer) {
-        greetingsContainer.addEventListener('mouseleave', () => {
-          if (currentLang !== pinnedLang) {
-            switchLanguage(pinnedLang);
+        greetingsContainer.addEventListener('mouseenter', () => {
+          if (leaveTimeout) {
+            clearTimeout(leaveTimeout);
+            leaveTimeout = null;
           }
         });
+
+        greetingsContainer.addEventListener('mouseleave', () => {
+          if (leaveTimeout) clearTimeout(leaveTimeout);
+          leaveTimeout = setTimeout(() => {
+            if (currentLang !== pinnedLang) {
+              switchLanguage(pinnedLang);
+            }
+          }, 220);
+        });
       }
+
+      // Keep indicator aligned on window resize or when custom fonts finish rendering
+      window.addEventListener('resize', () => {
+        updateIndicator();
+      });
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => updateIndicator());
+      }
+      requestAnimationFrame(() => updateIndicator());
     })();
   </script>
 </body>
