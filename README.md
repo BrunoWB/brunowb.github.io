@@ -1,6 +1,6 @@
-# hello-web
+# brunowb.github.io
 
-Personal portal and landing page for [@BrunoWB](https://github.com/BrunoWB).
+Personal portal and landing page for [@BrunoWB](https://github.com/BrunoWB) hosted at [brunowb.github.io](https://brunowb.github.io/).
 
 ## Features
 
@@ -18,3 +18,4 @@ python3 -m http.server 3000
 # Or using npx
 npx serve .
 ```
+

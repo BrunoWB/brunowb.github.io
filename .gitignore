@@ -18,3 +18,5 @@ build/
 *.sln
 *.sw?
 .DS_Store
+# Assets
+assets/
