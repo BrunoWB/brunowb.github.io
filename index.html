@@ -73,6 +73,49 @@
       line-height: 1.5;
     }
 
+    .hero-actions {
+      margin-top: 24px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .coffee-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 22px;
+      border-radius: 9999px;
+      background: rgba(0, 210, 235, 0.08);
+      border: 1px solid rgba(0, 210, 235, 0.35);
+      color: #e6f6f8;
+      font-size: 0.95rem;
+      font-weight: 500;
+      text-decoration: none;
+      backdrop-filter: blur(8px);
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+    }
+
+    .coffee-btn:hover {
+      background: rgba(0, 210, 235, 0.18);
+      border-color: #00e5ff;
+      color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 229, 255, 0.25);
+    }
+
+    .coffee-btn .coffee-icon {
+      font-size: 1.15rem;
+      transition: transform 0.2s ease;
+    }
+
+    .coffee-btn:hover .coffee-icon {
+      transform: rotate(-10deg) scale(1.15);
+    }
+
     .scroll-hint {
       position: absolute;
       bottom: 32px;
@@ -188,6 +231,18 @@
     </div>
     <h1>Hello, World!</h1>
     <p>Welcome to my personal web corner</p>
+
+    <div class="hero-actions">
+      <a
+        href="https://paypal.me/brunowbarcellos"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="coffee-btn"
+      >
+        <span class="coffee-icon">☕</span>
+        <span>Buy me a coffee</span>
+      </a>
+    </div>
 
     <a href="#projects" class="scroll-hint">
       <span>Scroll for projects</span>
