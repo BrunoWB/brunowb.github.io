@@ -73,47 +73,54 @@
       line-height: 1.5;
     }
 
-    .hero-actions {
-      margin-top: 24px;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      justify-content: center;
-      z-index: 2;
-    }
-
-    .coffee-btn {
+    /* Floating Buy Me a Coffee Button (Bottom-Left) */
+    .floating-coffee-btn {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      z-index: 999;
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      padding: 10px 22px;
+      padding: 10px 20px;
       border-radius: 9999px;
-      background: rgba(0, 210, 235, 0.08);
+      background: rgba(6, 30, 38, 0.82);
       border: 1px solid rgba(0, 210, 235, 0.35);
       color: #e6f6f8;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 500;
       text-decoration: none;
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       transition: all 0.25s ease;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 12px rgba(0, 210, 235, 0.15);
     }
 
-    .coffee-btn:hover {
-      background: rgba(0, 210, 235, 0.18);
+    .floating-coffee-btn:hover {
+      background: rgba(9, 50, 62, 0.95);
       border-color: #00e5ff;
       color: #ffffff;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0, 229, 255, 0.25);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 229, 255, 0.35);
     }
 
-    .coffee-btn .coffee-icon {
+    .floating-coffee-btn .coffee-icon {
       font-size: 1.15rem;
       transition: transform 0.2s ease;
     }
 
-    .coffee-btn:hover .coffee-icon {
+    .floating-coffee-btn:hover .coffee-icon {
       transform: rotate(-10deg) scale(1.15);
+    }
+
+    @media (max-width: 480px) {
+      .floating-coffee-btn {
+        bottom: 16px;
+        left: 16px;
+        padding: 8px 14px;
+        font-size: 0.825rem;
+        gap: 6px;
+      }
     }
 
     .scroll-hint {
@@ -342,18 +349,6 @@
     <h1>Hello, World!</h1>
     <p>Welcome to my personal web corner</p>
 
-    <div class="hero-actions">
-      <a
-        href="https://paypal.me/brunowbarcellos"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="coffee-btn"
-      >
-        <span class="coffee-icon">☕</span>
-        <span>Buy me a coffee</span>
-      </a>
-    </div>
-
     <a href="#projects" class="scroll-hint">
       <span>Scroll for projects</span>
       <span>↓</span>
@@ -436,6 +431,19 @@
       </article>
     </div>
   </section>
+
+  <!-- Floating Buy Me a Coffee Button (Bottom-Left) -->
+  <a
+    href="https://paypal.me/brunowbarcellos"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="floating-coffee-btn"
+    title="Buy me a coffee on PayPal"
+    aria-label="Buy me a coffee on PayPal"
+  >
+    <span class="coffee-icon">☕</span>
+    <span class="coffee-text">Buy me a coffee</span>
+  </a>
 </body>
 </html>
 
