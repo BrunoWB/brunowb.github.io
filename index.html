@@ -285,8 +285,8 @@
     }
 
     .projects-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      display: flex;
+      flex-direction: column;
       gap: 24px;
     }
 
@@ -482,18 +482,18 @@
     <div class="projects-grid">
       <article class="project-card">
         <a
-          href="https://brunowb.github.io/zmk-display-builder/"
+          href="https://brunowb.github.io/scyan-zmk-studio/"
           target="_blank"
           rel="noopener noreferrer"
           class="card-main-link"
-          aria-label="Open ZMK Display Builder"
+          aria-label="Open Scyan ZMK Studio"
         ></a>
 
         <div class="project-card-inner">
           <div class="project-info">
-            <h3 class="project-title">ZMK Display Builder</h3>
+            <h3 class="project-title">Scyan ZMK Studio</h3>
             <a
-              href="https://github.com/BrunoWB/zmk-display-builder"
+              href="https://github.com/BrunoWB/scyan-zmk-studio"
               target="_blank"
               rel="noopener noreferrer"
               class="project-repo-link"
@@ -502,9 +502,9 @@
               <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
                 <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
               </svg>
-              <span>BrunoWB/zmk-display-builder</span>
+              <span>BrunoWB/scyan-zmk-studio</span>
             </a>
-            <p class="project-desc" data-i18n="projects.zmk_desc">Interactive web builder and designer for custom ZMK keyboard display layouts and graphics.</p>
+            <p class="project-desc" data-i18n="projects.zmk_desc">Interactive 2-Atlas display layout designer, widget builder, and sprite editor for ZMK keyboards.</p>
             <span class="project-tag" data-i18n="projects.tag_webapp">Web App</span>
           </div>
 
@@ -719,7 +719,7 @@
             projects: {
               title: "Web Projects",
               subtitle: "Explorations, tools, and interactive applications",
-              zmk_desc: "Interactive web builder and designer for custom ZMK keyboard display layouts and graphics.",
+              zmk_desc: "Interactive 2-Atlas display layout designer, widget builder, and sprite editor for ZMK keyboards.",
               bwpx_desc: "High-performance 1-bit monochrome pixel editor and canvas sandbox for OLED displays, retro sprites, and embedded firmware.",
               tag_webapp: "Web App",
               tag_sandbox: "Pixel Sandbox"
@@ -738,7 +738,7 @@
             projects: {
               title: "Projets Web",
               subtitle: "Explorations, outils et applications interactives",
-              zmk_desc: "Concepteur web interactif pour la disposition d'écrans et graphismes personnalisés de claviers ZMK.",
+              zmk_desc: "Studio web interactif pour la disposition d'écrans 2-Atlas, widgets et graphismes de claviers ZMK.",
               bwpx_desc: "Éditeur de pixels monochrome 1-bit et sandbox canvas haute performance pour écrans OLED, sprites rétro et firmwares embarqués.",
               tag_webapp: "Application Web",
               tag_sandbox: "Bac à sable Pixel"
@@ -757,7 +757,7 @@
             projects: {
               title: "Projetos Web",
               subtitle: "Explorações, ferramentas e aplicativos interativos",
-              zmk_desc: "Construtor web interativo para layouts de display e gráficos personalizados de teclados ZMK.",
+              zmk_desc: "Studio web interativo para layouts de display 2-Atlas, widgets e gráficos de teclados ZMK.",
               bwpx_desc: "Editor de pixels monocromático 1-bit e sandbox em canvas de alta performance para telas OLED, sprites retrô e firmware embarcado.",
               tag_webapp: "App Web",
               tag_sandbox: "Sandbox Pixel"

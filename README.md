@@ -5,7 +5,7 @@ Personal portal and landing page for [@BrunoWB](https://github.com/BrunoWB) host
 ## Features
 
 - **Hero section**: 100vh dark cyan gradient with centered avatar profile.
-- **Projects list**: Accessible upon scrolling past 100vh, featuring web projects such as [`brunowb/zmk-display-builder`](https://github.com/brunowb/zmk-display-builder).
+- **Projects list**: Accessible upon scrolling past 100vh, featuring web projects such as [`brunowb/scyan-zmk-studio`](https://github.com/brunowb/scyan-zmk-studio).
 
 ## Local Development
 
