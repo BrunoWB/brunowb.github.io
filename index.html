@@ -272,6 +272,10 @@
       margin-bottom: 40px;
     }
 
+    .section-header.secondary-header {
+      margin-top: 64px;
+    }
+
     .section-header h2 {
       font-size: 2rem;
       font-weight: 700;
@@ -475,80 +479,11 @@
   <!-- Projects Section (Reveals upon scrolling past 100vh) -->
   <section id="projects" class="projects-section">
     <div class="section-header">
-      <h2 data-i18n="projects.title">Projects</h2>
-      <p data-i18n="projects.subtitle">Explorations, tools, and open source applications</p>
+      <h2 data-i18n="projects.title">Web Projects</h2>
+      <p data-i18n="projects.subtitle">Explorations, tools, and interactive applications</p>
     </div>
 
     <div class="projects-grid">
-      <article class="project-card">
-        <a
-          href="https://store.kde.org/p/2371012/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="card-main-link"
-          aria-label="Open Screen Manager on KDE Store"
-        ></a>
-
-        <div class="project-card-inner">
-          <div class="project-info">
-            <h3 class="project-title">Screen Manager</h3>
-            <a
-              href="https://github.com/BrunoWB/plasma-screen-manager"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="project-repo-link"
-              title="View GitHub repository"
-            >
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-              </svg>
-              <span>BrunoWB/plasma-screen-manager</span>
-            </a>
-            <p class="project-desc" data-i18n="projects.screen_desc">Fast multi-monitor management, inline display renaming, and presentation mode widget for KDE Plasma 6.</p>
-            <span class="project-tag" data-i18n="projects.tag_plasmoid">Plasma 6 Applet</span>
-          </div>
-
-          <div class="project-visual">
-            <svg class="corne-svg" viewBox="0 0 160 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="KDE Plasma multi-monitor manager display layout">
-              <!-- Left Monitor (Primary DP-1) -->
-              <rect x="12" y="14" width="62" height="42" rx="4" class="corne-case" />
-              <rect x="15" y="17" width="56" height="34" rx="2" fill="#011016" stroke="rgba(0, 210, 235, 0.4)" stroke-width="1" />
-              <rect x="40" y="56" width="6" height="8" rx="1" class="corne-key" />
-              <rect x="31" y="64" width="24" height="3" rx="1.5" class="corne-case" />
-
-              <!-- Monitor 1 UI: Header, Primary Star, Window Rects, Bottom Panel -->
-              <text x="19" y="24" fill="#5ce1e6" font-size="4.5" font-family="ui-monospace, monospace" font-weight="700">DP-1</text>
-              <path d="M 62 20.5 L 63 22.8 L 65.5 22.8 L 63.5 24.2 L 64.3 26.5 L 62 25.1 L 59.7 26.5 L 60.5 24.2 L 58.5 22.8 L 61 22.8 Z" class="corne-oled" />
-              <rect x="19" y="27" width="23" height="17" rx="1.5" class="corne-key" />
-              <rect x="45" y="27" width="22" height="17" rx="1.5" class="corne-key" />
-              <line x1="15" y1="46.5" x2="71" y2="46.5" stroke="rgba(0, 210, 235, 0.25)" stroke-width="0.8" />
-              <rect x="18" y="47.5" width="4" height="2" rx="0.5" class="corne-oled" />
-              <rect x="24" y="48" width="6" height="1.2" rx="0.4" class="corne-key" />
-              <rect x="32" y="48" width="6" height="1.2" rx="0.4" class="corne-key" />
-
-              <!-- Inter-display link / arrangement indicator -->
-              <line x1="74" y1="35" x2="86" y2="35" stroke="rgba(0, 210, 235, 0.4)" stroke-width="1" stroke-dasharray="2 1.5" />
-              <circle cx="80" cy="35" r="2" class="corne-oled" />
-
-              <!-- Right Monitor (Secondary HDMI-A-1) -->
-              <rect x="86" y="14" width="62" height="42" rx="4" class="corne-case" />
-              <rect x="89" y="17" width="56" height="34" rx="2" fill="#011016" stroke="rgba(0, 210, 235, 0.4)" stroke-width="1" />
-              <rect x="114" y="56" width="6" height="8" rx="1" class="corne-key" />
-              <rect x="105" y="64" width="24" height="3" rx="1.5" class="corne-case" />
-
-              <!-- Monitor 2 UI: Header, Power Toggle, Workspace, Bottom Panel -->
-              <text x="93" y="24" fill="rgba(0, 210, 235, 0.65)" font-size="4.5" font-family="ui-monospace, monospace" font-weight="700">HDMI-A-1</text>
-              <circle cx="138" cy="22.5" r="2.5" class="corne-oled" />
-              <rect x="93" y="27" width="48" height="17" rx="1.5" class="corne-key" />
-              <line x1="97" y1="31.5" x2="114" y2="31.5" stroke="rgba(0, 210, 235, 0.5)" stroke-width="0.8" />
-              <line x1="97" y1="35" x2="135" y2="35" stroke="rgba(0, 210, 235, 0.3)" stroke-width="0.8" />
-              <line x1="97" y1="38.5" x2="124" y2="38.5" stroke="rgba(0, 210, 235, 0.3)" stroke-width="0.8" />
-              <line x1="89" y1="46.5" x2="145" y2="46.5" stroke="rgba(0, 210, 235, 0.25)" stroke-width="0.8" />
-              <rect x="92" y="47.5" width="4" height="2" rx="0.5" class="corne-oled" />
-            </svg>
-          </div>
-        </div>
-      </article>
       <article class="project-card">
         <a
           href="https://brunowb.github.io/scyan-zmk-studio/"
@@ -759,6 +694,84 @@
         </div>
       </article>
     </div>
+
+    <!-- Projects Section (General / Desktop / System) -->
+    <div class="section-header secondary-header">
+      <h2 data-i18n="projects.other_title">Projects</h2>
+      <p data-i18n="projects.other_subtitle">Open source software, desktop apps, and system utilities</p>
+    </div>
+
+    <div class="projects-grid">
+      <article class="project-card">
+        <a
+          href="https://store.kde.org/p/2371012/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="card-main-link"
+          aria-label="Open Screen Manager on KDE Store"
+        ></a>
+
+        <div class="project-card-inner">
+          <div class="project-info">
+            <h3 class="project-title">Screen Manager</h3>
+            <a
+              href="https://github.com/BrunoWB/plasma-screen-manager"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="project-repo-link"
+              title="View GitHub repository"
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+              </svg>
+              <span>BrunoWB/plasma-screen-manager</span>
+            </a>
+            <p class="project-desc" data-i18n="projects.screen_desc">Fast multi-monitor management, inline display renaming, and presentation mode widget for KDE Plasma 6.</p>
+            <span class="project-tag" data-i18n="projects.tag_plasmoid">Plasma 6 Applet</span>
+          </div>
+
+          <div class="project-visual">
+            <svg class="corne-svg" viewBox="0 0 160 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="KDE Plasma multi-monitor manager display layout">
+              <!-- Left Monitor (Primary DP-1) -->
+              <rect x="12" y="14" width="62" height="42" rx="4" class="corne-case" />
+              <rect x="15" y="17" width="56" height="34" rx="2" fill="#011016" stroke="rgba(0, 210, 235, 0.4)" stroke-width="1" />
+              <rect x="40" y="56" width="6" height="8" rx="1" class="corne-key" />
+              <rect x="31" y="64" width="24" height="3" rx="1.5" class="corne-case" />
+
+              <!-- Monitor 1 UI: Header, Primary Star, Window Rects, Bottom Panel -->
+              <text x="19" y="24" fill="#5ce1e6" font-size="4.5" font-family="ui-monospace, monospace" font-weight="700">DP-1</text>
+              <path d="M 62 20.5 L 63 22.8 L 65.5 22.8 L 63.5 24.2 L 64.3 26.5 L 62 25.1 L 59.7 26.5 L 60.5 24.2 L 58.5 22.8 L 61 22.8 Z" class="corne-oled" />
+              <rect x="19" y="27" width="23" height="17" rx="1.5" class="corne-key" />
+              <rect x="45" y="27" width="22" height="17" rx="1.5" class="corne-key" />
+              <line x1="15" y1="46.5" x2="71" y2="46.5" stroke="rgba(0, 210, 235, 0.25)" stroke-width="0.8" />
+              <rect x="18" y="47.5" width="4" height="2" rx="0.5" class="corne-oled" />
+              <rect x="24" y="48" width="6" height="1.2" rx="0.4" class="corne-key" />
+              <rect x="32" y="48" width="6" height="1.2" rx="0.4" class="corne-key" />
+
+              <!-- Inter-display link / arrangement indicator -->
+              <line x1="74" y1="35" x2="86" y2="35" stroke="rgba(0, 210, 235, 0.4)" stroke-width="1" stroke-dasharray="2 1.5" />
+              <circle cx="80" cy="35" r="2" class="corne-oled" />
+
+              <!-- Right Monitor (Secondary HDMI-A-1) -->
+              <rect x="86" y="14" width="62" height="42" rx="4" class="corne-case" />
+              <rect x="89" y="17" width="56" height="34" rx="2" fill="#011016" stroke="rgba(0, 210, 235, 0.4)" stroke-width="1" />
+              <rect x="114" y="56" width="6" height="8" rx="1" class="corne-key" />
+              <rect x="105" y="64" width="24" height="3" rx="1.5" class="corne-case" />
+
+              <!-- Monitor 2 UI: Header, Power Toggle, Workspace, Bottom Panel -->
+              <text x="93" y="24" fill="rgba(0, 210, 235, 0.65)" font-size="4.5" font-family="ui-monospace, monospace" font-weight="700">HDMI-A-1</text>
+              <circle cx="138" cy="22.5" r="2.5" class="corne-oled" />
+              <rect x="93" y="27" width="48" height="17" rx="1.5" class="corne-key" />
+              <line x1="97" y1="31.5" x2="114" y2="31.5" stroke="rgba(0, 210, 235, 0.5)" stroke-width="0.8" />
+              <line x1="97" y1="35" x2="135" y2="35" stroke="rgba(0, 210, 235, 0.3)" stroke-width="0.8" />
+              <line x1="97" y1="38.5" x2="124" y2="38.5" stroke="rgba(0, 210, 235, 0.3)" stroke-width="0.8" />
+              <line x1="89" y1="46.5" x2="145" y2="46.5" stroke="rgba(0, 210, 235, 0.25)" stroke-width="0.8" />
+              <rect x="92" y="47.5" width="4" height="2" rx="0.5" class="corne-oled" />
+            </svg>
+          </div>
+        </div>
+      </article>
+    </div>
   </section>
 
   <!-- Floating Buy Me a Coffee Button (Bottom-Left) -->
@@ -786,14 +799,16 @@
               scroll: "Scroll for projects"
             },
             projects: {
-              title: "Projects",
-              subtitle: "Explorations, tools, and open source applications",
-              screen_desc: "Fast multi-monitor management, inline display renaming, and presentation mode widget for KDE Plasma 6.",
+              title: "Web Projects",
+              subtitle: "Explorations, tools, and interactive applications",
+              other_title: "Projects",
+              other_subtitle: "Open source software, desktop apps, and system utilities",
               zmk_desc: "Interactive 2-Atlas display layout designer, widget builder, and sprite editor for ZMK keyboards.",
               bwpx_desc: "High-performance 1-bit monochrome pixel editor and canvas sandbox for OLED displays, retro sprites, and embedded firmware.",
-              tag_plasmoid: "Plasma 6 Applet",
+              screen_desc: "Fast multi-monitor management, inline display renaming, and presentation mode widget for KDE Plasma 6.",
               tag_webapp: "Web App",
-              tag_sandbox: "Pixel Sandbox"
+              tag_sandbox: "Pixel Sandbox",
+              tag_plasmoid: "Plasma 6 Applet"
             },
             coffee: {
               button: "Power me up with a coffee!"
@@ -807,14 +822,16 @@
               scroll: "Défiler pour les projets"
             },
             projects: {
-              title: "Projets",
-              subtitle: "Explorations, outils et applications open source",
-              screen_desc: "Widget de gestion multi-écrans rapide, renommage direct des affichages et mode présentation pour KDE Plasma 6.",
+              title: "Projets Web",
+              subtitle: "Explorations, outils et applications interactives",
+              other_title: "Projets",
+              other_subtitle: "Logiciels open source, outils de bureau et utilitaires système",
               zmk_desc: "Studio web interactif pour la disposition d'écrans 2-Atlas, widgets et graphismes de claviers ZMK.",
               bwpx_desc: "Éditeur de pixels monochrome 1-bit et sandbox canvas haute performance pour écrans OLED, sprites rétro et firmwares embarqués.",
-              tag_plasmoid: "Applet Plasma 6",
+              screen_desc: "Widget de gestion multi-écrans rapide, renommage direct des affichages et mode présentation pour KDE Plasma 6.",
               tag_webapp: "Application Web",
-              tag_sandbox: "Bac à sable Pixel"
+              tag_sandbox: "Bac à sable Pixel",
+              tag_plasmoid: "Applet Plasma 6"
             },
             coffee: {
               button: "Energisez-moi avec un café !"
@@ -828,14 +845,16 @@
               scroll: "Role para ver os projetos"
             },
             projects: {
-              title: "Projetos",
-              subtitle: "Explorações, ferramentas e aplicativos de código aberto",
-              screen_desc: "Widget de gerenciamento rápido de múltiplos monitores, renomeação de telas e modo apresentação para KDE Plasma 6.",
+              title: "Projetos Web",
+              subtitle: "Explorações, ferramentas e aplicativos interativos",
+              other_title: "Projetos",
+              other_subtitle: "Softwares de código aberto, ferramentas desktop e utilitários de sistema",
               zmk_desc: "Studio web interativo para layouts de display 2-Atlas, widgets e gráficos de teclados ZMK.",
               bwpx_desc: "Editor de pixels monocromático 1-bit e sandbox em canvas de alta performance para telas OLED, sprites retrô e firmware embarcado.",
-              tag_plasmoid: "Applet Plasma 6",
+              screen_desc: "Widget de gerenciamento rápido de múltiplos monitores, renomeação de telas e modo apresentação para KDE Plasma 6.",
               tag_webapp: "App Web",
-              tag_sandbox: "Sandbox Pixel"
+              tag_sandbox: "Sandbox Pixel",
+              tag_plasmoid: "Applet Plasma 6"
             },
             coffee: {
               button: "Um cafézinho pro dev?"
