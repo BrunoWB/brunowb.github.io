@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bruno Barcellos</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
   <link rel="alternate icon" href="favicon.ico" />
   <style>
     * {
@@ -217,11 +220,17 @@
     }
 
     .floating-coffee-btn .coffee-icon {
-      font-size: 1.15rem;
-      transition: transform 0.2s ease;
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+      color: #00d2eb;
+      flex-shrink: 0;
+      transition: transform 0.2s ease, color 0.2s ease, filter 0.2s ease;
     }
 
     .floating-coffee-btn:hover .coffee-icon {
+      color: #00e5ff;
+      filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.7));
       transform: rotate(-10deg) scale(1.15);
     }
 
@@ -231,7 +240,12 @@
         left: 16px;
         padding: 8px 14px;
         font-size: 0.825rem;
-        gap: 6px;
+        gap: 8px;
+      }
+
+      .floating-coffee-btn .coffee-icon {
+        width: 17px;
+        height: 17px;
       }
     }
 
@@ -774,16 +788,18 @@
     </div>
   </section>
 
-  <!-- Floating Buy Me a Coffee Button (Bottom-Left) -->
+  <!-- Floating Ko-fi Support Button (Bottom-Left) -->
   <a
-    href="https://paypal.me/brunowbarcellos"
+    href="https://ko-fi.com/brunowb"
     target="_blank"
     rel="noopener noreferrer"
     class="floating-coffee-btn"
-    title="Buy me a coffee on PayPal"
-    aria-label="Buy me a coffee on PayPal"
+    title="Support me on Ko-fi"
+    aria-label="Support me on Ko-fi"
   >
-    <span class="coffee-icon">☕</span>
+    <svg class="coffee-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.238-.209-.344-.319-1.206-1.261-2.91-3.69-2.91-3.69s-.733-1.09-.272-2.146c.465-1.055 1.579-1.328 2.378-1.024.798.304 1.344 1.092 1.344 1.092s.546-.788 1.344-1.092c.799-.304 1.913-.031 2.378 1.024.461 1.056-.272 2.146-.272 2.146l.405.01zm5.286-.967c-.206 1.37-1.144 1.705-1.993 1.745V7.472c.849.04 1.787.375 1.993 1.745z" />
+    </svg>
     <span class="coffee-text" data-i18n="coffee.button">Buy me a coffee</span>
   </a>
 
