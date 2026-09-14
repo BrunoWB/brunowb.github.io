@@ -10,6 +10,7 @@ export interface TimelinePosition {
   company?: string;
   period?: LocalizedString;
   location?: LocalizedString;
+  skills?: string[];
   bullets?: {
     en: string[];
     fr: string[];

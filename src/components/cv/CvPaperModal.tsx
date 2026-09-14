@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { TypewriterProvider, useTypewriterController } from '../../context/TypewriterContext';
-import { CvHeader, CvPaperTitleBar } from './CvHeader';
+import { CvHoverProvider } from '../../context/CvHoverContext';
+import { CvHeader } from './CvHeader';
 import { CvSidebar } from './CvSidebar';
 import { CvTimeline } from './CvTimeline';
 
@@ -21,36 +22,34 @@ const CvPaperContent: React.FC<{
   const { isSkipped, skipAll } = useTypewriterController();
 
   return (
-    <div
-      onClick={() => {
-        if (!isSkipped) skipAll();
-      }}
-      className={`relative w-full max-w-5xl animate-paper-fade-in overflow-visible mb-6 cursor-default transition-all duration-300 ${
-        isClosing ? 'opacity-0 scale-98 pointer-events-none' : 'opacity-100 scale-100'
-      }`}
-    >
-      {/* Top Banner Area - Completely transparent, outside the paper area, showing real website background */}
-      <CvHeader
-        onClose={onClose}
-        isAvatarDocked={isAvatarDocked}
-        cvAvatarRef={cvAvatarRef}
-      />
-
-      {/* The Actual Curriculum Paper Sheet */}
+    <CvHoverProvider>
       <div
-        id="resume"
-        className="relative rounded-2xl shadow-2xl bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-subtle)] overflow-hidden"
+        onClick={() => {
+          if (!isSkipped) skipAll();
+        }}
+        className={`relative w-full max-w-5xl animate-paper-fade-in overflow-visible mb-6 cursor-default transition-all duration-300 ${
+          isClosing ? 'opacity-0 scale-98 pointer-events-none' : 'opacity-100 scale-100'
+        }`}
       >
-        {/* Paper Title & Contact Row */}
-        <CvPaperTitleBar />
+        {/* Persistent Sticky Top Control Bar */}
+        <CvHeader onClose={onClose} />
 
-        {/* Two-Column Body: Left Sidebar + Right Timeline */}
-        <div className="pt-6 pb-6 sm:pb-8 px-6 sm:px-10 flex flex-col lg:flex-row gap-8 lg:gap-10">
-          <CvSidebar />
-          <CvTimeline />
+        {/* The Actual Curriculum Paper Sheet */}
+        <div
+          id="resume"
+          className="relative rounded-2xl shadow-2xl bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-subtle)]"
+        >
+          {/* Two-Column Body: Left Sticky Sidebar + Right Timeline */}
+          <div className="pt-6 sm:pt-8 pb-6 sm:pb-8 px-6 sm:px-10 flex flex-col lg:flex-row gap-8 lg:gap-10">
+            <CvSidebar
+              isAvatarDocked={isAvatarDocked}
+              cvAvatarRef={cvAvatarRef}
+            />
+            <CvTimeline />
+          </div>
         </div>
       </div>
-    </div>
+    </CvHoverProvider>
   );
 };
 
@@ -119,4 +118,3 @@ export const CvPaperModal: React.FC<CvPaperModalProps> = ({
     </div>
   );
 };
-

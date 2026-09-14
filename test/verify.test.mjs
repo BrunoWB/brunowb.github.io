@@ -32,7 +32,7 @@ cvData.languages.items.forEach((item, idx) => {
   }
 });
 
-assert.strictEqual(cvData.experience.positions.length, 6, 'Must have 6 timeline positions');
+assert.strictEqual(cvData.experience.positions.length, 8, 'Must have 8 timeline positions');
 cvData.experience.positions.forEach((pos, idx) => {
   for (const lang of languages) {
     assert.ok(pos.role[lang], `Position ${idx} missing role in ${lang}`);
@@ -44,7 +44,7 @@ cvData.experience.positions.forEach((pos, idx) => {
     }
   }
 });
-console.log('✓ cvData multi-language parity verified (6 timeline entries with en/fr/pt roles/bullets).');
+console.log('✓ cvData multi-language parity verified (8 timeline entries with en/fr/pt roles/bullets).');
 
 // 2. Projects Data Parity Checks
 console.log('2. Checking projectsData parity...');
@@ -181,5 +181,14 @@ assert.ok(semanticIdx < typewriterIdx, 'Semantic Palette must appear before Type
 assert.ok(typewriterIdx < rawIdx, 'True Raw Palette must appear at the complete end of the page');
 
 console.log('✓ Color palette tokens, bd & container column, 2-layer palette architecture, and palette variable references verified.');
+
+// 11. Sticky Sidebar & Sticky Job Headers Verification
+console.log('11. Checking sticky sidebar and sticky job headers...');
+assert.ok(cvSidebarContent.includes('lg:sticky') && cvSidebarContent.includes('lg:top-6'), 'CvSidebar must be sticky on desktop with lg:sticky lg:top-6');
+assert.ok(cvSidebarContent.includes('cvData.header.name'), 'CvSidebar must render cvData.header.name');
+assert.ok(cvSidebarContent.includes('cvData.header.title'), 'CvSidebar must render cvData.header.title');
+assert.ok(cvTimelineContent.includes('sticky top-0'), 'CvTimeline must have sticky top-0 job headers');
+assert.ok(!cvModalContent.includes('id="resume"\n          className="relative rounded-2xl shadow-2xl bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-subtle)] overflow-hidden"'), 'CvPaperModal #resume must not have overflow-hidden to allow sticky children');
+console.log('✓ Sticky sidebar, relocated avatar/name/title, and sticky job headers verified.');
 
 console.log('--- ALL TESTS PASSED SUCCESSFULLY! ---');

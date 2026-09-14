@@ -11,6 +11,7 @@ export interface TypewriterTextProps {
   onComplete?: () => void;
   className?: string;
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'p' | 'span' | 'li' | 'div';
+  formatter?: (text: string) => React.ReactNode;
 }
 
 export const TypewriterText: React.FC<TypewriterTextProps> = ({
@@ -22,6 +23,7 @@ export const TypewriterText: React.FC<TypewriterTextProps> = ({
   onComplete,
   className = '',
   as: Component = 'span',
+  formatter,
 }) => {
   const { currentStep, isSkipped } = useTypewriterController();
   const active = currentStep >= step;
@@ -40,12 +42,12 @@ export const TypewriterText: React.FC<TypewriterTextProps> = ({
     <Component className={`relative ${Component === 'span' ? 'inline-block' : 'block'} ${className}`}>
       {/* Invisible placeholder that takes total height and wrapping in advance to prevent pushing elements around */}
       <span className="invisible select-none pointer-events-none block" aria-hidden="true">
-        {text}
+        {formatter ? formatter(text) : text}
       </span>
 
       {/* Visible typewriter overlay that streams in text without shifting layout */}
       <span className="absolute inset-0 block">
-        {active || isSkipped ? displayText : ''}
+        {active || isSkipped ? (formatter ? formatter(displayText) : displayText) : ''}
         {cursor && active && !isComplete && (
           <span className="inline-block font-mono font-bold text-cyan-400 dark:text-cyan-300 animate-typewriter-cursor ml-0.5">
             |
