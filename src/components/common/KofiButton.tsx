@@ -17,10 +17,10 @@ export const KofiButton: React.FC = () => {
         rel="noopener noreferrer"
         title={t(uiTranslations.coffee.button)}
         aria-label={t(uiTranslations.coffee.button)}
-        className={`group flex items-center gap-2.5 px-4 sm:px-5 py-2.5 rounded-full border backdrop-blur-md text-sm font-medium transition-all duration-300 shadow-md ${
+        className={`group flex items-center gap-2.5 px-4 sm:px-5 py-2.5 rounded-full border backdrop-blur-md text-sm font-medium transition-all duration-300 shadow-md bg-[var(--bg-bubble)]/85 border-[var(--border-subtle)] text-[var(--text-primary)] hover:border-orange-400 hover:shadow-orange-500/20 ${
           isDark
-            ? 'bg-[#061e26]/85 border-cyan-500/35 text-slate-100 hover:text-white hover:border-orange-400 hover:shadow-orange-500/20'
-            : 'bg-white/95 border-slate-300/80 text-slate-800 hover:text-orange-600 hover:border-orange-400 hover:shadow-lg hover:shadow-orange-500/15'
+            ? 'hover:text-white'
+            : 'hover:text-orange-600 hover:shadow-lg'
         }`}
       >
         <svg

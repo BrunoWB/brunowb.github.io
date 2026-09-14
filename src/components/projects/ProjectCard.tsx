@@ -24,7 +24,7 @@ export const ProjectCard: React.FC<{ project: ProjectItem }> = ({ project }) => 
   const primaryLink = project.liveUrl || project.repoUrl;
 
   return (
-    <article className="group relative rounded-2xl p-6 sm:p-7 backdrop-blur-md transition-all duration-300 cursor-pointer bg-white/85 dark:bg-[rgba(8,40,50,0.6)] border border-slate-200 dark:border-cyan-500/20 hover:-translate-y-1 hover:border-cyan-400 hover:shadow-[0_12px_30px_rgba(0,210,235,0.2)] hover:bg-white dark:hover:bg-[rgba(12,50,62,0.85)] shadow-md">
+    <article className="group relative rounded-2xl p-6 sm:p-7 backdrop-blur-md transition-all duration-300 cursor-pointer bg-[var(--bg-card)]/90 border border-[var(--border-subtle)] hover:-translate-y-1 hover:border-[var(--brand-primary)] hover:shadow-[0_12px_30px_rgba(0,210,235,0.2)] hover:bg-[var(--bg-card-hover)] shadow-md">
       {/* Primary Clickable Area */}
       <a
         href={primaryLink}
@@ -37,7 +37,7 @@ export const ProjectCard: React.FC<{ project: ProjectItem }> = ({ project }) => 
       <div className="relative z-20 flex flex-col md:flex-row md:items-center justify-between gap-6 pointer-events-none">
         {/* Info Column */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white mb-1">
+          <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text-primary)] mb-1">
             {project.title}
           </h3>
 
@@ -46,7 +46,7 @@ export const ProjectCard: React.FC<{ project: ProjectItem }> = ({ project }) => 
             target="_blank"
             rel="noopener noreferrer"
             title="View GitHub repository"
-            className="inline-flex items-center gap-1.5 text-xs font-mono text-cyan-700 dark:text-cyan-300 opacity-90 hover:opacity-100 hover:underline mb-3 pointer-events-auto transition-all font-medium"
+            className="inline-flex items-center gap-1.5 text-xs font-mono text-[var(--brand-primary)] opacity-90 hover:opacity-100 hover:underline mb-3 pointer-events-auto transition-all font-medium"
           >
             <svg
               className="w-3.5 h-3.5 fill-current flex-shrink-0"
@@ -58,11 +58,11 @@ export const ProjectCard: React.FC<{ project: ProjectItem }> = ({ project }) => 
             <span>{project.repo}</span>
           </a>
 
-          <p className="text-sm sm:text-base leading-relaxed text-slate-600 dark:text-[#a4cdd4] mb-4">
+          <p className="text-sm sm:text-base leading-relaxed text-[var(--text-secondary)] mb-4">
             {t(project.description)}
           </p>
 
-          <span className="inline-block text-xs font-semibold px-2.5 py-1 rounded-full border bg-cyan-50 dark:bg-cyan-500/10 text-cyan-800 dark:text-cyan-300 border-cyan-200 dark:border-cyan-500/25">
+          <span className="inline-block text-xs font-semibold px-2.5 py-1 rounded-full border bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border-[var(--border-subtle)]">
             {t(project.tag)}
           </span>
         </div>

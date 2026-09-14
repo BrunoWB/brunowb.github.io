@@ -18,29 +18,21 @@ export const HeroActions: React.FC<HeroActionsProps> = ({ onOpenCv }) => {
     onOpenCv();
   };
 
-  const handleScrollToProjects = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const projectsEl = document.getElementById('projects');
-    if (projectsEl) {
-      projectsEl.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
-      {/* CV Trigger Button */}
+    <div className="flex items-center justify-center mt-8">
+      {/* Resume Trigger Button */}
       <a
         href="#resume"
         onClick={handleCvClick}
         className={`group relative inline-flex items-center gap-2.5 px-6 py-3 rounded-full font-semibold text-sm sm:text-base cursor-pointer backdrop-blur-md transition-all duration-300 shadow-md hover:-translate-y-0.5 active:translate-y-0 ${
           isDark
             ? 'bg-gradient-to-r from-cyan-950/80 via-purple-950/70 to-orange-950/60 hover:from-cyan-900/90 hover:to-purple-900/80 border border-cyan-400/50 hover:border-cyan-300 text-white shadow-cyan-950/50 hover:shadow-[0_0_25px_rgba(0,229,255,0.45)]'
-            : 'bg-white/95 hover:bg-white border border-slate-300 hover:border-cyan-600 text-slate-900 shadow-slate-200/60 hover:shadow-lg hover:shadow-cyan-500/10'
+            : 'bg-[var(--bg-card)]/95 hover:bg-[var(--bg-card)] border border-[var(--border-subtle)] hover:border-[var(--brand-primary)] text-[var(--text-primary)] shadow-sm hover:shadow-lg hover:shadow-cyan-500/10'
         }`}
       >
         <svg
           className={`w-5 h-5 group-hover:rotate-12 transition-transform duration-300 ${
-            isDark ? 'text-cyan-400' : 'text-cyan-700'
+            isDark ? 'text-cyan-400' : 'text-[var(--brand-primary)]'
           }`}
           fill="none"
           viewBox="0 0 24 24"
@@ -54,31 +46,12 @@ export const HeroActions: React.FC<HeroActionsProps> = ({ onOpenCv }) => {
           className={`text-xs px-2.5 py-0.5 rounded-full font-semibold border ${
             isDark
               ? 'bg-purple-500/25 border-purple-400/40 text-purple-200'
-              : 'bg-purple-100 border-purple-200 text-purple-800'
+              : 'bg-[var(--brand-secondary)]/15 border-[var(--brand-secondary)]/30 text-[var(--brand-secondary)]'
           }`}
         >
           Interactive
         </span>
       </a>
-
-      {/* Scroll for Projects Button */}
-      <button
-        onClick={handleScrollToProjects}
-        className={`group inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm sm:text-base font-semibold transition-all duration-300 cursor-pointer ${
-          isDark
-            ? 'text-cyan-300/90 hover:text-white hover:bg-cyan-500/10'
-            : 'text-slate-800 hover:text-slate-950 bg-white/75 hover:bg-white/95 border border-slate-300/70 backdrop-blur-xs shadow-xs'
-        }`}
-      >
-        <span>{t(uiTranslations.hero.scrollButton)}</span>
-        <span
-          className={`inline-block animate-bounce-slow ${
-            isDark ? 'text-cyan-400' : 'text-slate-600'
-          }`}
-        >
-          ↓
-        </span>
-      </button>
     </div>
   );
 };

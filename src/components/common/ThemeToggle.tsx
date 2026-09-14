@@ -19,10 +19,10 @@ export const ThemeToggle: React.FC = () => {
         onClick={toggleTheme}
         aria-label={label}
         title={label}
-        className={`group relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full border backdrop-blur-md cursor-pointer transition-all duration-300 shadow-md ${
+        className={`group relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full border backdrop-blur-md cursor-pointer transition-all duration-300 shadow-md bg-[var(--bg-bubble)]/85 border-[var(--border-subtle)] ${
           isDark
-            ? 'bg-[#061e26]/85 border-cyan-500/40 text-cyan-300 hover:border-cyan-400 hover:text-cyan-200 hover:shadow-cyan-500/30'
-            : 'bg-white/95 border-slate-300/80 text-amber-600 hover:border-amber-500 hover:text-amber-700 hover:shadow-lg hover:shadow-amber-500/15'
+            ? 'text-cyan-300 hover:border-cyan-400 hover:text-cyan-200 hover:shadow-cyan-500/30'
+            : 'text-amber-600 hover:border-amber-500 hover:text-amber-700 hover:shadow-lg hover:shadow-amber-500/15'
         }`}
       >
         {/* Glow halo */}

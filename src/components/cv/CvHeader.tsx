@@ -86,7 +86,7 @@ export const CvHeader: React.FC<CvHeaderProps> = ({
           className="absolute left-6 sm:left-10 -bottom-12 sm:-bottom-14 md:-bottom-16 z-20"
         >
           <div
-            className={`w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-4 border-white dark:border-cyan-400/40 shadow-xl bg-[#0b323c] overflow-hidden transition-opacity duration-200 ${
+            className={`w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full border-4 border-white dark:border-cyan-400/40 shadow-xl bg-[var(--bg-avatar)] overflow-hidden transition-opacity duration-200 ${
               isAvatarDocked ? 'opacity-100' : 'opacity-0'
             }`}
           >
@@ -107,7 +107,7 @@ export const CvPaperTitleBar: React.FC = () => {
   const { advanceStep } = useTypewriterController();
 
   return (
-    <div className="relative pt-3 sm:pt-3.5 pb-3.5 sm:pb-4 pl-34 sm:pl-44 md:pl-48 pr-6 sm:pr-10 border-b border-slate-200 dark:border-cyan-500/20">
+    <div className="relative pt-3 sm:pt-3.5 pb-3.5 sm:pb-4 pl-34 sm:pl-44 md:pl-48 pr-6 sm:pr-10 border-b border-[var(--border-subtle)]">
       <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
         {/* Title on Paper: Software Engineer */}
         <div>
@@ -118,13 +118,13 @@ export const CvPaperTitleBar: React.FC = () => {
             as="h2"
             cursor={true}
             onComplete={() => advanceStep()}
-            className="text-xl sm:text-2xl md:text-3xl font-bold tracking-wide text-slate-900 dark:text-cyan-300 select-none"
+            className="text-xl sm:text-2xl md:text-3xl font-bold tracking-wide text-[var(--brand-primary)] select-none"
           />
         </div>
 
         {/* Location & Contact snippet on desktop header */}
-        <div className="text-xs sm:text-right text-slate-600 dark:text-slate-400 hidden sm:block">
-          <p className="font-semibold text-slate-800 dark:text-slate-200">
+        <div className="text-xs sm:text-right text-[var(--text-muted)] hidden sm:block">
+          <p className="font-semibold text-[var(--text-secondary)]">
             {t(cvData.profile.location)}
           </p>
           <p className="font-mono text-[11px]">{cvData.contact.email}</p>

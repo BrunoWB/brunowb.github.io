@@ -140,4 +140,46 @@ assert.ok(indexHtmlContent.includes('prefers-color-scheme'), 'index.html must ch
 assert.ok(themeContextContent.includes('localStorage.setItem(\'theme\', newTheme)'), 'ThemeContext must save manual theme changes locally');
 console.log('✓ System theme detection and manual persistence verified.');
 
+// 10. Design System & Palette Variables Verification
+console.log('10. Checking light theme color palette, bd & container column, and palette variable references...');
+const indexCssContent = fs.readFileSync(new URL('../src/index.css', import.meta.url), 'utf-8');
+const uiElementsContent = fs.readFileSync(new URL('../src/pages/UiElementsPage.tsx', import.meta.url), 'utf-8');
+
+// index.css tokens
+assert.ok(indexCssContent.includes('--color-bd-app'), 'index.css must include --color-bd-app');
+assert.ok(indexCssContent.includes('--color-container-card'), 'index.css must include --color-container-card');
+assert.ok(indexCssContent.includes('--bg-section'), 'index.css must include --bg-section');
+assert.ok(indexCssContent.includes('--bg-bubble'), 'index.css must include --bg-bubble');
+assert.ok(indexCssContent.includes('--bg-avatar'), 'index.css must include --bg-avatar');
+
+// Light theme complementary colors (not pure black #0f172a)
+assert.ok(!indexCssContent.includes('--text-primary: #0f172a'), 'Light theme text-primary must not be pure black (#0f172a)');
+assert.ok(indexCssContent.includes('--text-primary: #062630'), 'Light theme text-primary must be complementary dark teal (#062630)');
+
+// UiElementsPage: bd and container column
+assert.ok(uiElementsContent.includes("'bd and container'"), 'UiElementsPage must include "bd and container" palette column');
+assert.ok(!uiElementsContent.includes('text-slate-900'), 'UiElementsPage must not contain text-slate-900');
+assert.ok(!uiElementsContent.includes('text-[#062630]'), 'UiElementsPage must not hardcode text-[#062630]');
+assert.ok(uiElementsContent.includes('text-[var(--text-primary)]'), 'UiElementsPage title must reference var(--text-primary)');
+
+// Home page components referencing palette variables
+const appContent = fs.readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf-8');
+const heroActionsUpdated = fs.readFileSync(new URL('../src/components/hero/HeroActions.tsx', import.meta.url), 'utf-8');
+assert.ok(!appContent.includes('text-slate-900'), 'App.tsx must not use text-slate-900');
+assert.ok(appContent.includes('text-[var(--text-primary)]'), 'App.tsx must reference var(--text-primary)');
+assert.ok(!heroActionsUpdated.includes('text-slate-900'), 'HeroActions must not use text-slate-900');
+assert.ok(heroActionsUpdated.includes('text-[var(--text-primary)]'), 'HeroActions must reference var(--text-primary)');
+assert.ok(heroSectionContent.includes('text-[var(--text-secondary)]'), 'HeroSection must reference var(--text-secondary)');
+assert.ok(projectsSectionContent.includes('bg-[var(--bg-section)]'), 'ProjectsSection must reference var(--bg-section)');
+assert.ok(projectsSectionContent.includes('text-[var(--text-primary)]'), 'ProjectsSection must reference var(--text-primary)');
+assert.ok(uiElementsContent.includes('1. Semantic Palette'), 'UiElementsPage must include "1. Semantic Palette" section');
+assert.ok(uiElementsContent.includes('4. True Raw Palette'), 'UiElementsPage must include "4. True Raw Palette" section at bottom');
+const semanticIdx = uiElementsContent.indexOf('1. Semantic Palette');
+const typewriterIdx = uiElementsContent.indexOf('2. Typewriter Animation Sandbox');
+const rawIdx = uiElementsContent.indexOf('4. True Raw Palette');
+assert.ok(semanticIdx < typewriterIdx, 'Semantic Palette must appear before Typewriter Sandbox');
+assert.ok(typewriterIdx < rawIdx, 'True Raw Palette must appear at the complete end of the page');
+
+console.log('✓ Color palette tokens, bd & container column, 2-layer palette architecture, and palette variable references verified.');
+
 console.log('--- ALL TESTS PASSED SUCCESSFULLY! ---');

@@ -157,7 +157,7 @@ export const BwpxSvg: React.FC<{ className?: string }> = ({ className = '' }) =>
         {/* Wolf Eye Cutouts */}
         <path
           d={WOLF_EYES_PATH}
-          className="fill-slate-900/90 dark:fill-[#021016]"
+          className="fill-[var(--bg-app)]"
         />
 
         {/* Glowing Orange Wolf Pupils */}

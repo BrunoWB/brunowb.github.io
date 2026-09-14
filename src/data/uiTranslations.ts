@@ -44,8 +44,8 @@ export const uiTranslations: UiTranslations = {
       pt: 'Viajante do espaço-tempo movido a café',
     },
     cvButton: {
-      en: 'Curriculum Vitae',
-      fr: 'Curriculum Vitae',
+      en: 'Resume',
+      fr: 'CV',
       pt: 'Currículo',
     },
     scrollButton: {

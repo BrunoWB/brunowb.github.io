@@ -100,7 +100,7 @@ export const FloatingAvatar: React.FC<FloatingAvatarProps> = ({
         <img
           src={avatarUrl}
           alt={name}
-          className="relative w-full h-full rounded-full object-cover border-4 border-white dark:border-cyan-400/50 shadow-2xl bg-[#0b323c]"
+          className="relative w-full h-full rounded-full object-cover border-4 border-white dark:border-cyan-400/50 shadow-2xl bg-[var(--bg-avatar)]"
         />
       </div>
     </div>

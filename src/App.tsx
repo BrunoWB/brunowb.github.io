@@ -27,7 +27,7 @@ export const App: React.FC = () => {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <div className="relative min-h-screen text-slate-900 dark:text-slate-100 transition-colors duration-300">
+        <div className="relative min-h-screen text-[var(--text-primary)] transition-colors duration-300">
           {/* Main Route Switcher */}
           {route === 'ui-elements' ? <UiElementsPage /> : <HomePage />}
 

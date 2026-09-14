@@ -39,7 +39,7 @@ const CvPaperContent: React.FC<{
       {/* The Actual Curriculum Paper Sheet */}
       <div
         id="resume"
-        className="relative rounded-2xl shadow-2xl bg-white dark:bg-[#08212b] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-cyan-500/25 overflow-hidden"
+        className="relative rounded-2xl shadow-2xl bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-subtle)] overflow-hidden"
       >
         {/* Paper Title & Contact Row */}
         <CvPaperTitleBar />
@@ -106,7 +106,7 @@ export const CvPaperModal: React.FC<CvPaperModalProps> = ({
       }}
       role="dialog"
       aria-modal="true"
-      aria-label="Curriculum Vitae Modal"
+      aria-label="Resume Modal"
     >
       <TypewriterProvider initialStep={typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('skip') === 'true' ? 10 : 0} enabled={true}>
         <CvPaperContent

@@ -9,11 +9,11 @@ export const CvTimeline: React.FC = () => {
   const { currentStep, isSkipped } = useTypewriterController();
 
   return (
-    <section className="w-full lg:w-[68%] pl-0 lg:pl-6 text-slate-800 dark:text-slate-200">
+    <section className="w-full lg:w-[68%] pl-0 lg:pl-6 text-[var(--text-secondary)]">
       {/* Section Title */}
-      <h3 className="text-sm font-bold tracking-wider uppercase text-cyan-700 dark:text-cyan-400 mb-6 border-b border-cyan-500/20 pb-1 flex items-center justify-between">
+      <h3 className="text-sm font-bold tracking-wider uppercase text-[var(--brand-primary)] mb-6 border-b border-[var(--border-subtle)] pb-1 flex items-center justify-between">
         <span>{t(cvData.experience.title)}</span>
-        <span className="text-xs font-mono font-normal text-slate-400">
+        <span className="text-xs font-mono font-normal text-[var(--text-muted)]">
           {cvData.experience.positions.filter((p) => p.company).length} Positions
         </span>
       </h3>
@@ -22,13 +22,13 @@ export const CvTimeline: React.FC = () => {
       <div className="relative pl-7 sm:pl-8 space-y-7">
         {/* Continuous vertical line running straight through the center of all dots (center at x = 8px) */}
         <div
-          className="absolute left-[7px] top-2.5 bottom-6 w-[2px] bg-slate-200 dark:bg-cyan-500/30"
+          className="absolute left-[7px] top-2.5 bottom-6 w-[2px] bg-[var(--timeline-line)]"
           aria-hidden="true"
         />
 
         {/* Subtle dashed line continuation at bottom of timeline */}
         <div
-          className="absolute left-[7px] -bottom-2 h-6 w-[2px] border-l-2 border-dashed border-slate-300 dark:border-cyan-500/30"
+          className="absolute left-[7px] -bottom-2 h-6 w-[2px] border-l-2 border-dashed border-[var(--timeline-line)]"
           aria-hidden="true"
         />
 
@@ -51,9 +51,9 @@ export const CvTimeline: React.FC = () => {
                 className={`absolute -left-[28px] sm:-left-[32px] top-[3px] w-4 h-4 rounded-full border-2 transition-all duration-300 ${
                   isItemActive
                     ? pos.id === 'open-for-opportunities'
-                      ? 'bg-emerald-500 dark:bg-emerald-400 border-white dark:border-[#08212b] shadow-sm dark:shadow-[0_0_10px_#10b981]'
-                      : 'bg-cyan-600 dark:bg-cyan-400 border-white dark:border-[#08212b] shadow-sm dark:shadow-[0_0_10px_#00e5ff]'
-                    : 'bg-slate-300 dark:bg-slate-700 border-slate-200 dark:border-slate-800'
+                      ? 'bg-emerald-500 dark:bg-emerald-400 border-[var(--bg-paper)] shadow-sm dark:shadow-[0_0_10px_#10b981]'
+                      : 'bg-[var(--brand-primary)] border-[var(--bg-paper)] shadow-sm dark:shadow-[0_0_10px_#00e5ff]'
+                    : 'bg-[var(--border-subtle)] border-[var(--bg-paper)]'
                 }`}
                 aria-hidden="true"
               />
@@ -69,21 +69,21 @@ export const CvTimeline: React.FC = () => {
                   className={`text-sm sm:text-base font-bold ${
                     pos.id === 'open-for-opportunities'
                       ? 'text-emerald-600 dark:text-emerald-400'
-                      : 'text-slate-900 dark:text-white'
+                      : 'text-[var(--text-primary)]'
                   }`}
                 />
               </div>
 
               {/* Period & Location stacked beneath title like reference CV */}
               {hasPeriodOrLoc && (
-                <div className="text-xs sm:text-sm font-semibold text-cyan-700 dark:text-cyan-400 mt-0.5 mb-2">
+                <div className="text-xs sm:text-sm font-semibold text-[var(--brand-primary)] mt-0.5 mb-2">
                   {[pos.period ? t(pos.period) : '', pos.location ? t(pos.location) : ''].filter(Boolean).join(' | ')}
                 </div>
               )}
 
               {/* Bullets List */}
               {bullets.length > 0 && (
-                <ul className="space-y-1.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed list-disc list-outside pl-4">
+                <ul className="space-y-1.5 text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed list-disc list-outside pl-4">
                   {bullets.map((bullet, bIdx) => (
                     <TypewriterText
                       key={bIdx}

@@ -46,7 +46,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       </div>
 
       {/* Subtitle */}
-      <p className="text-lg sm:text-xl md:text-2xl text-slate-800 dark:text-[#92c5cf] max-w-xl leading-relaxed z-10 min-h-[2em] transition-opacity duration-200 font-medium dark:font-normal drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] dark:drop-shadow-none">
+      <p className="text-lg sm:text-xl md:text-2xl text-[var(--text-secondary)] max-w-xl leading-relaxed z-10 min-h-[2em] transition-opacity duration-200 font-medium dark:font-normal drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] dark:drop-shadow-none">
         {t(uiTranslations.hero.subtitle)}
       </p>
 
@@ -62,13 +62,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           e.preventDefault();
           document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
         }}
-        className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 text-xs text-slate-700 hover:text-slate-900 dark:text-cyan-400/80 dark:hover:text-cyan-200 transition-all duration-200 group cursor-pointer select-none px-3.5 py-1 rounded-full bg-white/70 dark:bg-transparent backdrop-blur-xs border border-slate-300/60 dark:border-transparent shadow-xs dark:shadow-none"
+        className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] dark:text-cyan-400/80 dark:hover:text-cyan-200 transition-all duration-200 group cursor-pointer select-none px-3.5 py-1 rounded-full bg-[var(--bg-card)]/70 dark:bg-transparent backdrop-blur-xs border border-[var(--border-subtle)] dark:border-transparent shadow-xs dark:shadow-none"
         aria-label="Scroll to projects"
       >
         <span className="text-[11px] font-semibold tracking-wider uppercase opacity-85 group-hover:opacity-100 transition-opacity">
           {t(uiTranslations.hero.scrollButton)}
         </span>
-        <span className="inline-block animate-bounce-slow text-base leading-none text-slate-600 dark:text-cyan-400">↓</span>
+        <span className="inline-block animate-bounce-slow text-base leading-none text-[var(--brand-primary)]">↓</span>
       </a>
     </section>
   );

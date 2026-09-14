@@ -51,7 +51,7 @@ export const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
         <img
           src={src}
           alt={alt}
-          className={`relative rounded-full object-cover transition-transform duration-300 ease-out hover:scale-105 animate-avatar-pulse bg-[#0b323c] ${sizeClasses}`}
+          className={`relative rounded-full object-cover transition-transform duration-300 ease-out hover:scale-105 animate-avatar-pulse bg-[var(--bg-avatar)] ${sizeClasses}`}
           style={{
             borderColor: 'rgba(0, 210, 235, 0.85)',
             boxShadow: '0 10px 30px rgba(0, 210, 235, 0.25)',
