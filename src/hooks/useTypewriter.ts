@@ -11,7 +11,7 @@ export interface UseTypewriterOptions {
 export function useTypewriter(
   text: string,
   {
-    speed = 22,
+    speed = 14,
     delay = 0,
     active = true,
     isSkipped = false,

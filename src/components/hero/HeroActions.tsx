@@ -1,4 +1,5 @@
 import React from 'react';
+import { TypewriterRewriter } from '../common/TypewriterRewriter';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { uiTranslations } from '../../data/uiTranslations';
@@ -14,7 +15,6 @@ export const HeroActions: React.FC<HeroActionsProps> = ({ onOpenCv }) => {
 
   const handleCvClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     onOpenCv();
   };
 
@@ -41,7 +41,14 @@ export const HeroActions: React.FC<HeroActionsProps> = ({ onOpenCv }) => {
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
-        <span className="tracking-wide">{t(uiTranslations.hero.cvButton)}</span>
+        <TypewriterRewriter
+          text={t(uiTranslations.hero.cvButton)}
+          as="span"
+          className="tracking-wide"
+          deleteSpeed={10}
+          typeSpeed={14}
+          pauseDelay={50}
+        />
         <span
           className={`text-xs px-2.5 py-0.5 rounded-full font-semibold border ${
             isDark

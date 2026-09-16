@@ -7,64 +7,42 @@ import { cvData } from '../../data/cvData';
 import { useCvHover } from '../../context/CvHoverContext';
 
 interface CvSidebarProps {
-  isAvatarDocked?: boolean;
-  cvAvatarRef?: React.Ref<HTMLDivElement>;
+  isScrolled?: boolean;
 }
 
-export const CvSidebar: React.FC<CvSidebarProps> = ({
-  isAvatarDocked = true,
-  cvAvatarRef,
-}) => {
+export const CvSidebar: React.FC<CvSidebarProps> = ({ isScrolled = false }) => {
   const { t } = useLanguage();
-  const { currentStep, isSkipped, advanceStep } = useTypewriterController();
+  const { currentStep, isSkipped } = useTypewriterController();
   const { isSkillHighlighted, hoveredJobId, hoveredSkill, setHoveredSkill } = useCvHover();
 
   const isStep1Active = currentStep >= 1 || isSkipped;
 
   return (
-    <aside className="w-full lg:w-[32%] flex flex-col gap-6 text-[var(--text-secondary)] border-b lg:border-b-0 lg:border-r border-[var(--border-subtle)] pr-0 lg:pr-6 pb-6 lg:pb-0 lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-3.5rem)] lg:overflow-y-auto">
-      {/* Avatar, Name & Title Header */}
-      <div className="flex flex-col items-start gap-4">
-        {/* Avatar Circle */}
-        <div
-          ref={cvAvatarRef}
-          className="relative"
-        >
-          <div
-            className={`w-24 h-24 sm:w-28 sm:h-28 rounded-full border-3 sm:border-4 border-white dark:border-cyan-400/40 shadow-xl bg-[var(--bg-avatar)] overflow-hidden transition-opacity duration-200 ${
-              isAvatarDocked ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
+    <aside className="w-full lg:w-[32%] lg:sticky lg:top-4 self-start flex flex-col gap-6 text-[var(--text-secondary)] border-b lg:border-b-0 lg:border-r border-[var(--border-subtle)] pr-0 lg:pr-6 pb-6 lg:pb-0 overflow-visible">
+      {/* Sticky Avatar & Title Header - Pushed to the left section on scroll */}
+      <div
+        className={`transition-all duration-300 ease-out overflow-hidden ${
+          isScrolled
+            ? 'max-h-28 opacity-100 translate-y-0 pb-4 border-b border-[var(--border-subtle)]'
+            : 'max-h-0 opacity-0 -translate-y-3 pb-0 pointer-events-none'
+        }`}
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-[var(--brand-primary)] shadow-md overflow-hidden flex-shrink-0 bg-[var(--bg-avatar)]">
             <img
               src={cvData.header.avatarUrl}
               alt={cvData.header.name}
               className="w-full h-full object-cover"
             />
           </div>
-        </div>
-
-        {/* Name & Title */}
-        <div className="space-y-1 w-full">
-          <TypewriterText
-            text={cvData.header.name}
-            step={1}
-            speed={25}
-            as="h1"
-            cursor={true}
-            onComplete={() => advanceStep()}
-            className="text-xl sm:text-2xl font-bold tracking-[0.16em] text-[var(--text-primary)] uppercase select-none"
-          />
-          <TypewriterText
-            text={t(cvData.header.title)}
-            step={2}
-            speed={22}
-            as="h2"
-            cursor={true}
-            className="text-sm sm:text-base font-semibold tracking-wide text-[var(--brand-primary)] select-none"
-          />
-          <p className="text-xs text-[var(--text-muted)] font-medium pt-0.5">
-            {t(cvData.profile.location)}
-          </p>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-sm sm:text-base font-bold tracking-wider text-[var(--text-primary)] dark:text-white uppercase truncate">
+              {cvData.header.name}
+            </h2>
+            <p className="text-xs sm:text-sm font-semibold text-[var(--brand-primary)] truncate">
+              {t(cvData.header.title)}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -76,7 +54,7 @@ export const CvSidebar: React.FC<CvSidebarProps> = ({
         <TypewriterText
           text={t(cvData.profile.summary)}
           step={1}
-          speed={14}
+          speed={5}
           delay={40}
           as="p"
           cursor={false}
@@ -85,13 +63,14 @@ export const CvSidebar: React.FC<CvSidebarProps> = ({
       </div>
 
       {/* Skills */}
-      <div className={`transition-opacity duration-300 ${isStep1Active ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`transition-opacity duration-300 overflow-visible ${isStep1Active ? 'opacity-100' : 'opacity-0'}`}>
         <h3 className="text-sm font-bold tracking-wider uppercase text-[var(--brand-secondary)] mb-2.5 border-b border-[var(--border-subtle)] pb-1">
           {t(cvData.skills.title)}
         </h3>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-2 p-2 overflow-visible">
           {cvData.skills.items.map((skill, idx) => {
-            const isHighlighted = isSkillHighlighted(skill) || hoveredSkill === skill;
+            const isHovered = hoveredSkill === skill;
+            const isHighlighted = isSkillHighlighted(skill) || isHovered;
             const isDimmed = Boolean(hoveredJobId) && !isHighlighted;
 
             return (
@@ -99,12 +78,14 @@ export const CvSidebar: React.FC<CvSidebarProps> = ({
                 key={skill}
                 onMouseEnter={() => setHoveredSkill(skill)}
                 onMouseLeave={() => setHoveredSkill(null)}
-                className={`text-xs px-2.5 py-1 rounded-md font-semibold border cursor-pointer transition-all duration-200 ${
-                  isHighlighted
-                    ? 'border-[var(--brand-primary)] bg-[var(--brand-primary)]/25 text-[var(--brand-primary)] shadow-sm dark:shadow-[0_0_12px_rgba(0,229,255,0.4)] ring-1 ring-[var(--brand-primary)] scale-[1.03]'
+                className={`inline-flex items-center justify-center text-xs px-2.5 py-1 rounded-md font-semibold border cursor-pointer select-none transition-all duration-200 origin-center ${
+                  isHovered
+                    ? 'relative z-20 border-[var(--brand-primary)] bg-[var(--brand-primary)]/25 text-[var(--brand-primary)] shadow-[0_0_12px_rgba(0,180,204,0.35)] dark:shadow-[0_0_14px_rgba(0,229,255,0.45)] ring-1 ring-[var(--brand-primary)] scale-[1.03]'
+                    : isHighlighted
+                    ? 'relative z-10 border-[var(--brand-primary)] bg-[var(--brand-primary)]/25 text-[var(--brand-primary)] shadow-[0_0_10px_rgba(0,180,204,0.25)] dark:shadow-[0_0_12px_rgba(0,229,255,0.4)] ring-1 ring-[var(--brand-primary)] scale-[1.03]'
                     : isDimmed
-                    ? 'opacity-40 border-[var(--border-subtle)] bg-[var(--brand-primary)]/5 text-[var(--text-muted)]'
-                    : 'bg-[var(--brand-primary)]/10 text-[var(--text-primary)] border-[var(--border-subtle)] hover:border-[var(--brand-primary)]'
+                    ? 'relative z-0 opacity-40 border-[var(--border-subtle)] bg-[var(--brand-primary)]/5 text-[var(--text-muted)]'
+                    : 'relative z-0 bg-[var(--brand-primary)]/10 text-[var(--text-primary)] border-[var(--border-subtle)] hover:border-[var(--brand-primary)] hover:text-[var(--brand-primary)]'
                 } ${isStep1Active ? 'opacity-100' : 'scale-95 opacity-0'}`}
                 style={{ transitionDelay: isStep1Active ? undefined : `${idx * 20}ms` }}
               >

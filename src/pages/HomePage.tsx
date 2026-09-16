@@ -28,6 +28,8 @@ export const HomePage: React.FC = () => {
   const heroAvatarRef = useRef<HTMLDivElement>(null);
   const cvAvatarRef = useRef<HTMLDivElement>(null);
 
+  const isTransitioningRef = useRef(false);
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -41,10 +43,10 @@ export const HomePage: React.FC = () => {
     const handleHashChange = () => {
       const shouldOpen = isResumeHash(window.location.hash);
       if (shouldOpen) {
-        if (!isCvOpen && !isCvClosing) {
+        if (!isCvOpen && !isCvClosing && !isTransitioningRef.current) {
           handleOpenCv(false);
         }
-      } else if (isCvOpen && !isCvClosing) {
+      } else if (isCvOpen && !isCvClosing && !isTransitioningRef.current) {
         handleCloseCv(false);
       }
     };
@@ -58,7 +60,8 @@ export const HomePage: React.FC = () => {
   }, [isCvOpen, isCvClosing]);
 
   const handleOpenCv = (updateHash = true) => {
-    if (floatingState || isCvClosing) return;
+    if (isTransitioningRef.current || floatingState || isCvOpen || isCvClosing) return;
+    isTransitioningRef.current = true;
 
     if (updateHash && typeof window !== 'undefined' && window.location.hash !== '#resume') {
       window.history.pushState(null, '', '#resume');
@@ -67,24 +70,39 @@ export const HomePage: React.FC = () => {
     if (!heroAvatarRef.current) {
       setIsCvOpen(true);
       setIsAvatarDocked(true);
+      isTransitioningRef.current = false;
       return;
     }
 
-    const heroRect = heroAvatarRef.current.getBoundingClientRect();
-    // Immediately hide hero avatar so it never lingers/fades on the back
-    setIsAvatarHidden(true);
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Keep hero avatar visible for the 1 frame until floating avatar mounts to prevent blackout
     setIsAvatarDocked(false);
     setIsCvClosing(false);
     setIsCvOpen(true);
 
-    // Measure CV avatar destination on next animation frame once modal mounts
+    // Measure fresh CV and hero destination on next animation frame once modal is rendered
     requestAnimationFrame(() => {
-      if (!cvAvatarRef.current) {
+      if (!heroAvatarRef.current || !cvAvatarRef.current) {
+        setIsAvatarHidden(true);
         setIsAvatarDocked(true);
+        isTransitioningRef.current = false;
         return;
       }
 
+      const heroRect = heroAvatarRef.current.getBoundingClientRect();
       const cvRect = cvAvatarRef.current.getBoundingClientRect();
+      if (cvRect.width === 0 || cvRect.height === 0) {
+        setIsAvatarHidden(true);
+        setIsAvatarDocked(true);
+        isTransitioningRef.current = false;
+        return;
+      }
+
+      // Simultaneously hide hero avatar and spawn floating avatar in the exact same render
+      setIsAvatarHidden(true);
       setFloatingState({
         startRect: heroRect,
         endRect: cvRect,
@@ -94,10 +112,15 @@ export const HomePage: React.FC = () => {
   };
 
   const handleCloseCv = (updateHash = true) => {
-    if (floatingState || isCvClosing) return;
+    if (isTransitioningRef.current || floatingState || isCvClosing || !isCvOpen) return;
+    isTransitioningRef.current = true;
 
     if (updateHash && typeof window !== 'undefined' && isResumeHash(window.location.hash)) {
       window.history.pushState(null, '', window.location.pathname + window.location.search);
+    }
+
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = '';
     }
 
     if (!cvAvatarRef.current || !heroAvatarRef.current) {
@@ -106,6 +129,7 @@ export const HomePage: React.FC = () => {
       setIsAvatarHidden(false);
       setIsAvatarDocked(false);
       setFloatingState(null);
+      isTransitioningRef.current = false;
       return;
     }
 
@@ -128,14 +152,18 @@ export const HomePage: React.FC = () => {
       setIsAvatarHidden(false);
       setIsAvatarDocked(false);
       setFloatingState(null);
+      isTransitioningRef.current = false;
     }
   };
 
   const handleFloatingComplete = () => {
+    isTransitioningRef.current = false;
     if (floatingState?.direction === 'to-cv') {
+      // Dock CV avatar and remove floating avatar atomically in the same render
       setIsAvatarDocked(true);
       setFloatingState(null);
     } else if (floatingState?.direction === 'to-hero') {
+      // Reveal hero avatar and close modal atomically in the same render
       setIsAvatarHidden(false);
       setIsCvOpen(false);
       setIsCvClosing(false);

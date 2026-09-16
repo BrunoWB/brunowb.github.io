@@ -1,5 +1,6 @@
 import React from 'react';
 import { Avatar } from '../common/Avatar';
+import { TypewriterRewriter } from '../common/TypewriterRewriter';
 import { LanguageSelect } from './LanguageSelect';
 import { HeroActions } from './HeroActions';
 import { useLanguage } from '../../context/LanguageContext';
@@ -46,8 +47,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       </div>
 
       {/* Subtitle */}
-      <p className="text-lg sm:text-xl md:text-2xl text-[var(--text-secondary)] max-w-xl leading-relaxed z-10 min-h-[2em] transition-opacity duration-200 font-medium dark:font-normal drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] dark:drop-shadow-none">
-        {t(uiTranslations.hero.subtitle)}
+      <p className="text-lg sm:text-xl md:text-2xl text-[var(--text-secondary)] max-w-2xl leading-relaxed z-10 min-h-[3.8rem] sm:min-h-[4.25rem] md:min-h-[2.5rem] flex flex-col items-center justify-start font-medium dark:font-normal drop-shadow-[0_1px_2px_rgba(255,255,255,0.8)] dark:drop-shadow-none">
+        <TypewriterRewriter
+          text={t(uiTranslations.hero.subtitle)}
+          deleteSpeed={6}
+          typeSpeed={9}
+          pauseDelay={60}
+        />
       </p>
 
       {/* Actions */}

@@ -14,10 +14,14 @@ const languages: LanguageItem[] = [
   { code: 'pt', label: 'Olá!' },
 ];
 
+const HOVER_DEBOUNCE_MS = 150;
+const LEAVE_DEBOUNCE_MS = 220;
+
 export const LanguageSelect: React.FC = () => {
   const { selectedLang, setSelectedLang, setPreviewLang } = useLanguage();
   const containerRef = useRef<HTMLHeadingElement>(null);
   const indicatorRef = useRef<HTMLSpanElement>(null);
+  const enterTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const leaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [indicatorStyle, setIndicatorStyle] = useState<{
@@ -63,12 +67,33 @@ export const LanguageSelect: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [selectedLang]);
 
+  useEffect(() => {
+    return () => {
+      if (enterTimeoutRef.current) clearTimeout(enterTimeoutRef.current);
+      if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current);
+    };
+  }, []);
+
   const handleMouseEnter = (lang: SupportedLanguage) => {
     if (leaveTimeoutRef.current) {
       clearTimeout(leaveTimeoutRef.current);
       leaveTimeoutRef.current = null;
     }
-    setPreviewLang(lang);
+    if (enterTimeoutRef.current) {
+      clearTimeout(enterTimeoutRef.current);
+      enterTimeoutRef.current = null;
+    }
+    enterTimeoutRef.current = setTimeout(() => {
+      setPreviewLang(lang);
+      enterTimeoutRef.current = null;
+    }, HOVER_DEBOUNCE_MS);
+  };
+
+  const handleTriggerMouseLeave = () => {
+    if (enterTimeoutRef.current) {
+      clearTimeout(enterTimeoutRef.current);
+      enterTimeoutRef.current = null;
+    }
   };
 
   const handleContainerMouseEnter = () => {
@@ -79,13 +104,25 @@ export const LanguageSelect: React.FC = () => {
   };
 
   const handleContainerMouseLeave = () => {
+    if (enterTimeoutRef.current) {
+      clearTimeout(enterTimeoutRef.current);
+      enterTimeoutRef.current = null;
+    }
     if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current);
     leaveTimeoutRef.current = setTimeout(() => {
       setPreviewLang(null);
-    }, 220);
+    }, LEAVE_DEBOUNCE_MS);
   };
 
   const handleSelect = (lang: SupportedLanguage) => {
+    if (enterTimeoutRef.current) {
+      clearTimeout(enterTimeoutRef.current);
+      enterTimeoutRef.current = null;
+    }
+    if (leaveTimeoutRef.current) {
+      clearTimeout(leaveTimeoutRef.current);
+      leaveTimeoutRef.current = null;
+    }
     setSelectedLang(lang);
     updateIndicator(lang);
   };
@@ -108,6 +145,7 @@ export const LanguageSelect: React.FC = () => {
               tabIndex={0}
               onClick={() => handleSelect(langItem.code)}
               onMouseEnter={() => handleMouseEnter(langItem.code)}
+              onMouseLeave={handleTriggerMouseLeave}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();

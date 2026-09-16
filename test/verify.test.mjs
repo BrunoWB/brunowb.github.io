@@ -88,6 +88,9 @@ assert.ok(fs.existsSync(new URL('../dist/index.html', import.meta.url)), 'dist/i
 const distHtml = fs.readFileSync(new URL('../dist/index.html', import.meta.url), 'utf-8');
 assert.ok(distHtml.includes('./assets/index-'), 'dist/index.html must reference relative ./assets/');
 assert.ok(distHtml.includes('./favicon.svg'), 'dist/index.html must reference ./favicon.svg');
+const distAssetsDir = new URL('../dist/assets', import.meta.url).pathname;
+assert.ok(fs.readdirSync(distAssetsDir).some(f => f.startsWith('bgclean-') && f.endsWith('.webp')), 'dist/assets must contain bundled and hashed bgclean-*.webp');
+assert.ok(!fs.readdirSync(distAssetsDir).some(f => f.includes('bg.png')), 'dist/assets must not contain old unbundled bg.png');
 console.log('✓ dist/ build output verified.');
 
 // 6. Typewriter Step Transitions & Pre-allocated Height Verification
@@ -184,11 +187,69 @@ console.log('✓ Color palette tokens, bd & container column, 2-layer palette ar
 
 // 11. Sticky Sidebar & Sticky Job Headers Verification
 console.log('11. Checking sticky sidebar and sticky job headers...');
-assert.ok(cvSidebarContent.includes('lg:sticky') && cvSidebarContent.includes('lg:top-6'), 'CvSidebar must be sticky on desktop with lg:sticky lg:top-6');
+assert.ok(cvSidebarContent.includes('lg:sticky') && cvSidebarContent.includes('lg:top-4'), 'CvSidebar must be sticky on desktop with lg:sticky lg:top-4');
 assert.ok(cvSidebarContent.includes('cvData.header.name'), 'CvSidebar must render cvData.header.name');
 assert.ok(cvSidebarContent.includes('cvData.header.title'), 'CvSidebar must render cvData.header.title');
-assert.ok(cvTimelineContent.includes('sticky top-0'), 'CvTimeline must have sticky top-0 job headers');
+assert.ok(cvTimelineContent.includes('sticky top-2 sm:top-4'), 'CvTimeline must have sticky job headers');
 assert.ok(!cvModalContent.includes('id="resume"\n          className="relative rounded-2xl shadow-2xl bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-subtle)] overflow-hidden"'), 'CvPaperModal #resume must not have overflow-hidden to allow sticky children');
 console.log('✓ Sticky sidebar, relocated avatar/name/title, and sticky job headers verified.');
+
+// 12. Dynamic Background & /bg Route Verification
+console.log('12. Checking Dynamic Background component, water distortion filter, and /bg route...');
+const dynamicBgContent = fs.readFileSync(new URL('../src/components/background/DynamicBackground.tsx', import.meta.url), 'utf-8');
+const bgPlaygroundContent = fs.readFileSync(new URL('../src/pages/BgPlaygroundPage.tsx', import.meta.url), 'utf-8');
+const bgLayersDataContent = fs.readFileSync(new URL('../src/data/bgLayersData.ts', import.meta.url), 'utf-8');
+
+assert.ok(appContent.includes("path === 'bg'"), 'App.tsx must support /bg pathname route');
+assert.ok(appContent.includes("hash === 'bg'"), 'App.tsx must support #/bg and #bg hash route');
+assert.ok(appContent.includes("hash === 'home'"), 'App.tsx must support returning home from hash route');
+assert.ok(appContent.includes('<BgPlaygroundPage />'), 'App.tsx must render BgPlaygroundPage on /bg route');
+assert.ok(!appContent.includes('<DynamicBackground'), 'App.tsx must not render DynamicBackground directly (DynamicBackground is isolated to /bg via BgPlaygroundPage)');
+assert.ok(bgPlaygroundContent.includes('<DynamicBackground'), 'BgPlaygroundPage must render DynamicBackground');
+assert.ok(dynamicBgContent.includes('id="water-distortion"'), 'DynamicBackground must define #water-distortion SVG filter');
+assert.ok(dynamicBgContent.includes('feTurbulence'), 'DynamicBackground must use feTurbulence for wave animation');
+assert.ok(dynamicBgContent.includes('feDisplacementMap'), 'DynamicBackground must use feDisplacementMap for ripple refraction');
+assert.ok(dynamicBgContent.includes('scaleY(-1)'), 'DynamicBackground must mirror sky into water with scaleY(-1)');
+assert.ok(bgLayersDataContent.includes('BG_HORIZON_Y = 725'), 'bgLayersData must define horizon y=725');
+assert.ok(dynamicBgContent.includes('transformOrigin: `50% ${horizonPercent}%`') || dynamicBgContent.includes('50% ${horizonPercent}%'), 'DynamicBackground must mirror across the horizon line');
+assert.ok(dynamicBgContent.includes('clipPath: `inset(${horizonPercent}% 0 0 0)`') || dynamicBgContent.includes('clipPath'), 'DynamicBackground must clip water reflection to water plane');
+assert.ok(dynamicBgContent.includes("aspectRatio: '1920 / 1187'"), 'DynamicBackground must lock 1920:1187 aspect ratio to avoid horizon displacement');
+assert.ok(bgPlaygroundContent.includes('handleToggleLayer'), 'BgPlaygroundPage must provide layer toggles');
+
+// Check that static bgclean.webp is used in body --bg-gradient for homepage (both dark and light)
+assert.ok(fs.existsSync(new URL('../src/assets/bgclean.webp', import.meta.url)), 'src/assets/bgclean.webp must exist for Vite asset bundling');
+assert.ok(!indexCssContent.includes('bg.png'), 'index.css must not reference old bg.png');
+const bgcleanMatches = indexCssContent.match(/url\(['"]?\.\/assets\/bgclean\.webp['"]?\)/g) || [];
+assert.ok(bgcleanMatches.length >= 2, 'index.css must reference bgclean.webp for both dark and light themes');
+
+// Check all layer files exist in public/bg-layers/
+const bgLayersDir = new URL('../public/bg-layers', import.meta.url).pathname;
+assert.ok(fs.existsSync(bgLayersDir), 'public/bg-layers directory must exist');
+const expectedLayers = [
+  'layer-0.0-sky-gradient.webp',
+  'layer-0.1-sky-deep-space.webp',
+  'layer-1.0-sea.webp',
+  'layer-2.0-milky-way-base.webp',
+  'layer-2.1-milky-way-core.webp',
+  'layer-2.2-milky-way-bright.webp',
+  'layer-2.3-faint-stars.webp',
+  'layer-3.0-big-stars.webp',
+  'layer-4.0-cloud-left.webp',
+  'layer-4.1-cloud-left-turmoil.webp',
+  'layer-4.2-cloud-right.webp',
+  'layer-5.1-mist-right.webp',
+  'layer-5.2-main-mist.webp',
+  'layer-5.3-disperse-mist.webp',
+  'layer-7.0-shooting-star.webp',
+  'layer-7.1-shooting-star-hardlight1.webp',
+  'layer-7.2-shooting-star-hardlight2.webp',
+  'layer-7.3-shooting-star-hidden.webp',
+  'shooting-sprite.webp',
+  'bgclean.webp',
+];
+expectedLayers.forEach((layerFile) => {
+  assert.ok(fs.existsSync(`${bgLayersDir}/${layerFile}`), `Missing asset: public/bg-layers/${layerFile}`);
+});
+console.log('✓ Dynamic background, SVG water distortion filter, and /bg route verified.');
 
 console.log('--- ALL TESTS PASSED SUCCESSFULLY! ---');

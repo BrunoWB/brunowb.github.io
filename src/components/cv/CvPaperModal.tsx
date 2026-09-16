@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { TypewriterProvider, useTypewriterController } from '../../context/TypewriterContext';
 import { CvHoverProvider } from '../../context/CvHoverContext';
-import { CvHeader } from './CvHeader';
+import { CvHeader, CvPaperTitleBar } from './CvHeader';
 import { CvSidebar } from './CvSidebar';
 import { CvTimeline } from './CvTimeline';
 
@@ -18,7 +18,8 @@ const CvPaperContent: React.FC<{
   isAvatarDocked?: boolean;
   cvAvatarRef?: React.Ref<HTMLDivElement>;
   isClosing?: boolean;
-}> = ({ onClose, isAvatarDocked, cvAvatarRef, isClosing }) => {
+  isScrolled?: boolean;
+}> = ({ onClose, isAvatarDocked, cvAvatarRef, isClosing, isScrolled = false }) => {
   const { isSkipped, skipAll } = useTypewriterController();
 
   return (
@@ -27,24 +28,29 @@ const CvPaperContent: React.FC<{
         onClick={() => {
           if (!isSkipped) skipAll();
         }}
-        className={`relative w-full max-w-5xl animate-paper-fade-in overflow-visible mb-6 cursor-default transition-all duration-300 ${
+        className={`relative w-full max-w-5xl animate-paper-fade-in overflow-visible my-6 sm:my-10 cursor-default transition-[opacity,transform] duration-300 ${
           isClosing ? 'opacity-0 scale-98 pointer-events-none' : 'opacity-100 scale-100'
         }`}
       >
-        {/* Persistent Sticky Top Control Bar */}
-        <CvHeader onClose={onClose} />
+        {/* Top Banner Area - Completely transparent, outside the paper area, showing real website background */}
+        <CvHeader
+          onClose={onClose}
+          isAvatarDocked={isAvatarDocked}
+          cvAvatarRef={cvAvatarRef}
+          isScrolled={isScrolled}
+        />
 
         {/* The Actual Curriculum Paper Sheet */}
         <div
           id="resume"
-          className="relative rounded-2xl shadow-2xl bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-subtle)]"
+          className="relative rounded-2xl shadow-2xl bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-subtle)] overflow-visible"
         >
-          {/* Two-Column Body: Left Sticky Sidebar + Right Timeline */}
-          <div className="pt-6 sm:pt-8 pb-6 sm:pb-8 px-6 sm:px-10 flex flex-col lg:flex-row gap-8 lg:gap-10">
-            <CvSidebar
-              isAvatarDocked={isAvatarDocked}
-              cvAvatarRef={cvAvatarRef}
-            />
+          {/* Paper Title & Contact Row */}
+          <CvPaperTitleBar isScrolled={isScrolled} />
+
+          {/* Two-Column Body: Left Sidebar + Right Timeline */}
+          <div className="pt-6 pb-6 sm:pb-8 px-6 sm:px-10 flex flex-col lg:flex-row gap-8 lg:gap-10">
+            <CvSidebar isScrolled={isScrolled} />
             <CvTimeline />
           </div>
         </div>
@@ -61,6 +67,7 @@ export const CvPaperModal: React.FC<CvPaperModalProps> = ({
   isClosing = false,
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   // Close on Escape key
   useEffect(() => {
@@ -77,9 +84,9 @@ export const CvPaperModal: React.FC<CvPaperModalProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, isClosing, onClose]);
 
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
+  // Lock body scroll when modal is open and not closing
+  useLayoutEffect(() => {
+    if (isOpen && !isClosing) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -87,15 +94,31 @@ export const CvPaperModal: React.FC<CvPaperModalProps> = ({
     return () => {
       document.body.style.overflow = '';
     };
+  }, [isOpen, isClosing]);
+
+  // Reset scroll state on open/close
+  useEffect(() => {
+    if (!isOpen) {
+      setIsScrolled(false);
+    }
   }, [isOpen]);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const scrollTop = e.currentTarget.scrollTop;
+    // Activate sticky header before avatar & title scroll off-screen
+    setIsScrolled(scrollTop > 70);
+  };
 
   if (!isOpen) return null;
 
   return (
     <div
       ref={modalRef}
-      className={`fixed inset-0 z-50 overflow-y-auto bg-black/20 dark:bg-black/35 backdrop-blur-[1.5px] flex justify-center items-start pt-10 sm:pt-16 pb-6 sm:pb-10 px-3 sm:px-6 transition-opacity duration-300 ${
-        isClosing ? 'opacity-0 pointer-events-none' : 'opacity-100'
+      onScroll={handleScroll}
+      className={`fixed inset-0 z-50 [scrollbar-gutter:stable] bg-black/20 dark:bg-black/35 backdrop-blur-[1.5px] flex justify-center items-start px-3 sm:px-6 transition-opacity duration-300 ${
+        isClosing
+          ? 'opacity-0 pointer-events-none overflow-y-hidden'
+          : 'opacity-100 overflow-y-scroll'
       }`}
       onClick={(e) => {
         // If clicking on backdrop, close modal
@@ -113,8 +136,10 @@ export const CvPaperModal: React.FC<CvPaperModalProps> = ({
           isAvatarDocked={isAvatarDocked}
           cvAvatarRef={cvAvatarRef}
           isClosing={isClosing}
+          isScrolled={isScrolled}
         />
       </TypewriterProvider>
     </div>
   );
 };
+

@@ -17,7 +17,7 @@ export interface TypewriterTextProps {
 export const TypewriterText: React.FC<TypewriterTextProps> = ({
   text,
   step = 1,
-  speed = 18,
+  speed = 12,
   delay = 0,
   cursor = true,
   onComplete,

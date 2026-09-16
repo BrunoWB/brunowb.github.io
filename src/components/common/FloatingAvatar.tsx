@@ -19,13 +19,17 @@ export const FloatingAvatar: React.FC<FloatingAvatarProps> = ({
   name = cvData.header.name,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const auraRef = useRef<HTMLDivElement>(null);
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
 
-  const dX = startRect.left - endRect.left;
-  const dY = startRect.top - endRect.top;
-  const scale = startRect.width / endRect.width;
-  const duration = direction === 'to-cv' ? 480 : 420;
+  const animationRef = useRef<Animation | null>(null);
+  const isFinishedRef = useRef(false);
+
+  const targetDx = endRect.left - startRect.left;
+  const targetDy = endRect.top - startRect.top;
+  const targetScale = endRect.width / startRect.width;
+  const duration = direction === 'to-cv' ? 460 : 400;
 
   useLayoutEffect(() => {
     const el = containerRef.current;
@@ -33,53 +37,81 @@ export const FloatingAvatar: React.FC<FloatingAvatarProps> = ({
 
     // Support reduced motion preference
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      onCompleteRef.current();
+      if (!isFinishedRef.current) {
+        isFinishedRef.current = true;
+        onCompleteRef.current();
+      }
       return;
     }
 
-    // 1. Invert: Set initial translated and scaled position
-    el.style.transform = `translate3d(${dX}px, ${dY}px, 0) scale(${scale})`;
-    el.style.transition = 'none';
+    const finalTransform = `translate3d(${targetDx}px, ${targetDy}px, 0) scale(${targetScale})`;
 
-    // Force browser reflow so initial transform is committed synchronously
-    void el.offsetHeight;
-
-    // 2. Play: Animate cleanly to final destination (0, 0, 0) scale(1)
-    el.style.transition = `transform ${duration}ms cubic-bezier(0.16, 1, 0.3, 1)`;
-    el.style.transform = 'translate3d(0, 0, 0) scale(1)';
-
-    let completed = false;
     const finish = () => {
-      if (!completed) {
-        completed = true;
-        onCompleteRef.current();
+      if (isFinishedRef.current) return;
+      isFinishedRef.current = true;
+
+      // Lock element directly to final transform so it never reverts or snaps back
+      el.style.transform = finalTransform;
+      if (auraRef.current) {
+        auraRef.current.style.opacity = direction === 'to-cv' ? '0' : '0.7';
       }
+
+      onCompleteRef.current();
     };
 
-    const handleTransitionEnd = (e: TransitionEvent) => {
-      if (e.target === el && e.propertyName === 'transform') {
-        finish();
-      }
-    };
+    // If an animation is already running (e.g. across StrictMode unmount/remount), preserve it!
+    if (animationRef.current && animationRef.current.playState === 'running') {
+      animationRef.current.onfinish = finish;
+      return;
+    }
 
-    el.addEventListener('transitionend', handleTransitionEnd);
-    const fallbackTimer = setTimeout(finish, duration + 60);
+    // Web Animations API for 60/120fps hardware-accelerated flight
+    const animation = el.animate(
+      [
+        { transform: 'translate3d(0, 0, 0) scale(1)' },
+        { transform: finalTransform },
+      ],
+      {
+        duration,
+        easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+        fill: 'forwards',
+      }
+    );
+    animationRef.current = animation;
+    animation.onfinish = finish;
+
+    if (auraRef.current) {
+      auraRef.current.animate(
+        [
+          { opacity: direction === 'to-cv' ? 0.7 : 0 },
+          { opacity: direction === 'to-cv' ? 0 : 0.7 },
+        ],
+        {
+          duration,
+          easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+          fill: 'forwards',
+        }
+      );
+    }
+
+    const fallbackTimer = setTimeout(finish, duration + 40);
 
     return () => {
-      el.removeEventListener('transitionend', handleTransitionEnd);
       clearTimeout(fallbackTimer);
+      // NOTE: Do NOT call animation.cancel() here!
+      // In StrictMode or on unmount, cancelling removes forwards transform and causes visual snap-back.
     };
-  }, [dX, dY, scale, duration]);
+  }, [targetDx, targetDy, targetScale, duration, direction]);
 
   return (
     <div
       ref={containerRef}
       style={{
         position: 'fixed',
-        top: `${endRect.top}px`,
-        left: `${endRect.left}px`,
-        width: `${endRect.width}px`,
-        height: `${endRect.height}px`,
+        top: `${startRect.top}px`,
+        left: `${startRect.left}px`,
+        width: `${startRect.width}px`,
+        height: `${startRect.height}px`,
         transformOrigin: 'top left',
         zIndex: 100,
         pointerEvents: 'none',
@@ -88,20 +120,24 @@ export const FloatingAvatar: React.FC<FloatingAvatarProps> = ({
       className="rounded-full"
     >
       <div className="relative w-full h-full rounded-full">
-        {/* Subtle cosmic aura during flight */}
+        {/* Subtle cosmic aura during flight - dissolves smoothly on arrival */}
         <div
-          className="absolute -inset-2.5 rounded-full pointer-events-none opacity-60"
+          ref={auraRef}
+          className="absolute -inset-2.5 rounded-full pointer-events-none"
           style={{
             background:
               'radial-gradient(circle, rgba(0, 229, 255, 0.65) 0%, rgba(168, 85, 247, 0.3) 50%, transparent 75%)',
+            opacity: direction === 'to-cv' ? 0.7 : 0,
           }}
           aria-hidden="true"
         />
-        <img
-          src={avatarUrl}
-          alt={name}
-          className="relative w-full h-full rounded-full object-cover border-4 border-white dark:border-cyan-400/50 shadow-2xl bg-[var(--bg-avatar)]"
-        />
+        <div className="relative w-full h-full rounded-full border-4 border-white dark:border-cyan-400/40 shadow-xl bg-[var(--bg-avatar)] overflow-hidden">
+          <img
+            src={avatarUrl}
+            alt={name}
+            className="w-full h-full object-cover"
+          />
+        </div>
       </div>
     </div>
   );
