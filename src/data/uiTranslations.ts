@@ -61,9 +61,9 @@ export const uiTranslations: UiTranslations = {
       pt: 'Projetos Web',
     },
     webSubtitle: {
-      en: 'Explorations, tools, and interactive applications',
-      fr: 'Explorations, outils et applications interactives',
-      pt: 'Explorações, ferramentas e aplicativos interativos',
+      en: 'Open source explorations, tools, and interactive applications',
+      fr: 'Explorations open source, outils et applications interactives',
+      pt: 'Explorações de código aberto, ferramentas e aplicativos interativos',
     },
     otherTitle: {
       en: 'Projects',

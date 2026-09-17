@@ -17,9 +17,9 @@ export const projectsData: ProjectItem[] = [
       pt: 'App Web',
     },
     description: {
-      en: 'Interactive 2-Atlas display layout designer, widget builder, and sprite editor for ZMK keyboards.',
-      fr: 'Studio web interactif pour la disposition d\'écrans 2-Atlas, widgets et graphismes de claviers ZMK.',
-      pt: 'Studio web interativo para layouts de display 2-Atlas, widgets e gráficos de teclados ZMK.',
+      en: 'Interactive display layout designer, widget builder, and real-time simulator for ZMK keyboards.',
+      fr: 'Studio web interactif pour la disposition d\'écrans, la création de widgets et la simulation en temps réel pour claviers ZMK.',
+      pt: 'Studio web interativo para design de telas, criação de widgets e simulação em tempo real para teclados ZMK.',
     },
     visualType: 'corne',
     preview: {
@@ -41,9 +41,9 @@ export const projectsData: ProjectItem[] = [
       pt: 'Sandbox Pixel',
     },
     description: {
-      en: 'High-performance 1-bit monochrome pixel editor and canvas sandbox for OLED displays, retro sprites, and embedded firmware.',
-      fr: 'Éditeur de pixels monochrome 1-bit et sandbox canvas haute performance pour écrans OLED, sprites rétro et firmwares embarqués.',
-      pt: 'Editor de pixels monocromático 1-bit e sandbox em canvas de alta performance para telas OLED, sprites retrô e firmware embarcado.',
+      en: 'High-performance pixel editor and canvas sandbox for sprites, retro game art, and embedded display assets.',
+      fr: 'Éditeur de pixels et sandbox canvas haute performance pour sprites, pixel art rétro et ressources graphiques embarquées.',
+      pt: 'Editor de pixels e sandbox em canvas de alta performance para sprites, pixel art retrô e recursos gráficos embarcados.',
     },
     visualType: 'bwpx',
     preview: {

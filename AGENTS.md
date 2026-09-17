@@ -10,8 +10,8 @@ Persistent architectural reference for Antigravity pair programming in `hello-we
 | :--- | :--- | :--- | :--- |
 | **`hello-web`** *(Here)* | `Projects/Web/hello-web/` | React 19 / TS / Vite / Tailwind v4 | Public developer landing page & project portal with interactive CV. |
 | **`plasma-screen-manager`** | `Projects/Linux/plasma-screen-manager/` | QML / Python / KDE | Wayland multi-monitor manager plasmoid for KDE Plasma 6. |
-| **`scyan-zmk-studio`** | `Projects/Web/scyan-zmk-studio/` | React 19 / TS 6 / Vite | Visual 2-Atlas IDE & layout compiler to C header. |
-| **`bwpx-editor`** | `Projects/Web/bwpx-editor/` | React 19 / Vite | Upstream 1bpp pixel editor & raster algorithm core (`BwpxGrid`). |
+| **`scyan-zmk-studio`** | `Projects/Web/scyan-zmk-studio/` | React 19 / TS 6 / Vite | Visual display IDE & layout compiler to C header. |
+| **`bwpx-editor`** | `Projects/Web/bwpx-editor/` | React 19 / Vite | Upstream pixel editor & raster algorithm core (`BwpxGrid`). |
 | **`scyan-zmk-module`** | `Projects/Firmware/scyan-zmk-module/` | Embedded C / Zephyr | Runtime 1bpp blitter, transform (90° rot), and widget engine. |
 | **`zmk-config`** | `Projects/Firmware/zmk-config/` | West / Kconfig / CI | Corne split keyboard config; CI builds `.uf2` on asset push. |
 

@@ -35,7 +35,7 @@ export const ProjectCard: React.FC<{
       onMouseLeave={() => onLeave?.()}
       onFocus={() => onHover?.(project.id)}
       onBlur={() => onLeave?.()}
-      className="group relative rounded-2xl p-6 sm:p-7 backdrop-blur-md transition-all duration-300 cursor-pointer bg-white dark:bg-[var(--bg-card)]/90 border border-[var(--border-subtle)] hover:-translate-y-1 hover:border-[var(--brand-primary)] shadow-[0_4px_20px_rgba(6,38,48,0.06),0_1px_3px_rgba(6,38,48,0.04)] dark:shadow-md hover:shadow-[0_16px_36px_rgba(0,112,132,0.16),0_2px_8px_rgba(0,112,132,0.08)] dark:hover:shadow-[0_12px_30px_rgba(0,210,235,0.2)] hover:bg-[var(--bg-card-hover)]"
+      className="group relative rounded-2xl p-6 sm:p-7 backdrop-blur-md transition-all duration-300 cursor-pointer bg-white dark:bg-[var(--bg-card)]/90 border border-[var(--border-subtle)] hover:border-[var(--brand-primary)]/80 hover:ring-1 hover:ring-[var(--brand-primary)]/20 shadow-[0_4px_20px_rgba(6,38,48,0.06),0_1px_3px_rgba(6,38,48,0.04)] dark:shadow-md hover:shadow-[0_16px_36px_rgba(0,112,132,0.16),0_2px_8px_rgba(0,112,132,0.08)] dark:hover:shadow-[0_0_35px_rgba(0,210,235,0.2),0_12px_30px_rgba(0,0,0,0.35)] hover:bg-[var(--bg-card-hover)]"
     >
       {/* Primary Clickable Area */}
       <a
@@ -46,10 +46,16 @@ export const ProjectCard: React.FC<{
         aria-label={`Open ${project.title}`}
       />
 
+      {/* Subtle ambient gradient highlight on hover */}
+      <div
+        className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[var(--brand-primary)]/[0.04] via-transparent to-[var(--brand-secondary)]/[0.03] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+        aria-hidden="true"
+      />
+
       <div className="relative z-20 flex flex-col md:flex-row md:items-center justify-between gap-6 pointer-events-none">
         {/* Info Column */}
         <div className="flex-1 min-w-0">
-          <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text-primary)] mb-1">
+          <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--text-primary)] group-hover:text-[var(--brand-primary)] transition-colors duration-200 mb-1">
             {project.title}
           </h3>
 
@@ -74,7 +80,7 @@ export const ProjectCard: React.FC<{
             {t(project.description)}
           </p>
 
-          <span className="inline-block text-xs font-semibold px-2.5 py-1 rounded-full border bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border-[var(--border-subtle)]">
+          <span className="inline-block text-xs font-semibold px-2.5 py-1 rounded-full border bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] border-[var(--border-subtle)] group-hover:border-[var(--brand-primary)]/40 group-hover:bg-[var(--brand-primary)]/15 transition-colors duration-200">
             {t(project.tag)}
           </span>
         </div>
