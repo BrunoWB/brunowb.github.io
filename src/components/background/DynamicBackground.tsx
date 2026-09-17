@@ -1,18 +1,41 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { bgLayers, BG_HORIZON_RATIO } from '../../data/bgLayersData';
+import { bgLayers, BG_HORIZON_RATIO, BG_HORIZON_Y, BG_CANVAS_HEIGHT } from '../../data/bgLayersData';
 import { useParallax } from '../../hooks/useParallax';
-import { BgLayerConfig } from '../../types/background';
+import { BgLayerConfig, ReflectionBlendMode } from '../../types/background';
+import {
+  computeLevelsTableValues,
+  computeVibranceSaturationMatrix,
+} from '../../utils/colorGrading';
 
 export interface DynamicBackgroundProps {
   interactive?: boolean;
   parallaxIntensity?: number;
+  reverseHorizontalParallax?: boolean;
+  // Photoshop Vibrance & Levels Color Grading
+  colorGradingEnabled?: boolean;
+  vibrance?: number;
+  saturation?: number;
+  inputBlack?: number;
+  gamma?: number;
+  inputWhite?: number;
+  outputBlack?: number;
+  outputWhite?: number;
   reflectionEnabled?: boolean;
+  reflectionOpacity?: number;
+  reflectionBlendMode?: ReflectionBlendMode;
   waterDistortionEnabled?: boolean;
   waterReactiveMode?: boolean;
   waterRestingScale?: number;
   waterDistortionScale?: number;
   waterDistortionSpeed?: number;
   waterBlur?: number;
+  waterBlurTransitionSpeed?: number;
+  waterFarBackBlur?: number;
+  waterWaveMode?: 'continuous' | 'bands';
+  waterBandCount?: number;
+  waterBandOffset?: number;
+  blurTransitionSpeed?: number; // alias
+  farBackBlurPeak?: number; // alias
   bigStarShineEnabled?: boolean;
   bigStarShineIntensity?: number;
   bigStarShineSpeed?: number;
@@ -32,6 +55,7 @@ export interface DynamicBackgroundProps {
   useCleanComposite?: boolean;
   layerOverrides?: Record<string, { visible?: boolean; opacity?: number }>;
   className?: string;
+  canvasOffsetY?: number;
   onShootingStarTrigger?: () => void;
 }
 
@@ -46,17 +70,35 @@ interface ActiveStreak {
 
 export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
   interactive = true,
-  parallaxIntensity = 1.0,
+  parallaxIntensity = 0.5,
+  reverseHorizontalParallax = true,
+  colorGradingEnabled = true,
+  vibrance = 10,
+  saturation = -5,
+  inputBlack = 19,
+  gamma = 0.85,
+  inputWhite = 255,
+  outputBlack = 0,
+  outputWhite = 255,
   reflectionEnabled = true,
+  reflectionOpacity = 0.8,
+  reflectionBlendMode = 'normal',
   waterDistortionEnabled = true,
   waterReactiveMode = true,
   waterRestingScale = 0.0,
   waterDistortionScale = 18,
   waterDistortionSpeed = 1.0,
-  waterBlur = 1.2,
+  waterBlur = 0,
+  waterBlurTransitionSpeed = 1.8,
+  waterFarBackBlur = 0.0,
+  waterWaveMode: _waterWaveMode = 'bands',
+  waterBandCount: _waterBandCount = 50,
+  waterBandOffset: _waterBandOffset = 0.2,
+  blurTransitionSpeed,
+  farBackBlurPeak,
   bigStarShineEnabled = true,
   bigStarShineIntensity = 1.0,
-  bigStarShineSpeed = 1.0,
+  bigStarShineSpeed = 0.4,
   bigStarFlareSize = 28,
   mistDisperseEnabled = true,
   mistDisperseSpeed = 1.0,
@@ -69,10 +111,11 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
   cloudDistortionScale = 6,
   cloudMorphSpeed = 0.8,
   turmoilEnabled = false,
-  shootingStarEnabled = true,
+  shootingStarEnabled = false,
   useCleanComposite = false,
   layerOverrides = {},
   className = '',
+  canvasOffsetY = 0,
 }) => {
   const motion = useParallax({
     enabled: interactive,
@@ -85,6 +128,18 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
   const baseUrl = import.meta.env.BASE_URL || './';
   const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
 
+  // Photoshop Vibrance & Saturation Color Matrix
+  const colorMatrixValues = useMemo(
+    () => computeVibranceSaturationMatrix(vibrance, saturation),
+    [vibrance, saturation]
+  );
+
+  // Photoshop Levels 1D LUT tableValues
+  const levelsTableValues = useMemo(
+    () => computeLevelsTableValues(inputBlack, gamma, inputWhite, outputBlack, outputWhite),
+    [inputBlack, gamma, inputWhite, outputBlack, outputWhite]
+  );
+
   // Water dynamic wave excitation tracking (water is still until mouse passes through)
   const displacementMapRef = useRef<SVGFEDisplacementMapElement | null>(null);
   const waveExcitationRef = useRef<number>(0);
@@ -92,6 +147,10 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
 
   // Horizon line percentage bit-matched to canvas (y = 725 / 1187)
   const horizonPercent = BG_HORIZON_RATIO * 100; // ~61.0783%
+
+  const resolvedBlurTransitionSpeed = blurTransitionSpeed ?? waterBlurTransitionSpeed ?? 1.8;
+  const resolvedFarBackBlur = farBackBlurPeak ?? waterFarBackBlur ?? 0.0;
+  const blurTransitionDuration = (1.2 / Math.max(0.2, resolvedBlurTransitionSpeed)).toFixed(2);
 
   // Track mouse movement to excite water waves when mouse moves or passes through water
   useEffect(() => {
@@ -111,7 +170,11 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
         const windowHeight = window.innerHeight || 1;
         const windowWidth = window.innerWidth || 1;
         const canvasHeight = Math.max(windowHeight, windowWidth * (1187 / 1920));
-        const horizonClientY = canvasHeight * BG_HORIZON_RATIO;
+        const canvasWidth = Math.max(windowWidth, windowHeight * (1920 / 1187));
+        const canvasLeft = (windowWidth - canvasWidth) / 2;
+        const canvasTop = (windowHeight - canvasHeight) / 2 + (canvasOffsetY ?? 0);
+        const normX = Math.max(0, Math.min(1, (e.clientX - canvasLeft) / canvasWidth));
+        const horizonClientY = canvasTop + canvasHeight * ((BG_HORIZON_Y + normX * (835 - BG_HORIZON_Y)) / BG_CANVAS_HEIGHT);
         const inWaterZone = e.clientY >= horizonClientY;
 
         // Water only reacts when mouse is physically passing through the water zone
@@ -129,7 +192,7 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [interactive, waterDistortionEnabled, waterReactiveMode, waterDistortionScale]);
 
-  // Smooth wave settling / decay loop
+  // Smooth wave settling / decay loop (throttled DOM mutations to prevent GPU filter thrashing)
   useEffect(() => {
     if (!waterDistortionEnabled) {
       if (displacementMapRef.current) {
@@ -140,6 +203,7 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
 
     let animationId: number;
     let lastTick = performance.now();
+    let lastAppliedScale = -1;
 
     const updateWaves = (now: number) => {
       const dt = Math.min(0.1, (now - lastTick) / 1000);
@@ -151,11 +215,13 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
         if (waveExcitationRef.current < 0.02) waveExcitationRef.current = 0;
 
         const effectiveScale = waterRestingScale + waveExcitationRef.current;
-        if (displacementMapRef.current) {
+        if (displacementMapRef.current && Math.abs(effectiveScale - lastAppliedScale) >= 0.02) {
+          lastAppliedScale = effectiveScale;
           displacementMapRef.current.setAttribute('scale', effectiveScale.toFixed(2));
         }
       } else {
-        if (displacementMapRef.current) {
+        if (displacementMapRef.current && lastAppliedScale !== waterDistortionScale) {
+          lastAppliedScale = waterDistortionScale;
           displacementMapRef.current.setAttribute('scale', String(waterDistortionScale));
         }
       }
@@ -171,9 +237,13 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
   const resolvedLayers = useMemo(() => {
     return bgLayers.map((layer) => {
       const override = layerOverrides[layer.id];
-      let visible = override?.visible !== undefined ? override.visible : layer.defaultVisible;
-      if (layer.id === 'layer-4.1') {
+      let visible: boolean;
+      if (override?.visible !== undefined) {
+        visible = override.visible;
+      } else if (layer.id === 'layer-4.1') {
         visible = turmoilEnabled;
+      } else {
+        visible = layer.defaultVisible;
       }
       const opacity = override?.opacity !== undefined ? override.opacity : layer.defaultOpacity;
       return {
@@ -254,7 +324,8 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
 
   // Helper for computing parallax transform (pure translation to maintain coordinate and horizon registration)
   const getTransform = (layer: BgLayerConfig) => {
-    const tx = motion.x * layer.parallaxFactor.x * 45;
+    const motionX = reverseHorizontalParallax ? -motion.x : motion.x;
+    const tx = motionX * layer.parallaxFactor.x * 45;
     const ty = motion.y * layer.parallaxFactor.y * 30 - (motion.scrollY * layer.parallaxFactor.y * 0.12);
     return `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0px)`;
   };
@@ -262,6 +333,8 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
   // Render Big Star natural shining flare
   const renderBigStarFlare = (isReflected: boolean = false) => {
     if (!bigStarShineEnabled) return null;
+    const starLayer = resolvedLayers.find((l) => l.id === 'layer-3.0');
+    if (starLayer && !starLayer.visible) return null;
     const size = bigStarFlareSize;
     const speedSec = (4.8 / Math.max(0.2, bigStarShineSpeed)).toFixed(2);
     const opacity = bigStarShineIntensity * (isReflected ? 0.75 : 1.0);
@@ -492,16 +565,37 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
               yChannelSelector="G"
             />
           </filter>
+
+          {/* Master Post-Processing: Photoshop Vibrance & Levels */}
+          <filter
+            id="dynamic-color-grading"
+            x="0%"
+            y="0%"
+            width="100%"
+            height="100%"
+            colorInterpolationFilters="sRGB"
+          >
+            <feColorMatrix type="matrix" values={colorMatrixValues} result="vibrance_sat" />
+            <feComponentTransfer in="vibrance_sat">
+              <feFuncR type="table" tableValues={levelsTableValues} />
+              <feFuncG type="table" tableValues={levelsTableValues} />
+              <feFuncB type="table" tableValues={levelsTableValues} />
+            </feComponentTransfer>
+          </filter>
         </defs>
       </svg>
 
       {/* 2. Aspect-Ratio Locked Master Canvas (Exact 1920:1187 Alignment Across All Screens) */}
       <div
-        className="absolute left-1/2 top-0 -translate-x-1/2 pointer-events-none"
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
         style={{
-          width: 'max(104vw, calc(104vh * 1920 / 1187))',
-          height: 'max(104vh, calc(104vw * 1187 / 1920))',
+          width: 'max(105vw, calc(105vh * 1920 / 1187))',
+          height: 'max(105vh, calc(105vw * 1187 / 1920))',
           aspectRatio: '1920 / 1187',
+          isolation: 'isolate',
+          backgroundColor: '#021319',
+          top: canvasOffsetY ? `calc(50% + ${canvasOffsetY}px)` : undefined,
+          filter: colorGradingEnabled && !useCleanComposite ? 'url(#dynamic-color-grading)' : undefined,
         }}
       >
         {useCleanComposite ? (
@@ -534,7 +628,7 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
               <div
                 className="absolute inset-0 w-full h-full pointer-events-none"
                 style={{
-                  clipPath: `inset(${horizonPercent}% 0 0 0)`,
+                  clipPath: 'polygon(0% 61.078%, 100% 70.345%, 100% 100%, 0% 100%)',
                   filter: waterDistortionEnabled ? 'url(#water-distortion)' : undefined,
                 }}
               >
@@ -543,7 +637,8 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
                   style={{
                     transformOrigin: `50% ${horizonPercent}%`,
                     transform: 'scaleY(-1)',
-                    opacity: 0.78,
+                    opacity: 0.78 * (reflectionOpacity / 0.8),
+                    mixBlendMode: reflectionBlendMode !== 'normal' ? (reflectionBlendMode as React.CSSProperties['mixBlendMode']) : undefined,
                   }}
                 >
                   {reflectedLayers.map((layer) => {
@@ -555,12 +650,31 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
                           : `cloudHarmonicDriftLeft ${(80 / Math.max(0.2, cloudDriftSpeed)).toFixed(1)}s ease-in-out infinite`
                         : undefined;
 
+                    if (!isCloud) {
+                      return (
+                        <img
+                          key={`refl-${layer.id}`}
+                          src={`${cleanBase}bg-layers/${layer.filename}`}
+                          alt={`${layer.name} Reflection`}
+                          className="absolute inset-0 w-full h-full object-cover will-change-transform"
+                          style={{
+                            mixBlendMode: layer.blendMode,
+                            opacity: (layer.reflectionOpacity ?? 0.75) * layer.opacity,
+                            transform: getTransform(layer),
+                          }}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      );
+                    }
+
                     return (
                       <div
                         key={`refl-${layer.id}`}
                         className="absolute inset-0 w-full h-full pointer-events-none will-change-transform"
                         style={{
                           transform: getTransform(layer),
+                          mixBlendMode: layer.blendMode,
                         }}
                       >
                         <img
@@ -568,9 +682,7 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
                           alt={`${layer.name} Reflection`}
                           className="w-full h-full object-cover"
                           style={{
-                            mixBlendMode: layer.blendMode,
                             opacity: (layer.reflectionOpacity ?? 0.75) * layer.opacity,
-                            filter: isCloud && cloudDistortionEnabled ? 'url(#cloud-distortion)' : undefined,
                             animation: cloudDriftAnim,
                           }}
                           loading="lazy"
@@ -598,9 +710,9 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
                       }}
                     >
                       <img
-                        src={`${cleanBase}bg-layers/shooting-sprite.webp`}
-                        alt="Shooting Star Reflection"
-                        className="w-full h-full object-contain filter drop-shadow-[0_0_15px_rgba(0,210,235,0.7)]"
+                        src={`${cleanBase}bg-layers/comet-sprite.webp`}
+                        alt="Comet Streak Reflection"
+                        className="w-full h-full object-contain"
                       />
                     </div>
                   )}
@@ -623,6 +735,7 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
                         mixBlendMode: layer.blendMode,
                         opacity: layer.opacity,
                         transform: getTransform(layer),
+                        filter: mistDistortionEnabled ? 'url(#mist-distortion)' : undefined,
                       }}
                       loading="eager"
                       decoding="async"
@@ -635,34 +748,33 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
                 const count = Math.max(1, Math.min(3, mistInstances));
 
                 return (
-                  <React.Fragment key="mist-disperse-group">
+                  <div
+                    key="mist-disperse-group"
+                    className="absolute inset-0 w-full h-full pointer-events-none will-change-transform"
+                    style={{
+                      transform: getTransform(layer),
+                      mixBlendMode: layer.blendMode,
+                      filter: mistDistortionEnabled ? 'url(#mist-distortion)' : undefined,
+                    }}
+                  >
                     {Array.from({ length: count }).map((_, index) => {
                       const delaySec = (-(index * (cyclePeriod / count))).toFixed(2);
                       return (
-                        <div
+                        <img
                           key={`mist-instance-${index}`}
-                          className="absolute inset-0 w-full h-full pointer-events-none will-change-transform"
+                          src={`${cleanBase}bg-layers/${layer.filename}`}
+                          alt={`${layer.name} Phased Instance ${index + 1}`}
+                          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                           style={{
-                            transform: getTransform(layer),
+                            opacity: layer.opacity * 0.9,
+                            animation: `mistDisperseCycle ${cyclePeriod.toFixed(1)}s ease-in-out ${delaySec}s infinite`,
                           }}
-                        >
-                          <img
-                            src={`${cleanBase}bg-layers/${layer.filename}`}
-                            alt={`${layer.name} Phased Instance ${index + 1}`}
-                            className="w-full h-full object-cover pointer-events-none"
-                            style={{
-                              mixBlendMode: layer.blendMode,
-                              opacity: layer.opacity * 0.9,
-                              filter: mistDistortionEnabled ? 'url(#mist-distortion)' : undefined,
-                              animation: `mistDisperseCycle ${cyclePeriod.toFixed(1)}s ease-in-out ${delaySec}s infinite`,
-                            }}
-                            loading="eager"
-                            decoding="async"
-                          />
-                        </div>
+                          loading="eager"
+                          decoding="async"
+                        />
                       );
                     })}
-                  </React.Fragment>
+                  </div>
                 );
               }
 
@@ -675,28 +787,49 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
                     : `cloudHarmonicDriftLeft ${(80 / Math.max(0.2, cloudDriftSpeed)).toFixed(1)}s ease-in-out infinite`
                   : undefined;
 
-              return (
-                <div
-                  key={layer.id}
-                  className="absolute inset-0 w-full h-full pointer-events-none will-change-transform transition-opacity duration-700"
-                  style={{
-                    transform: getTransform(layer),
-                    opacity: layer.opacity,
-                  }}
-                >
-                  <img
-                    src={`${cleanBase}bg-layers/${layer.filename}`}
-                    alt={layer.name}
-                    className="w-full h-full object-cover"
+              if (isCloud) {
+                return (
+                  <div
+                    key={layer.id}
+                    className="absolute inset-0 w-full h-full pointer-events-none will-change-transform transition-opacity duration-700"
                     style={{
+                      transform: getTransform(layer),
+                      opacity: layer.opacity,
                       mixBlendMode: layer.blendMode,
-                      filter: isCloud && cloudDistortionEnabled ? 'url(#cloud-distortion)' : undefined,
-                      animation: cloudDriftAnim,
                     }}
-                    loading="eager"
-                    decoding="async"
-                  />
-                </div>
+                  >
+                    <img
+                      src={`${cleanBase}bg-layers/${layer.filename}`}
+                      alt={layer.name}
+                      className="w-full h-full object-cover"
+                      style={{
+                        filter: cloudDistortionEnabled ? 'url(#cloud-distortion)' : undefined,
+                        animation: cloudDriftAnim,
+                      }}
+                      loading="eager"
+                      decoding="async"
+                    />
+                  </div>
+                );
+              }
+
+              // Standard upper layers (Milky Way, Stars, Mist, Meteors):
+              // Render directly as <img> (matching baseLayers) so mixBlendMode: screen / color-dodge
+              // blends directly against the canvas backdrop without being trapped in an isolated wrapper <div>
+              return (
+                <img
+                  key={layer.id}
+                  src={`${cleanBase}bg-layers/${layer.filename}`}
+                  alt={layer.name}
+                  className="absolute inset-0 w-full h-full object-cover will-change-transform transition-opacity duration-700"
+                  style={{
+                    mixBlendMode: layer.blendMode,
+                    opacity: layer.opacity,
+                    transform: getTransform(layer),
+                  }}
+                  loading="eager"
+                  decoding="async"
+                />
               );
             })}
 
@@ -718,24 +851,53 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
                 }}
               >
                 <img
-                  src={`${cleanBase}bg-layers/shooting-sprite.webp`}
-                  alt="Shooting Star"
-                  className="w-full h-full object-contain filter drop-shadow-[0_0_12px_rgba(0,229,255,0.8)]"
+                  src={`${cleanBase}bg-layers/comet-sprite.webp`}
+                  alt="Comet Streak"
+                  className="w-full h-full object-contain"
                 />
               </div>
             )}
 
-            {/* 8. Water Surface Distortion & Depth Gradient */}
-            <div
-              className="absolute inset-x-0 bottom-0 pointer-events-none"
-              style={{
-                top: `${horizonPercent}%`,
-                backdropFilter: `blur(${waterBlur}px)`,
-                WebkitBackdropFilter: `blur(${waterBlur}px)`,
-                background:
-                  'linear-gradient(180deg, rgba(2, 19, 25, 0.10) 0%, rgba(2, 22, 29, 0.35) 45%, rgba(1, 14, 18, 0.70) 100%)',
-              }}
-            />
+            {/* 8. Water Surface Distortion & Depth Gradient (Only rendered when sea layer is visible) */}
+            {(!resolvedLayers.find((l) => l.id === 'layer-1.0') || resolvedLayers.find((l) => l.id === 'layer-1.0')?.visible) && (
+              <div
+                className="absolute inset-0 w-full h-full pointer-events-none"
+                style={{
+                  clipPath: 'polygon(0% 61.078%, 100% 70.345%, 100% 100%, 0% 100%)',
+                }}
+              >
+                {/* 8a. Far-Back Horizon Depth Blur Layer (increased blur on the far back near the horizon) */}
+                {resolvedFarBackBlur > 0 && (
+                  <div
+                    className="absolute inset-x-0 pointer-events-none will-change-[backdrop-filter]"
+                    style={{
+                      top: `${horizonPercent}%`,
+                      height: '45%',
+                      backdropFilter: `blur(${resolvedFarBackBlur}px)`,
+                      WebkitBackdropFilter: `blur(${resolvedFarBackBlur}px)`,
+                      maskImage:
+                        'linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0) 100%)',
+                      WebkitMaskImage:
+                        'linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0) 100%)',
+                      transition: `backdrop-filter ${blurTransitionDuration}s ease-out, -webkit-backdrop-filter ${blurTransitionDuration}s ease-out`,
+                    }}
+                  />
+                )}
+
+                {/* 8b. Water Surface Distortion & Depth Gradient */}
+                <div
+                  className="absolute inset-x-0 bottom-0 pointer-events-none will-change-[backdrop-filter]"
+                  style={{
+                    top: `${horizonPercent}%`,
+                    backdropFilter: waterBlur > 0 ? `blur(${waterBlur}px)` : undefined,
+                    WebkitBackdropFilter: waterBlur > 0 ? `blur(${waterBlur}px)` : undefined,
+                    transition: `backdrop-filter ${blurTransitionDuration}s ease-out, -webkit-backdrop-filter ${blurTransitionDuration}s ease-out`,
+                    background:
+                      'linear-gradient(180deg, rgba(0, 24, 36, 0.0) 0%, rgba(0, 20, 32, 0.03) 50%, rgba(0, 16, 26, 0.06) 100%)',
+                  }}
+                />
+              </div>
+            )}
           </>
         )}
 

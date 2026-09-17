@@ -4,17 +4,54 @@ import { LanguageProvider } from './context/LanguageContext';
 import { HomePage } from './pages/HomePage';
 import { UiElementsPage } from './pages/UiElementsPage';
 import { BgPlaygroundPage } from './pages/BgPlaygroundPage';
+import { BgCanvasPlaygroundPage } from './pages/BgCanvasPlaygroundPage';
 import { ThemeToggle } from './components/common/ThemeToggle';
 import { KofiButton } from './components/common/KofiButton';
 
-const resolveRoute = (): string => {
+export const resolveRoute = (): string => {
   if (typeof window === 'undefined') return 'home';
-  const hash = window.location.hash.replace(/^#\/?/, '');
-  if (hash === 'bg') return 'bg';
-  if (hash === 'ui-elements') return 'ui-elements';
+  const rawHash = window.location.hash;
+  const hash = rawHash.replace(/^#\/?/, '');
   if (hash === 'home' || hash === 'resume' || hash === 'cv' || hash === 'projects') return 'home';
+  if (hash === 'ui-elements') return 'ui-elements';
+
   const path = window.location.pathname.replace(/^\/|\/$/g, '');
-  if (path === 'bg') return 'bg';
+  const isBgCanvasPath = path === 'bg-canvas' || path.startsWith('bg-canvas/');
+  const isBgPath = path === 'bg' || path.startsWith('bg/');
+
+  const isBgCanvasHash =
+    hash === 'bg-canvas' ||
+    hash.startsWith('bg-canvas#') ||
+    hash.startsWith('bg-canvas/') ||
+    hash.startsWith('bg-canvas?') ||
+    /(?:^|[#/&?])bg-canvas(?:[#/&?]|$)/.test(rawHash);
+
+  // If hash explicitly points to bg-canvas
+  if (isBgCanvasHash) {
+    return 'bg-canvas';
+  }
+
+  // If hash is explicitly #off while already on a bg-canvas pathname
+  if (isBgCanvasPath && (hash === 'off' || /(?:^|[#/&?])off(?:[#/&?]|$)/.test(rawHash)) && !hash.includes('bg')) {
+    return 'bg-canvas';
+  }
+
+  const isBgHash =
+    hash === 'bg' ||
+    hash === 'off' ||
+    hash.startsWith('bg#') ||
+    hash.startsWith('bg/') ||
+    hash.startsWith('bg?') ||
+    /(?:^|[#/&?])bg(?:[#/&?]|$)/.test(rawHash) ||
+    (/(?:^|[#/&?])off(?:[#/&?]|$)/.test(rawHash) && !hash.includes('ui-elements'));
+
+  if (isBgHash) {
+    return 'bg';
+  }
+
+  // Fallback to pathname when no hash route matches
+  if (isBgCanvasPath) return 'bg-canvas';
+  if (isBgPath) return 'bg';
   return 'home';
 };
 
@@ -39,7 +76,9 @@ export const App: React.FC = () => {
       <LanguageProvider>
         <div className="relative min-h-screen text-[var(--text-primary)] transition-colors duration-300">
           {/* Main Route Switcher */}
-          {route === 'bg' ? (
+          {route === 'bg-canvas' ? (
+            <BgCanvasPlaygroundPage />
+          ) : route === 'bg' ? (
             <BgPlaygroundPage />
           ) : route === 'ui-elements' ? (
             <UiElementsPage />
@@ -48,7 +87,7 @@ export const App: React.FC = () => {
           )}
 
           {/* Persistent Floating Bubbles */}
-          {route !== 'bg' && (
+          {route !== 'bg' && route !== 'bg-canvas' && (
             <>
               <KofiButton />
               <ThemeToggle />

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
-import { DynamicBackground } from '../components/background/DynamicBackground';
+import { CanvasBackground } from '../components/background/CanvasBackground';
 import { bgLayers } from '../data/bgLayersData';
 import { ReflectionBlendMode, REFLECTION_BLEND_MODES } from '../types/background';
 import {
@@ -19,7 +19,9 @@ import {
   ChevronUp,
   Wind,
   Cloud,
+  Activity,
   Layers2,
+  Flame,
   Contrast,
 } from 'lucide-react';
 
@@ -41,10 +43,14 @@ interface LayerState {
   opacity: number;
 }
 
-export const BgPlaygroundPage: React.FC = () => {
+export const BgCanvasPlaygroundPage: React.FC = () => {
   const isInitialOff = typeof window !== 'undefined' && isOffRequested();
 
-  // Parallax state
+  // Performance telemetry state
+  const [fps, setFps] = useState<number>(60);
+  const [frameTimeMs, setFrameTimeMs] = useState<number>(16.6);
+
+  // Parallax & Camera state
   const [parallaxIntensity, setParallaxIntensity] = useState<number>(0.5);
   const [parallaxEnabled, setParallaxEnabled] = useState<boolean>(true);
   const [reverseHorizontalParallax, setReverseHorizontalParallax] = useState<boolean>(true);
@@ -53,20 +59,31 @@ export const BgPlaygroundPage: React.FC = () => {
   const [reflectionEnabled, setReflectionEnabled] = useState<boolean>(true);
   const [reflectionOpacity, setReflectionOpacity] = useState<number>(0.8);
   const [reflectionBlendMode, setReflectionBlendMode] = useState<ReflectionBlendMode>('normal');
-  const [waterDistortionEnabled, setWaterDistortionEnabled] = useState<boolean>(true);
-  const [waterReactiveMode, setWaterReactiveMode] = useState<boolean>(true);
+  const [waterDistortionEnabled, setWaterDistortionEnabled] = useState<boolean>(!isInitialOff);
+  const [waterReactiveMode, setWaterReactiveMode] = useState<boolean>(false);
   const [waterRestingScale, setWaterRestingScale] = useState<number>(0.0);
-  const [waterDistortionScale, setWaterDistortionScale] = useState<number>(18);
-  const [waterDistortionSpeed, setWaterDistortionSpeed] = useState<number>(1.0);
-  const [waterBlur, setWaterBlur] = useState<number>(0.0);
+  const [waterDistortionScale, setWaterDistortionScale] = useState<number>(isInitialOff ? 0 : 40);
+  const [waterDistortionSpeed, setWaterDistortionSpeed] = useState<number>(0.2);
+  const [waterPerspectivePower, setWaterPerspectivePower] = useState<number>(3.0);
+  const [waterBlur, setWaterBlur] = useState<number>(0);
   const [waterBlurTransitionSpeed, setWaterBlurTransitionSpeed] = useState<number>(1.8);
   const [waterFarBackBlur, setWaterFarBackBlur] = useState<number>(0.0);
+  const [waterWaveMode, setWaterWaveMode] = useState<'continuous' | 'bands'>('bands');
+  const [waterBandCount, setWaterBandCount] = useState<number>(50);
+  const [waterBandOffset, setWaterBandOffset] = useState<number>(0.2);
+  const [liveWaterSpeed, setLiveWaterSpeed] = useState<number>(0.2);
+  const [liveWaterBlur, setLiveWaterBlur] = useState<number>(0);
+
+  // Living Breathing Galaxy (Milky Way respiration) state
+  const [galaxyBreathingEnabled, setGalaxyBreathingEnabled] = useState<boolean>(!isInitialOff);
+  const [galaxyBreathingSpeed, setGalaxyBreathingSpeed] = useState<number>(2.5);
+  const [galaxyBreathingIntensity, setGalaxyBreathingIntensity] = useState<number>(2.0);
 
   // Big star natural shine state
   const [bigStarShineEnabled, setBigStarShineEnabled] = useState<boolean>(!isInitialOff);
-  const [bigStarShineIntensity, setBigStarShineIntensity] = useState<number>(1.0);
+  const [bigStarShineIntensity, setBigStarShineIntensity] = useState<number>(0.12);
   const [bigStarShineSpeed, setBigStarShineSpeed] = useState<number>(0.4);
-  const [bigStarFlareSize, setBigStarFlareSize] = useState<number>(28);
+  const [bigStarFlareSize, setBigStarFlareSize] = useState<number>(20);
 
   // Mist calm dispersion state
   const [mistDisperseEnabled, setMistDisperseEnabled] = useState<boolean>(true);
@@ -82,9 +99,25 @@ export const BgPlaygroundPage: React.FC = () => {
   const [cloudDistortionScale, setCloudDistortionScale] = useState<number>(6);
   const [cloudMorphSpeed, setCloudMorphSpeed] = useState<number>(0.8);
 
-  // Dynamic events state
+  // Dynamic events & comet state
   const [turmoilEnabled, setTurmoilEnabled] = useState<boolean>(false);
   const [shootingStarEnabled, setShootingStarEnabled] = useState<boolean>(false);
+  const [cometEnabled, setCometEnabled] = useState<boolean>(!isInitialOff);
+  // Dust Tail Properties (independent controls)
+  const [cometFlameTailEnabled, setCometFlameTailEnabled] = useState<boolean>(true);
+  const [cometFlameTailSpeed, setCometFlameTailSpeed] = useState<number>(0.2);
+  const [cometTailTurbulence, setCometTailTurbulence] = useState<number>(0.2);
+  const [cometTailFlickerIntensity, setCometTailFlickerIntensity] = useState<number>(1.1);
+  const [cometTailFlickerSpeed, setCometTailFlickerSpeed] = useState<number>(0.2);
+  const [cometTailSpreadFactor, setCometTailSpreadFactor] = useState<number>(2.2);
+  const [cometTailFadePower, setCometTailFadePower] = useState<number>(0.50);
+  // Core Streak Properties (independent controls)
+  const [cometCorePulseEnabled, setCometCorePulseEnabled] = useState<boolean>(true);
+  const [cometCoreBaseOpacity, setCometCoreBaseOpacity] = useState<number>(0.75);
+  const [cometCorePulseSpeed, setCometCorePulseSpeed] = useState<number>(0.2);
+  const [cometCoreStretchScale, setCometCoreStretchScale] = useState<number>(1.5);
+  const [cometCorePeakBrightness, setCometCorePeakBrightness] = useState<number>(0.74);
+  const [cometCoreBaselineOpacity, setCometCoreBaselineOpacity] = useState<number>(0.04);
   const [useCleanComposite, setUseCleanComposite] = useState<boolean>(false);
 
   // Photoshop Vibrance & Levels Color Grading state
@@ -115,7 +148,7 @@ export const BgPlaygroundPage: React.FC = () => {
     return initial;
   });
 
-  // Check if Solo Layer 0 mode is active (layer-0.0 is visible, all other layers turned off)
+  // Check if Solo Layer 0 mode is active
   const isSoloLayer0Active = useMemo(() => {
     const l0 = layerOverrides['layer-0.0'];
     if (!l0 || !l0.visible) return false;
@@ -128,9 +161,16 @@ export const BgPlaygroundPage: React.FC = () => {
   // Turn off all layers except Layer 0.0
   const applySoloLayer0 = useCallback(() => {
     setUseCleanComposite(false);
+    setGalaxyBreathingEnabled(false);
     setBigStarShineEnabled(false);
+    setWaterDistortionEnabled(false);
+    setWaterDistortionScale(0);
     setTurmoilEnabled(false);
     setShootingStarEnabled(false);
+    setCometEnabled(false);
+    setCometFlameTailEnabled(false);
+    setCometCorePulseEnabled(false);
+    setCometCorePulseSpeed(1.0);
     setColorGradingEnabled(false);
     setVibrance(0);
     setSaturation(0);
@@ -154,8 +194,15 @@ export const BgPlaygroundPage: React.FC = () => {
   // Restore all layers to default visibility
   const restoreAllLayers = useCallback(() => {
     setColorGradingEnabled(true);
+    setGalaxyBreathingEnabled(true);
     setBigStarShineEnabled(true);
+    setWaterDistortionEnabled(true);
+    setWaterDistortionScale(40);
     setShootingStarEnabled(false);
+    setCometEnabled(true);
+    setCometFlameTailEnabled(true);
+    setCometCorePulseEnabled(true);
+    setCometCorePulseSpeed(1.0);
     setLayerOverrides(() => {
       const updated: Record<string, LayerState> = {};
       bgLayers.forEach((l) => {
@@ -174,12 +221,12 @@ export const BgPlaygroundPage: React.FC = () => {
     const cleanSearch = window.location.search
       .replace(/([?&])off(=[^&]*)?(&|$)/i, '$1')
       .replace(/[?&]$/, '');
-    const isPathBg = window.location.pathname.replace(/^\/|\/$/g, '') === 'bg';
-    if (isPathBg) {
+    const isPathBgCanvas = window.location.pathname.replace(/^\/|\/$/g, '').startsWith('bg-canvas');
+    if (isPathBgCanvas) {
       const newUrl = window.location.pathname + (cleanSearch ? `?${cleanSearch}` : '');
       window.history.replaceState(null, '', newUrl);
     } else {
-      window.location.hash = 'bg';
+      window.location.hash = 'bg-canvas';
     }
   }, []);
 
@@ -191,20 +238,19 @@ export const BgPlaygroundPage: React.FC = () => {
     } else {
       applySoloLayer0();
       if (typeof window !== 'undefined' && !isOffRequested()) {
-        const isPathBg = window.location.pathname.replace(/^\/|\/$/g, '') === 'bg';
-        if (isPathBg) {
+        const isPathBgCanvas = window.location.pathname.replace(/^\/|\/$/g, '').startsWith('bg-canvas');
+        if (isPathBgCanvas) {
           window.location.hash = 'off';
         } else {
-          window.location.hash = 'bg#off';
+          window.location.hash = 'bg-canvas#off';
         }
       }
     }
   }, [isSoloLayer0Active, applySoloLayer0, restoreAllLayers, clearOffFromUrl]);
 
-  // Track off state to prevent extraneous layer resets on non-off hash events
+  // Track off state across popstate/hashchange
   const wasOffRef = useRef(isInitialOff);
 
-  // Listen for URL changes (e.g. user changes hash to #off or back)
   useEffect(() => {
     const handleUrlChange = () => {
       const offNow = isOffRequested();
@@ -226,7 +272,7 @@ export const BgPlaygroundPage: React.FC = () => {
     };
   }, [applySoloLayer0, restoreAllLayers]);
 
-  // Layer toggle handler (required by verification tests)
+  // Layer toggle handler
   const handleToggleLayer = (layerId: string) => {
     setLayerOverrides((prev) => {
       const current = prev[layerId];
@@ -275,11 +321,11 @@ export const BgPlaygroundPage: React.FC = () => {
     if (preset === 'solo0') {
       applySoloLayer0();
       if (typeof window !== 'undefined' && !isOffRequested()) {
-        const isPathBg = window.location.pathname.replace(/^\/|\/$/g, '') === 'bg';
-        if (isPathBg) {
+        const isPathBgCanvas = window.location.pathname.replace(/^\/|\/$/g, '').startsWith('bg-canvas');
+        if (isPathBgCanvas) {
           window.location.hash = 'off';
         } else {
-          window.location.hash = 'bg#off';
+          window.location.hash = 'bg-canvas#off';
         }
       }
       return;
@@ -298,22 +344,44 @@ export const BgPlaygroundPage: React.FC = () => {
       setReflectionEnabled(true);
       setReflectionOpacity(0.8);
       setWaterDistortionEnabled(true);
-      setWaterReactiveMode(true);
+      setWaterReactiveMode(false);
       setWaterRestingScale(0.0);
-      setWaterDistortionScale(18);
-      setWaterDistortionSpeed(1.0);
-      setWaterBlur(0.0);
+      setWaterDistortionScale(40);
+      setWaterDistortionSpeed(0.2);
+      setWaterPerspectivePower(3.0);
+      setWaterBlur(0);
       setWaterBlurTransitionSpeed(1.8);
       setWaterFarBackBlur(0.0);
+      setWaterWaveMode('bands');
+      setWaterBandCount(50);
+      setWaterBandOffset(0.2);
+      setGalaxyBreathingEnabled(true);
+      setGalaxyBreathingSpeed(2.5);
+      setGalaxyBreathingIntensity(2.0);
       setBigStarShineEnabled(true);
-      setBigStarShineIntensity(1.0);
-      setBigStarFlareSize(28);
+      setBigStarShineIntensity(0.12);
+      setBigStarShineSpeed(0.4);
+      setBigStarFlareSize(20);
       setMistDisperseEnabled(true);
       setMistDisperseSpeed(1.0);
       setMistInstances(3);
       setCloudDriftEnabled(true);
       setCloudDistortionEnabled(true);
       setCloudDistortionScale(6);
+      setCloudMorphSpeed(0.8);
+      setCometEnabled(true);
+      setCometFlameTailEnabled(true);
+      setCometFlameTailSpeed(0.2);
+      setCometTailTurbulence(1.0);
+      setCometTailFlickerIntensity(0.6);
+      setCometTailFlickerSpeed(1.0);
+      setCometTailSpreadFactor(1.0);
+      setCometTailFadePower(1.0);
+      setCometCorePulseEnabled(true);
+      setCometCoreBaseOpacity(0.04);
+      setCometCorePulseSpeed(0.2);
+      setCometCoreStretchScale(1.5);
+      setCometCorePeakBrightness(0.74);
       setColorGradingEnabled(true);
       setVibrance(10);
       setSaturation(-5);
@@ -334,16 +402,27 @@ export const BgPlaygroundPage: React.FC = () => {
       setTurmoilEnabled(false);
       setReflectionEnabled(true);
       setReflectionOpacity(0.8);
-      setWaterReactiveMode(true);
-      setWaterRestingScale(0.0); // Completely still like glass until mouse passes
-      setWaterDistortionScale(24);
-      setWaterDistortionSpeed(1.2);
-      setWaterBlur(0.0);
+      setWaterDistortionEnabled(true);
+      setWaterReactiveMode(false);
+      setWaterRestingScale(0.0);
+      setWaterDistortionScale(42);
+      setWaterDistortionSpeed(0.25);
+      setWaterPerspectivePower(3.0);
+      setWaterBlur(0);
       setWaterBlurTransitionSpeed(2.2);
       setWaterFarBackBlur(0.0);
+      setWaterWaveMode('bands');
+      setWaterBandCount(50);
+      setWaterBandOffset(0.2);
+      setGalaxyBreathingEnabled(true);
+      setGalaxyBreathingSpeed(1.0);
+      setGalaxyBreathingIntensity(1.0);
       setBigStarShineEnabled(true);
       setMistDisperseEnabled(true);
       setCloudDriftEnabled(true);
+      setCloudDistortionEnabled(true);
+      setCloudDistortionScale(6);
+      setCloudMorphSpeed(0.8);
       setColorGradingEnabled(true);
       setVibrance(10);
       setSaturation(5);
@@ -360,15 +439,39 @@ export const BgPlaygroundPage: React.FC = () => {
       setReflectionOpacity(0.8);
       setWaterDistortionEnabled(true);
       setWaterReactiveMode(false);
-      setWaterDistortionScale(14);
-      setWaterDistortionSpeed(0.8);
-      setWaterBlur(0.0);
+      setWaterDistortionScale(45);
+      setWaterDistortionSpeed(0.3);
+      setWaterPerspectivePower(3.0);
+      setWaterBlur(0);
       setWaterBlurTransitionSpeed(1.5);
       setWaterFarBackBlur(0.0);
+      setWaterWaveMode('bands');
+      setWaterBandCount(50);
+      setWaterBandOffset(0.2);
+      setGalaxyBreathingEnabled(true);
+      setGalaxyBreathingSpeed(1.2);
+      setGalaxyBreathingIntensity(1.4);
       setBigStarShineEnabled(true);
-      setBigStarShineIntensity(1.6);
-      setBigStarFlareSize(38);
+      setBigStarShineIntensity(0.15);
+      setBigStarFlareSize(26);
       setShootingStarEnabled(false);
+      setCometEnabled(true);
+      setCometFlameTailEnabled(true);
+      setCometFlameTailSpeed(1.2);
+      setCometTailTurbulence(1.4);
+      setCometTailFlickerIntensity(1.3);
+      setCometTailFlickerSpeed(1.2);
+      setCometTailSpreadFactor(1.3);
+      setCometTailFadePower(1.35);
+      setCometCorePulseEnabled(true);
+      setCometCoreBaseOpacity(0.85);
+      setCometCorePulseSpeed(1.2);
+      setCometCoreStretchScale(1.3);
+      setCometCorePeakBrightness(0.95);
+      setCometCoreBaselineOpacity(0.05);
+      setCloudDistortionEnabled(true);
+      setCloudDistortionScale(6);
+      setCloudMorphSpeed(0.8);
       setColorGradingEnabled(true);
       setVibrance(25);
       setSaturation(15);
@@ -393,13 +496,22 @@ export const BgPlaygroundPage: React.FC = () => {
       setReflectionOpacity(0.8);
       setWaterDistortionEnabled(true);
       setWaterReactiveMode(false);
-      setWaterDistortionScale(30);
-      setWaterDistortionSpeed(1.8);
-      setWaterBlur(0.0);
+      setWaterDistortionScale(55);
+      setWaterDistortionSpeed(0.6);
+      setWaterPerspectivePower(2.5);
+      setWaterBlur(0);
       setWaterBlurTransitionSpeed(2.5);
       setWaterFarBackBlur(0.0);
+      setWaterWaveMode('bands');
+      setWaterBandCount(50);
+      setWaterBandOffset(0.2);
+      setGalaxyBreathingEnabled(true);
+      setGalaxyBreathingSpeed(0.8);
+      setGalaxyBreathingIntensity(0.7);
       setCloudDriftEnabled(true);
+      setCloudDistortionEnabled(true);
       setCloudDistortionScale(14);
+      setCloudMorphSpeed(1.4);
       setMistDisperseSpeed(1.6);
       setColorGradingEnabled(true);
       setVibrance(-15);
@@ -415,15 +527,23 @@ export const BgPlaygroundPage: React.FC = () => {
       setTurmoilEnabled(false);
       setReflectionEnabled(true);
       setReflectionOpacity(0.8);
-      setWaterReactiveMode(true);
+      setWaterDistortionEnabled(false);
+      setWaterReactiveMode(false);
       setWaterRestingScale(0);
-      setWaterDistortionScale(8);
+      setWaterDistortionScale(0);
+      setWaterDistortionSpeed(0.2);
+      setWaterPerspectivePower(3.0);
       setWaterBlur(0);
       setWaterBlurTransitionSpeed(1.8);
       setWaterFarBackBlur(0.0);
+      setWaterWaveMode('bands');
+      setWaterBandCount(50);
+      setWaterBandOffset(0.2);
+      setGalaxyBreathingEnabled(false);
       setBigStarShineEnabled(false);
       setMistDisperseEnabled(false);
       setCloudDriftEnabled(false);
+      setCloudDistortionEnabled(false);
       setColorGradingEnabled(false);
       setVibrance(0);
       setSaturation(0);
@@ -451,17 +571,24 @@ export const BgPlaygroundPage: React.FC = () => {
     setReflectionOpacity(0.8);
     setReflectionBlendMode('normal');
     setWaterDistortionEnabled(true);
-    setWaterReactiveMode(true);
+    setWaterReactiveMode(false);
     setWaterRestingScale(0.0);
-    setWaterDistortionScale(18);
-    setWaterDistortionSpeed(1.0);
-    setWaterBlur(0.0);
+    setWaterDistortionScale(40);
+    setWaterDistortionSpeed(0.2);
+    setWaterPerspectivePower(3.0);
+    setWaterBlur(0);
     setWaterBlurTransitionSpeed(1.8);
     setWaterFarBackBlur(0.0);
+    setWaterWaveMode('bands');
+    setWaterBandCount(50);
+    setWaterBandOffset(0.2);
+    setGalaxyBreathingEnabled(true);
+    setGalaxyBreathingSpeed(2.5);
+    setGalaxyBreathingIntensity(2.0);
     setBigStarShineEnabled(true);
-    setBigStarShineIntensity(1.0);
+    setBigStarShineIntensity(0.12);
     setBigStarShineSpeed(0.4);
-    setBigStarFlareSize(28);
+    setBigStarFlareSize(20);
     setMistDisperseEnabled(true);
     setMistDisperseSpeed(1.0);
     setMistInstances(3);
@@ -474,6 +601,20 @@ export const BgPlaygroundPage: React.FC = () => {
     setCloudMorphSpeed(0.8);
     setTurmoilEnabled(false);
     setShootingStarEnabled(false);
+    setCometEnabled(true);
+    setCometFlameTailEnabled(true);
+    setCometFlameTailSpeed(0.2);
+    setCometTailTurbulence(0.2);
+    setCometTailFlickerIntensity(1.1);
+    setCometTailFlickerSpeed(0.2);
+    setCometTailSpreadFactor(2.2);
+    setCometTailFadePower(0.50);
+    setCometCorePulseEnabled(true);
+    setCometCoreBaseOpacity(0.75);
+    setCometCorePulseSpeed(0.2);
+    setCometCoreStretchScale(1.5);
+    setCometCorePeakBrightness(0.74);
+    setCometCoreBaselineOpacity(0.04);
     setColorGradingEnabled(true);
     setVibrance(10);
     setSaturation(-5);
@@ -492,10 +633,20 @@ export const BgPlaygroundPage: React.FC = () => {
     clearOffFromUrl();
   };
 
+  const handleFpsUpdate = useCallback((newFps: number, newFrameTime: number) => {
+    setFps(newFps);
+    setFrameTimeMs(newFrameTime);
+  }, []);
+
+  const handleWaterTelemetry = useCallback((currentSpeed: number, currentBlur: number) => {
+    setLiveWaterSpeed(currentSpeed);
+    setLiveWaterBlur(currentBlur);
+  }, []);
+
   return (
     <div className="relative w-screen h-screen overflow-hidden select-none bg-[#021319]">
-      {/* 1. The Dynamic Background Engine */}
-      <DynamicBackground
+      {/* 1. The HTML5 Canvas Background Engine */}
+      <CanvasBackground
         interactive={parallaxEnabled}
         parallaxIntensity={parallaxIntensity}
         reverseHorizontalParallax={reverseHorizontalParallax}
@@ -515,9 +666,16 @@ export const BgPlaygroundPage: React.FC = () => {
         waterRestingScale={waterRestingScale}
         waterDistortionScale={waterDistortionScale}
         waterDistortionSpeed={waterDistortionSpeed}
+        waterPerspectivePower={waterPerspectivePower}
         waterBlur={waterBlur}
         waterBlurTransitionSpeed={waterBlurTransitionSpeed}
         waterFarBackBlur={waterFarBackBlur}
+        waterWaveMode={waterWaveMode}
+        waterBandCount={waterBandCount}
+        waterBandOffset={waterBandOffset}
+        galaxyBreathingEnabled={galaxyBreathingEnabled}
+        galaxyBreathingSpeed={galaxyBreathingSpeed}
+        galaxyBreathingIntensity={galaxyBreathingIntensity}
         bigStarShineEnabled={bigStarShineEnabled}
         bigStarShineIntensity={bigStarShineIntensity}
         bigStarShineSpeed={bigStarShineSpeed}
@@ -534,8 +692,24 @@ export const BgPlaygroundPage: React.FC = () => {
         cloudMorphSpeed={cloudMorphSpeed}
         turmoilEnabled={turmoilEnabled}
         shootingStarEnabled={shootingStarEnabled}
+        cometEnabled={cometEnabled}
+        cometFlameTailEnabled={cometFlameTailEnabled}
+        cometFlameTailSpeed={cometFlameTailSpeed}
+        cometTailTurbulence={cometTailTurbulence}
+        cometTailFlickerIntensity={cometTailFlickerIntensity}
+        cometTailFlickerSpeed={cometTailFlickerSpeed}
+        cometTailSpreadFactor={cometTailSpreadFactor}
+        cometTailFadePower={cometTailFadePower}
+        cometCorePulseEnabled={cometCorePulseEnabled}
+        cometCoreBaseOpacity={cometCoreBaseOpacity}
+        cometCorePulseSpeed={cometCorePulseSpeed}
+        cometCoreStretchScale={cometCoreStretchScale}
+        cometCorePeakBrightness={cometCorePeakBrightness}
+        cometCoreBaselineOpacity={cometCoreBaselineOpacity}
         useCleanComposite={useCleanComposite}
         layerOverrides={layerOverrides}
+        onFpsUpdate={handleFpsUpdate}
+        onWaterTelemetry={handleWaterTelemetry}
       />
 
       {/* 2. Top Navigation Bar */}
@@ -544,8 +718,11 @@ export const BgPlaygroundPage: React.FC = () => {
           <a
             href="./#home"
             onClick={() => {
-              if (typeof window !== 'undefined' && window.location.pathname.replace(/^\/|\/$/g, '') === 'bg') {
-                const base = window.location.pathname.replace(/\/bg\/?$/, '') || '/';
+              if (
+                typeof window !== 'undefined' &&
+                window.location.pathname.replace(/^\/|\/$/g, '').startsWith('bg-canvas')
+              ) {
+                const base = window.location.pathname.replace(/\/bg-canvas\/?$/, '') || '/';
                 window.history.replaceState(null, '', base + '#home');
               }
             }}
@@ -557,22 +734,33 @@ export const BgPlaygroundPage: React.FC = () => {
           </a>
 
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[var(--bg-card)]/80 border border-[var(--border-subtle)] text-xs text-[var(--text-secondary)] backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-            <span className="font-mono text-cyan-300">1920×1187 Canvas</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-mono text-emerald-300 font-semibold">Canvas 2D Engine</span>
+            <span className="text-[var(--text-muted)]">|</span>
+            <span className="font-mono text-cyan-300">1920×1187</span>
             <span className="text-[var(--text-muted)]">|</span>
             <span>Horizon: 61.08% (y=725)</span>
+          </div>
+
+          {/* Real-time FPS Badge */}
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/50 border border-emerald-500/30 text-xs backdrop-blur-md">
+            <Activity className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+            <span className="font-mono text-emerald-400 font-bold">{fps.toFixed(1)} FPS</span>
+            <span className="font-mono text-[var(--text-muted)] text-[10px]">
+              ({frameTimeMs.toFixed(1)}ms)
+            </span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Switch to Canvas (/bg-canvas) Engine Button */}
+          {/* Switch to DOM (/bg) Engine Button */}
           <a
-            href="./#bg-canvas"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold backdrop-blur-md border border-[var(--border-subtle)] bg-[var(--bg-card)]/80 text-[var(--text-secondary)] hover:text-emerald-300 hover:border-emerald-500/40 transition-all shadow-lg"
-            title="Switch directly to the HTML5 Canvas version at /bg-canvas"
+            href="./#bg"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold backdrop-blur-md border border-[var(--border-subtle)] bg-[var(--bg-card)]/80 text-[var(--text-secondary)] hover:text-cyan-300 hover:border-cyan-500/40 transition-all shadow-lg"
+            title="Switch directly to the DOM + SVG version at /bg"
           >
-            <Layers2 className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Switch to Canvas (/bg-canvas)</span>
+            <Layers2 className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Switch to DOM (/bg)</span>
           </a>
 
           {/* Solo Layer 0 Toggle (#off) */}
@@ -612,7 +800,7 @@ export const BgPlaygroundPage: React.FC = () => {
                 : 'bg-[var(--bg-card)]/80 border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-white'
             }`}
           >
-            {useCleanComposite ? 'Viewing: Static Master' : 'Viewing: Dynamic Engine'}
+            {useCleanComposite ? 'Viewing: Static Master' : 'Viewing: Canvas Engine'}
           </button>
 
           {/* Fullscreen Button */}
@@ -675,7 +863,7 @@ export const BgPlaygroundPage: React.FC = () => {
                 }`}
               >
                 <Info className="w-3.5 h-3.5" />
-                <span>Specs & Benchmark</span>
+                <span>Benchmark & Specs</span>
               </button>
             </div>
 
@@ -943,95 +1131,204 @@ export const BgPlaygroundPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 2. Water Stillness & Reactive Wave Disturbance */}
+                {/* 2. Water Reflection & Perspective Wave Distortion */}
                 <div className="p-3 rounded-xl bg-[var(--bg-card)]/40 border border-[var(--border-subtle)]/50 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-[var(--text-primary)] flex items-center gap-1.5">
                       <Waves className="w-3.5 h-3.5 text-cyan-400" />
-                      Water Reflections & Wave Motion
+                      Water Reflection & Perspective Waves
                     </span>
-                    <button
-                      onClick={() => setReflectionEnabled(!reflectionEnabled)}
-                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
-                        reflectionEnabled ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-700/50 text-slate-400'
-                      }`}
-                    >
-                      {reflectionEnabled ? 'REFLECT ON' : 'OFF'}
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => setWaterDistortionEnabled(!waterDistortionEnabled)}
+                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                          waterDistortionEnabled ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-700/50 text-slate-400'
+                        }`}
+                      >
+                        {waterDistortionEnabled ? 'WAVES ON' : 'STATIC'}
+                      </button>
+                      <button
+                        onClick={() => setReflectionEnabled(!reflectionEnabled)}
+                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                          reflectionEnabled ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-700/50 text-slate-400'
+                        }`}
+                      >
+                        {reflectionEnabled ? 'REFLECT ON' : 'OFF'}
+                      </button>
+                    </div>
+
+
                   </div>
 
-                  {/* Reactive vs Continuous mode toggle */}
-                  <div className="flex items-center justify-between pt-1">
-                    <div>
-                      <div className="font-medium text-[var(--text-secondary)]">Stillness / Mouse Reactivity</div>
-                      <div className="text-[10px] text-[var(--text-muted)]">
-                        {waterReactiveMode ? 'Water is still, ripples when mouse passes' : 'Continuous animated wave loop'}
+                  {/* Performance & Dynamic Telemetry status badge */}
+                  <div className="p-2.5 rounded-lg bg-emerald-950/30 border border-emerald-500/30 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-medium text-emerald-300 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        {waterWaveMode === 'continuous'
+                          ? 'Continuous Whole-Raster Wave Dynamics (Seamless)'
+                          : 'Perspective Wave Mesh (32 Bands • 4 Blur Tiers)'}
+                      </span>
+                      <span className="text-[9px] font-mono uppercase bg-emerald-900/50 text-emerald-300 px-1.5 py-0.5 rounded">
+                        &lt; 0.2ms / 60 FPS
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1 text-[10px] font-mono pt-0.5">
+                      <div className="bg-slate-900/60 px-2 py-1 rounded text-cyan-300">
+                        Wave Speed: <span className="text-white font-bold">{liveWaterSpeed.toFixed(2)}×</span>
+                        <span className="text-[9px] text-[var(--text-muted)] ml-1">(base {waterDistortionSpeed.toFixed(1)}×)</span>
+                      </div>
+                      <div className="bg-slate-900/60 px-2 py-1 rounded text-cyan-300">
+                        Horizon Blur: <span className="text-white font-bold">{liveWaterBlur.toFixed(1)}px</span>
+                        <span className="text-[9px] text-[var(--text-muted)] ml-1">(base {waterFarBackBlur.toFixed(1)}px)</span>
                       </div>
                     </div>
-                    <button
-                      onClick={() => setWaterReactiveMode(!waterReactiveMode)}
-                      className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all ${
-                        waterReactiveMode
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                          : 'bg-blue-500/20 text-blue-300 border border-blue-500/40'
-                      }`}
-                    >
-                      {waterReactiveMode ? 'Still (Reactive)' : 'Continuous'}
-                    </button>
+                    <p className="text-[10px] text-[var(--text-muted)] leading-normal">
+                      {waterWaveMode === 'continuous'
+                        ? 'Continuous whole-raster wave dynamics with horizon-anchored organic swell and harmonic drift. Zero slicing seams or Venetian blind artifacts across cloud reflections.'
+                        : `Perspective-accurate depth physics (A(v) ∝ v^${waterPerspectivePower.toFixed(1)}). Distant horizon features non-linear depth blur (${waterFarBackBlur.toFixed(1)}px baseline, surging dynamically) with smooth continuous temporal easing.`}
+                    </p>
                   </div>
 
-                  {waterReactiveMode ? (
-                    <div>
-                      <div className="flex justify-between text-[var(--text-muted)] mb-1">
-                        <span>Resting Wave Scale (Still State)</span>
-                        <span className="font-mono text-cyan-300">{waterRestingScale.toFixed(1)}px</span>
-                      </div>
-                      <input
-                        type="range"
-                        min="0"
-                        max="6"
-                        step="0.2"
-                        value={waterRestingScale}
-                        onChange={(e) => setWaterRestingScale(parseFloat(e.target.value))}
-                        className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
-                      />
-                    </div>
-                  ) : null}
-
+                  {/* Wave Dynamic Mode Toggle */}
                   <div>
-                    <div className="flex justify-between text-[var(--text-muted)] mb-1">
-                      <span>{waterReactiveMode ? 'Mouse Excitation Peak Scale' : 'Wave Ripple Scale'}</span>
+                    <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1.5">
+                      <span>Wave Dynamic Mode</span>
+                      <span className="font-mono text-cyan-300 capitalize">{waterWaveMode}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setWaterWaveMode('continuous')}
+                        className={`px-2.5 py-1.5 rounded text-xs font-medium border transition-colors flex items-center justify-center gap-1.5 ${
+                          waterWaveMode === 'continuous'
+                            ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200 shadow-sm'
+                            : 'bg-slate-800/60 border-slate-700 text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                        Continuous (Seamless)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setWaterWaveMode('bands')}
+                        className={`px-2.5 py-1.5 rounded text-xs font-medium border transition-colors flex items-center justify-center gap-1.5 ${
+                          waterWaveMode === 'bands'
+                            ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200 shadow-sm'
+                            : 'bg-slate-800/60 border-slate-700 text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        Bands ({waterBandCount} Strips)
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Bands Mode Parameters: Band Count & Band Offset */}
+                  {waterWaveMode === 'bands' && (
+                    <div className="p-2.5 rounded-lg bg-cyan-950/20 border border-cyan-500/30 space-y-3">
+                      <div>
+                        <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                          <span>Band Count (Slices)</span>
+                          <span className="font-mono text-cyan-300">{waterBandCount} bands</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="8"
+                          max="96"
+                          step="1"
+                          value={waterBandCount}
+                          onChange={(e) => setWaterBandCount(parseInt(e.target.value, 10))}
+                          disabled={!reflectionEnabled || !waterDistortionEnabled}
+                          className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                        />
+                        <div className="flex justify-between text-[9px] text-[var(--text-muted)] mt-0.5 font-mono">
+                          <span>8 (chunky)</span>
+                          <span>50 (default)</span>
+                          <span>96 (micro)</span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                          <span>Band Offset (Distance / Overlap)</span>
+                          <span className="font-mono text-cyan-300">
+                            {waterBandOffset > 0 ? `+${waterBandOffset.toFixed(1)}` : waterBandOffset.toFixed(1)}px
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="-4.0"
+                          max="4.0"
+                          step="0.1"
+                          value={waterBandOffset}
+                          onChange={(e) => setWaterBandOffset(parseFloat(e.target.value))}
+                          disabled={!reflectionEnabled || !waterDistortionEnabled}
+                          className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                        />
+                        <p className="text-[9px] text-[var(--text-muted)] mt-0.5 leading-tight">
+                          Distance between 2 bands: &lt; 0px gap spacing, 0px exact touch, &gt; 0px overlap padding.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Perspective Wave Scale */}
+                  <div>
+                    <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                      <span>Perspective Wave Scale</span>
                       <span className="font-mono text-cyan-300">{waterDistortionScale}px</span>
                     </div>
                     <input
                       type="range"
-                      min="0"
-                      max="36"
+                      min="25"
+                      max="55"
                       step="1"
                       value={waterDistortionScale}
                       onChange={(e) => setWaterDistortionScale(parseInt(e.target.value))}
-                      className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+                      disabled={!reflectionEnabled || !waterDistortionEnabled}
+                      className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
                     />
                   </div>
 
+                  {/* Wave Speed */}
                   <div>
-                    <div className="flex justify-between text-[var(--text-muted)] mb-1">
-                      <span>Water Ripple Frequency Speed</span>
+                    <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                      <span>Wave Speed (Baseline)</span>
                       <span className="font-mono text-cyan-300">{waterDistortionSpeed.toFixed(1)}×</span>
                     </div>
                     <input
                       type="range"
-                      min="0.2"
-                      max="2.5"
+                      min="0.1"
+                      max="2.0"
                       step="0.1"
                       value={waterDistortionSpeed}
                       onChange={(e) => setWaterDistortionSpeed(parseFloat(e.target.value))}
-                      className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+                      disabled={!reflectionEnabled || !waterDistortionEnabled}
+                      className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
                     />
                   </div>
 
+                  {/* Perspective Power */}
                   <div>
-                    <div className="flex justify-between text-[var(--text-muted)] mb-1">
+                    <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                      <span>Perspective Power</span>
+                      <span className="font-mono text-cyan-300">{waterPerspectivePower.toFixed(1)}p</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="2.0"
+                      max="4.0"
+                      step="0.1"
+                      value={waterPerspectivePower}
+                      onChange={(e) => setWaterPerspectivePower(parseFloat(e.target.value))}
+                      disabled={!reflectionEnabled || !waterDistortionEnabled}
+                      className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                    />
+                  </div>
+
+                  {/* Blur Transition Speed / Easing Rate */}
+                  <div>
+                    <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
                       <span>Blur Transition Speed / Easing Rate</span>
                       <span className="font-mono text-cyan-300">{waterBlurTransitionSpeed.toFixed(1)}/s</span>
                     </div>
@@ -1042,12 +1339,14 @@ export const BgPlaygroundPage: React.FC = () => {
                       step="0.1"
                       value={waterBlurTransitionSpeed}
                       onChange={(e) => setWaterBlurTransitionSpeed(parseFloat(e.target.value))}
-                      className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+                      disabled={!reflectionEnabled}
+                      className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
                     />
                   </div>
 
+                  {/* Far-Back Horizon Blur Peak */}
                   <div>
-                    <div className="flex justify-between text-[var(--text-muted)] mb-1">
+                    <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
                       <span>Far-Back Horizon Blur Peak</span>
                       <span className="font-mono text-cyan-300">{waterFarBackBlur.toFixed(1)}px</span>
                     </div>
@@ -1058,12 +1357,14 @@ export const BgPlaygroundPage: React.FC = () => {
                       step="0.1"
                       value={waterFarBackBlur}
                       onChange={(e) => setWaterFarBackBlur(parseFloat(e.target.value))}
-                      className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+                      disabled={!reflectionEnabled}
+                      className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
                     />
                   </div>
 
+                  {/* Reflection Opacity */}
                   <div>
-                    <div className="flex justify-between text-[var(--text-muted)] mb-1">
+                    <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
                       <span>Reflection Opacity</span>
                       <span className="font-mono text-cyan-300">{Math.round(reflectionOpacity * 100)}%</span>
                     </div>
@@ -1128,24 +1429,334 @@ export const BgPlaygroundPage: React.FC = () => {
                     </p>
                   </div>
 
+                  {/* Water Surface Backdrop Blur */}
                   <div>
-                    <div className="flex justify-between text-[var(--text-muted)] mb-1">
+                    <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
                       <span>Water Surface Backdrop Blur</span>
                       <span className="font-mono text-cyan-300">{waterBlur.toFixed(1)}px</span>
                     </div>
                     <input
                       type="range"
                       min="0"
-                      max="4.0"
-                      step="0.2"
+                      max="3.0"
+                      step="0.5"
                       value={waterBlur}
                       onChange={(e) => setWaterBlur(parseFloat(e.target.value))}
-                      className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+                      disabled={!reflectionEnabled}
+                      className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
                     />
                   </div>
                 </div>
 
-                {/* 3. Big Star Natural Luminous Shine */}
+                {/* 3. Deep Space Comet Dynamics (Comet Flame Tail & Core Pulse) */}
+                <div className="p-3 rounded-xl bg-[var(--bg-card)]/40 border border-[var(--border-subtle)]/50 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-[var(--text-primary)] flex items-center gap-1.5">
+                      <Flame className="w-3.5 h-3.5 text-cyan-400" />
+                      Comet Flame Tail & Core Pulse
+                    </span>
+                    <button
+                      onClick={() => {
+                        const next = !cometFlameTailEnabled;
+                        setCometFlameTailEnabled(next);
+                        setCometCorePulseEnabled(next);
+                      }}
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                        cometFlameTailEnabled ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-700/50 text-slate-400'
+                      }`}
+                    >
+                      {cometFlameTailEnabled ? 'FLAME & PULSE' : 'STATIC'}
+                    </button>
+                  </div>
+
+                  {/* Dust Tail Properties */}
+                  <div className="space-y-2 pt-1 border-t border-[var(--border-subtle)]/30">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs text-[var(--text-secondary)] font-medium">Dust Tail Properties</div>
+                      <button
+                        onClick={() => setCometFlameTailEnabled(!cometFlameTailEnabled)}
+                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-medium ${
+                          cometFlameTailEnabled ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-700/50 text-slate-400'
+                        }`}
+                      >
+                        {cometFlameTailEnabled ? 'Active' : 'Off'}
+                      </button>
+                    </div>
+
+                    {/* Tail Flame Wave Turbulence Speed */}
+                    <div>
+                      <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                        <span>Wave Turbulence Speed</span>
+                        <span className="font-mono text-cyan-300">{cometFlameTailSpeed.toFixed(1)}×</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.2"
+                        max="3.0"
+                        step="0.1"
+                        value={cometFlameTailSpeed}
+                        onChange={(e) => setCometFlameTailSpeed(parseFloat(e.target.value))}
+                        disabled={!cometFlameTailEnabled}
+                        className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                      />
+                    </div>
+
+                    {/* 1. Tail Flame Turbulence / Wave Amplitude (orthogonal displacement) */}
+                    <div>
+                      <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                        <span>Tail Flame Turbulence / Wave Amplitude</span>
+                        <span className="font-mono text-cyan-300">{cometTailTurbulence.toFixed(1)}×</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.0"
+                        max="3.0"
+                        step="0.1"
+                        value={cometTailTurbulence}
+                        onChange={(e) => setCometTailTurbulence(parseFloat(e.target.value))}
+                        disabled={!cometFlameTailEnabled}
+                        className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                      />
+                    </div>
+
+                    {/* 2. Tail Flame Flicker Intensity */}
+                    <div>
+                      <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                        <span>Tail Flame Flicker Intensity</span>
+                        <span className="font-mono text-cyan-300">{cometTailFlickerIntensity.toFixed(1)}×</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.0"
+                        max="2.5"
+                        step="0.1"
+                        value={cometTailFlickerIntensity}
+                        onChange={(e) => setCometTailFlickerIntensity(parseFloat(e.target.value))}
+                        disabled={!cometFlameTailEnabled}
+                        className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                      />
+                    </div>
+
+                    {/* 3. Tail Flame Flicker Speed / Frequency */}
+                    <div>
+                      <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                        <span>Tail Flame Flicker Speed / Frequency</span>
+                        <span className="font-mono text-cyan-300">{cometTailFlickerSpeed.toFixed(1)}×</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.2"
+                        max="3.0"
+                        step="0.1"
+                        value={cometTailFlickerSpeed}
+                        onChange={(e) => setCometTailFlickerSpeed(parseFloat(e.target.value))}
+                        disabled={!cometFlameTailEnabled}
+                        className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                      />
+                    </div>
+
+                    {/* 4. Tail Lateral Spread Factor */}
+                    <div>
+                      <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                        <span>Tail Lateral Spread Factor</span>
+                        <span className="font-mono text-cyan-300">{cometTailSpreadFactor.toFixed(1)}×</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.0"
+                        max="2.5"
+                        step="0.1"
+                        value={cometTailSpreadFactor}
+                        onChange={(e) => setCometTailSpreadFactor(parseFloat(e.target.value))}
+                        disabled={!cometFlameTailEnabled}
+                        className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                      />
+                    </div>
+
+                    {/* 5. Tail Terminal Fade Power */}
+                    <div>
+                      <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                        <span>Tail Terminal Fade Power</span>
+                        <span className="font-mono text-cyan-300">{cometTailFadePower.toFixed(2)}p</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.5"
+                        max="3.0"
+                        step="0.05"
+                        value={cometTailFadePower}
+                        onChange={(e) => setCometTailFadePower(parseFloat(e.target.value))}
+                        disabled={!cometFlameTailEnabled}
+                        className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Core Streak Properties */}
+                  <div className="space-y-2 pt-2 border-t border-[var(--border-subtle)]/30">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs text-[var(--text-secondary)] font-medium">Core Streak Properties</div>
+                      <button
+                        onClick={() => setCometCorePulseEnabled(!cometCorePulseEnabled)}
+                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-medium ${
+                          cometCorePulseEnabled ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-700/50 text-slate-400'
+                        }`}
+                      >
+                        {cometCorePulseEnabled ? 'Pulse ON' : 'Pulse OFF'}
+                      </button>
+                    </div>
+
+                    {/* 1. Core Streak Base Opacity */}
+                    <div>
+                      <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                        <span>Core Streak Base Opacity</span>
+                        <span className="font-mono text-cyan-300">{Math.round(cometCoreBaseOpacity * 100)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.0"
+                        max="1.0"
+                        step="0.05"
+                        value={cometCoreBaseOpacity}
+                        onChange={(e) => setCometCoreBaseOpacity(parseFloat(e.target.value))}
+                        disabled={!cometEnabled}
+                        className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                      />
+                    </div>
+
+                    {/* 2. Core Traveling Pulse Speed */}
+                    <div>
+                      <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                        <span>Core Traveling Pulse Speed</span>
+                        <span className="font-mono text-cyan-300">{cometCorePulseSpeed.toFixed(1)}×</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.2"
+                        max="3.0"
+                        step="0.1"
+                        value={cometCorePulseSpeed}
+                        onChange={(e) => setCometCorePulseSpeed(parseFloat(e.target.value))}
+                        disabled={!cometCorePulseEnabled}
+                        className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                      />
+                    </div>
+
+                    {/* 3. Core Stretch Length / Amplitude along angle */}
+                    <div>
+                      <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                        <span>Core Stretch Length / Amplitude along angle</span>
+                        <span className="font-mono text-cyan-300">{cometCoreStretchScale.toFixed(1)}×</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.0"
+                        max="2.5"
+                        step="0.1"
+                        value={cometCoreStretchScale}
+                        onChange={(e) => setCometCoreStretchScale(parseFloat(e.target.value))}
+                        disabled={!cometCorePulseEnabled}
+                        className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                      />
+                    </div>
+
+                    {/* 4. Core Pulse Peak Brightness / Surge Opacity */}
+                    <div>
+                      <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                        <span>Core Pulse Peak Brightness / Surge Opacity</span>
+                        <span className="font-mono text-cyan-300">{Math.round(cometCorePeakBrightness * 100)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.1"
+                        max="1.0"
+                        step="0.02"
+                        value={cometCorePeakBrightness}
+                        onChange={(e) => setCometCorePeakBrightness(parseFloat(e.target.value))}
+                        disabled={!cometCorePulseEnabled}
+                        className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                      />
+                    </div>
+
+                    {/* 5. Core Baseline Hidden Opacity */}
+                    <div>
+                      <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                        <span>Core Baseline Hidden Opacity</span>
+                        <span className="font-mono text-cyan-300">{Math.round(cometCoreBaselineOpacity * 100)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.0"
+                        max="0.25"
+                        step="0.01"
+                        value={cometCoreBaselineOpacity}
+                        onChange={(e) => setCometCoreBaselineOpacity(parseFloat(e.target.value))}
+                        disabled={!cometCorePulseEnabled}
+                        className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Living Breathing Galaxy (Milky Way Celestial Respiration) */}
+                <div className="p-3 rounded-xl bg-[var(--bg-card)]/40 border border-[var(--border-subtle)]/50 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-[var(--text-primary)] flex items-center gap-1.5">
+                      <Compass className="w-3.5 h-3.5 text-cyan-400" />
+                      Living Breathing Galaxy (Milky Way)
+                    </span>
+                    <button
+                      onClick={() => setGalaxyBreathingEnabled(!galaxyBreathingEnabled)}
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                        galaxyBreathingEnabled ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-700/50 text-slate-400'
+                      }`}
+                    >
+                      {galaxyBreathingEnabled ? 'BREATHING' : 'STATIC'}
+                    </button>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                      <span>Respiration Cycle Speed</span>
+                      <span className="font-mono text-cyan-300">{galaxyBreathingSpeed.toFixed(1)}×</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.2"
+                      max="2.5"
+                      step="0.1"
+                      value={galaxyBreathingSpeed}
+                      onChange={(e) => setGalaxyBreathingSpeed(parseFloat(e.target.value))}
+                      disabled={!galaxyBreathingEnabled}
+                      className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                    />
+                    <div className="text-[10px] text-[var(--text-muted)] mt-1">
+                      Ultra-slow 18–28s harmonic oscillation without size deformation.
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                      <span>Luminosity & Opacity Depth</span>
+                      <span className="font-mono text-cyan-300">{galaxyBreathingIntensity.toFixed(1)}×</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.0"
+                      max="2.0"
+                      step="0.1"
+                      value={galaxyBreathingIntensity}
+                      onChange={(e) => setGalaxyBreathingIntensity(parseFloat(e.target.value))}
+                      disabled={!galaxyBreathingEnabled}
+                      className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                    />
+                    <div className="text-[10px] text-[var(--text-muted)] mt-1">
+                      Subtle phase offsets across base dust, core gas, and bright highlights.
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Big Star Natural Luminous Shine */}
                 <div className="p-3 rounded-xl bg-[var(--bg-card)]/40 border border-[var(--border-subtle)]/50 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-[var(--text-primary)] flex items-center gap-1.5">
@@ -1165,18 +1776,23 @@ export const BgPlaygroundPage: React.FC = () => {
                   <div>
                     <div className="flex justify-between text-[var(--text-muted)] mb-1">
                       <span>Shine Intensity (Scintillation Core)</span>
-                      <span className="font-mono text-cyan-300">{Math.round(bigStarShineIntensity * 100)}%</span>
+                      <span className="font-mono text-cyan-300">
+                        {Number((bigStarShineIntensity * 100).toFixed(1))}%
+                      </span>
                     </div>
                     <input
                       type="range"
                       min="0"
-                      max="2.0"
-                      step="0.05"
+                      max="0.15"
+                      step="0.005"
                       value={bigStarShineIntensity}
                       onChange={(e) => setBigStarShineIntensity(parseFloat(e.target.value))}
                       disabled={!bigStarShineEnabled}
                       className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
                     />
+                    <div className="text-[10px] text-[var(--text-muted)] mt-1">
+                      Calibrated max 15%. Scales flare smoothly from 50% at 0% to 100% at 15%.
+                    </div>
                   </div>
 
                   <div>
@@ -1186,9 +1802,9 @@ export const BgPlaygroundPage: React.FC = () => {
                     </div>
                     <input
                       type="range"
-                      min="14"
-                      max="48"
-                      step="2"
+                      min="6"
+                      max="26"
+                      step="1"
                       value={bigStarFlareSize}
                       onChange={(e) => setBigStarFlareSize(parseInt(e.target.value))}
                       disabled={!bigStarShineEnabled}
@@ -1214,7 +1830,7 @@ export const BgPlaygroundPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 4. Calm Mist Dispersion & Destruction Loop */}
+                {/* 4. Calm Mist Dispersion */}
                 <div className="p-3 rounded-xl bg-[var(--bg-card)]/40 border border-[var(--border-subtle)]/50 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-[var(--text-primary)] flex items-center gap-1.5">
@@ -1288,54 +1904,108 @@ export const BgPlaygroundPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 5. Cloud Super-Slow Movement & Organic Morphing */}
+                {/* 5. Cloud Slow Drift & Multi-Zone Billow Distortion */}
                 <div className="p-3 rounded-xl bg-[var(--bg-card)]/40 border border-[var(--border-subtle)]/50 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-[var(--text-primary)] flex items-center gap-1.5">
                       <Cloud className="w-3.5 h-3.5 text-cyan-400" />
-                      Cloud Slow Drift & Distortion
+                      Cloud Slow Drift & Billow Distortion
                     </span>
                     <button
-                      onClick={() => setCloudDriftEnabled(!cloudDriftEnabled)}
+                      onClick={() => {
+                        const next = !cloudDistortionEnabled;
+                        setCloudDistortionEnabled(next);
+                      }}
                       className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
-                        cloudDriftEnabled ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-700/50 text-slate-400'
+                        cloudDistortionEnabled ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-700/50 text-slate-400'
                       }`}
                     >
-                      {cloudDriftEnabled ? 'DRIFT ON' : 'STATIC'}
+                      {cloudDistortionEnabled ? 'BILLOWING' : 'STATIC'}
                     </button>
                   </div>
 
-                  <div>
-                    <div className="flex justify-between text-[var(--text-muted)] mb-1">
-                      <span>High-Altitude Drift Speed</span>
-                      <span className="font-mono text-cyan-300">{cloudDriftSpeed.toFixed(1)}×</span>
+                  {/* Drift Controls */}
+                  <div className="space-y-2 pt-1 border-t border-[var(--border-subtle)]/30">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs text-[var(--text-secondary)] font-medium">Horizontal Wind Drift</div>
+                      <button
+                        onClick={() => setCloudDriftEnabled(!cloudDriftEnabled)}
+                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-medium ${
+                          cloudDriftEnabled ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-700/50 text-slate-400'
+                        }`}
+                      >
+                        {cloudDriftEnabled ? 'Active' : 'Off'}
+                      </button>
                     </div>
-                    <input
-                      type="range"
-                      min="0.2"
-                      max="2.5"
-                      step="0.1"
-                      value={cloudDriftSpeed}
-                      onChange={(e) => setCloudDriftSpeed(parseFloat(e.target.value))}
-                      disabled={!cloudDriftEnabled}
-                      className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
-                    />
+
+                    <div>
+                      <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                        <span>High-Altitude Drift Speed</span>
+                        <span className="font-mono text-cyan-300">{cloudDriftSpeed.toFixed(1)}×</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.2"
+                        max="2.5"
+                        step="0.1"
+                        value={cloudDriftSpeed}
+                        onChange={(e) => setCloudDriftSpeed(parseFloat(e.target.value))}
+                        disabled={!cloudDriftEnabled}
+                        className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <div className="flex justify-between text-[var(--text-muted)] mb-1">
-                      <span>Organic Morphing Distortion (SVG Turbulence)</span>
-                      <span className="font-mono text-cyan-300">{cloudDistortionScale}px</span>
+                  {/* Multi-Zone Billow Distortion Controls */}
+                  <div className="space-y-2 pt-2 border-t border-[var(--border-subtle)]/30">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs text-[var(--text-secondary)] font-medium">Multi-Zone Vapor Pocket Billowing</div>
+                      <button
+                        onClick={() => setCloudDistortionEnabled(!cloudDistortionEnabled)}
+                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-medium ${
+                          cloudDistortionEnabled ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-700/50 text-slate-400'
+                        }`}
+                      >
+                        {cloudDistortionEnabled ? 'Distorting' : 'Off'}
+                      </button>
                     </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="16"
-                      step="1"
-                      value={cloudDistortionScale}
-                      onChange={(e) => setCloudDistortionScale(parseInt(e.target.value))}
-                      className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
-                    />
+
+                    <div>
+                      <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                        <span>Organic Billow Distortion Scale</span>
+                        <span className="font-mono text-cyan-300">{cloudDistortionScale}px</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="16"
+                        step="1"
+                        value={cloudDistortionScale}
+                        onChange={(e) => setCloudDistortionScale(parseInt(e.target.value))}
+                        disabled={!cloudDistortionEnabled}
+                        className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                      />
+                      <div className="text-[10px] text-[var(--text-muted)] mt-1">
+                        Seamless whole-raster anisotropic aspect breathing and vapor pocket respiration (zero grid lines, zero seams).
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                        <span>Billow Morphing & Respiration Speed</span>
+                        <span className="font-mono text-cyan-300">{cloudMorphSpeed.toFixed(1)}×</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.2"
+                        max="2.5"
+                        step="0.1"
+                        value={cloudMorphSpeed}
+                        onChange={(e) => setCloudMorphSpeed(parseFloat(e.target.value))}
+                        disabled={!cloudDistortionEnabled}
+                        className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer disabled:opacity-30"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1457,78 +2127,94 @@ export const BgPlaygroundPage: React.FC = () => {
               </div>
             )}
 
-            {/* TAB 3: SPECS, ARCHITECTURE & TRIMMING BENCHMARK */}
+            {/* TAB 3: BENCHMARK & SPECS */}
             {activeTab === 'info' && (
               <div className="space-y-3.5 text-[var(--text-secondary)] leading-relaxed">
-                {/* 1. Trimming Analysis */}
-                <div className="p-3.5 rounded-xl bg-cyan-950/40 border border-cyan-700/50 text-cyan-200 space-y-2">
+                {/* 1. Real-Time Telemetry Card */}
+                <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-700/50 text-emerald-200 space-y-2">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-bold text-xs text-cyan-300">Empirical Trimming Benchmark</h4>
-                    <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-cyan-900/60 text-cyan-300">
-                      SAVINGS: 0.5% (20 KB)
+                    <h4 className="font-bold text-xs text-emerald-300 flex items-center gap-1.5">
+                      <Activity className="w-4 h-4 text-emerald-400" />
+                      Live Canvas Performance Benchmark
+                    </h4>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-emerald-900/60 text-emerald-300">
+                      HTML5 2D CONTEXT
                     </span>
                   </div>
-                  <p className="text-[11px] leading-normal">
-                    We tested cropping empty transparent pixels from all 19 Photoshop layer breakdown files versus retaining full-canvas registration:
-                  </p>
-                  <div className="grid grid-cols-2 gap-2 text-[10px] font-mono bg-black/40 p-2 rounded-lg border border-cyan-900/40">
-                    <div>Full Canvas WebP: <strong>3.76 MB</strong></div>
-                    <div>Trimmed WebP: <strong>3.74 MB</strong></div>
-                    <div>Byte Difference: <strong>0.02 MB</strong></div>
-                    <div>Bandwidth Savings: <strong>0.5%</strong></div>
+                  <div className="grid grid-cols-2 gap-2 text-[10px] font-mono bg-black/40 p-2 rounded-lg border border-emerald-900/40">
+                    <div>
+                      Framerate:{' '}
+                      <strong className="text-emerald-300 text-xs">{fps.toFixed(1)} FPS</strong>
+                    </div>
+                    <div>
+                      Frame Time:{' '}
+                      <strong className="text-emerald-300 text-xs">{frameTimeMs.toFixed(1)} ms</strong>
+                    </div>
+                    <div>Canvas Resolution: <strong>1920×1187</strong></div>
+                    <div>DOM Elements: <strong>1 (&lt;canvas&gt;)</strong></div>
                   </div>
-                  <p className="text-[11px] leading-normal text-cyan-300">
-                    <strong>Recommendation: Keep full-canvas registration (1920×1187).</strong>
-                  </p>
-                  <p className="text-[11px] text-cyan-100/80">
-                    WebP run-length and entropy coding compresses transparent alpha pixels to near zero bytes. Cropping provides negligible bandwidth savings while introducing severe layout penalties: custom bounding box offsets for every layer, fractional subpixel tearing during browser scaling, and completely breaking horizon-mirrored reflection geometry across dynamic viewport ratios.
-                  </p>
                 </div>
 
-                {/* 2. Parallax Depth Rationale */}
-                <div className="space-y-1">
-                  <h5 className="font-semibold text-[var(--text-primary)]">
-                    Depth Hierarchy & Physical Distance Rationale
-                  </h5>
-                  <p className="text-[11px] text-[var(--text-muted)]">
-                    The Photoshop layer index <code>X</code> reflects drawing stack order rather than distance. True parallax displacement is calibrated by cosmic distance:
-                  </p>
-                  <ul className="text-[10px] text-[var(--text-muted)] list-disc pl-4 space-y-0.5">
-                    <li><strong>Space & Milky Way (0.0-2.3):</strong> 25,000 light-years → minimal displacement (0.006 - 0.016)</li>
-                    <li><strong>Stars (3.0) & Meteors (7.x):</strong> Upper atmosphere & cosmos → anchored (0.022 - 0.025)</li>
-                    <li><strong>Clouds (4.0-4.2):</strong> 10-15 km high → subtle depth drift (0.065 - 0.075)</li>
-                    <li><strong>Horizon Mist (5.1-5.2):</strong> 1-3 km distance → moderate displacement (0.11 - 0.14)</li>
-                    <li><strong>Disperse Mist (5.3):</strong> Foreground camera plane → dynamic 3D immersion (0.32)</li>
-                  </ul>
+                {/* 2. Side-by-Side Comparison: Canvas vs DOM */}
+                <div className="p-3.5 rounded-xl bg-[var(--bg-card)]/60 border border-[var(--border-subtle)] space-y-2">
+                  <h4 className="font-bold text-xs text-cyan-300">Architecture Comparison: Canvas vs DOM</h4>
+                  <div className="overflow-x-auto text-[10px]">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-slate-700/60 text-[var(--text-muted)]">
+                          <th className="py-1 pr-2">Feature</th>
+                          <th className="py-1 px-2 text-cyan-300">HTML5 Canvas (/bg-canvas)</th>
+                          <th className="py-1 pl-2 text-amber-300">DOM Stack (/bg)</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/40">
+                        <tr>
+                          <td className="py-1 font-medium">DOM Nodes</td>
+                          <td className="py-1 px-2 text-emerald-400">1 canvas element</td>
+                          <td className="py-1 pl-2 text-slate-300">19+ img + div layers</td>
+                        </tr>
+                        <tr>
+                          <td className="py-1 font-medium">Water Distortion</td>
+                          <td className="py-1 px-2 text-emerald-400">Perspective wave bands (32 strips / &lt;0.2ms / 60 FPS)</td>
+                          <td className="py-1 pl-2 text-slate-300">SVG feDisplacementMap</td>
+                        </tr>
+                        <tr>
+                          <td className="py-1 font-medium">Reflection Plane</td>
+                          <td className="py-1 px-2 text-emerald-400">Offscreen 1920×462 buffer</td>
+                          <td className="py-1 pl-2 text-slate-300">CSS scaleY(-1) + clip-path</td>
+                        </tr>
+                        <tr>
+                          <td className="py-1 font-medium">Star Scintillation</td>
+                          <td className="py-1 px-2 text-emerald-400">Procedural 2D flare pass</td>
+                          <td className="py-1 pl-2 text-slate-300">CSS keyframes + drop-shadow</td>
+                        </tr>
+                        <tr>
+                          <td className="py-1 font-medium">GPU Blend Modes</td>
+                          <td className="py-1 px-2 text-emerald-400">globalCompositeOperation</td>
+                          <td className="py-1 pl-2 text-slate-300">mix-blend-mode</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
 
                 {/* 3. Water Reflection Geometry */}
                 <div className="space-y-1">
                   <h5 className="font-semibold text-[var(--text-primary)]">
-                    Water Reflection Mirroring (Zero Duplicated Assets)
+                    Water Reflection Mirroring & Perspective Bands Performance
                   </h5>
                   <p className="text-[11px] text-[var(--text-muted)]">
-                    The sea horizon is bit-aligned at <strong>y = 725 px</strong> (61.08% from top). Reflected sky layers are mirrored via <code>scaleY(-1)</code> with <code>transformOrigin: 50% 61.08%</code> and clipped to the ocean plane via <code>clipPath: inset(61.08% 0 0 0)</code>. Parallax movement and animations in the sky naturally reflect in real-time.
+                    The sea horizon is bit-aligned at <strong>y = 725 px</strong> (61.08% from top). Reflected sky layers are rendered to an offscreen buffer (1920×462 px) using a horizon mirror transform. The reflection is then blitted through 32 perspective-expanded bands with an oceanic gradient overlay, maintaining a rock-solid 60 FPS (&lt; 0.2ms draw time) with zero transparent seam gaps.
                   </p>
                 </div>
 
-                {/* 4. Water Stillness & Disturbance */}
+                {/* 4. Perspective Water Wave Physics */}
                 <div className="space-y-1">
                   <h5 className="font-semibold text-[var(--text-primary)]">
-                    Still Water & Mouse Wave Excitation
+                    Perspective Water Wave Depth Physics
                   </h5>
                   <p className="text-[11px] text-[var(--text-muted)]">
-                    Water remains still at rest. When the cursor passes over the ocean plane, cursor velocity excites wave displacement on the SVG <code>&lt;feDisplacementMap&gt;</code>, which then decays exponentially back to glassy stillness.
-                  </p>
-                </div>
-
-                {/* 5. Gaseous Mist & Cloud Distortion */}
-                <div className="space-y-1">
-                  <h5 className="font-semibold text-[var(--text-primary)]">
-                    Organic Dissipation & Cloud Morphing
-                  </h5>
-                  <p className="text-[11px] text-[var(--text-muted)]">
-                    Foreground mist is generated through a 3-instance lifecycle loop with staggered phase delays, smoothly emerging, drifting, expanding, and dissolving. Clouds morph subtly via an ultra-low frequency SVG turbulence filter.
+                    Depth perspective models physical distance from camera ($A(v) \propto v^{1.8}$). At the distant horizon ($v = 0$), displacement is microscopic ($A \approx 0$) with tightly compressed spatial frequency. In the foreground ($v = 1$), rolling swells crest and trough with natural wide undulation, creating realistic depth immersion.
                   </p>
                 </div>
               </div>
@@ -1540,4 +2226,4 @@ export const BgPlaygroundPage: React.FC = () => {
   );
 };
 
-export default BgPlaygroundPage;
+export default BgCanvasPlaygroundPage;

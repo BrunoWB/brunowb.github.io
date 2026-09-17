@@ -59,13 +59,13 @@ export const cvData: CvDictionary = {
     entry: {
       date: '2016',
       degree: {
-        en: 'Software Engineer',
-        fr: 'Ingénieur Logiciel',
+        en: "Bachelor's",
+        fr: 'Baccalauréat',
         pt: 'Bacharelado',
       },
       major: {
-        en: 'Information Systems',
-        fr: "Systèmes d'Information",
+        en: 'Software Engineer',
+        fr: 'Ingénieur Logiciel',
         pt: 'Sistemas de Informação',
       },
       institution: 'Unilasalle-RJ',
