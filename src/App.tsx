@@ -6,7 +6,6 @@ import { ThemeToggle } from './components/common/ThemeToggle';
 import { KofiButton } from './components/common/KofiButton';
 
 const UiElementsPage = React.lazy(() => import('./pages/UiElementsPage'));
-const BgPlaygroundPage = React.lazy(() => import('./pages/BgPlaygroundPage'));
 const BgCanvasPlaygroundPage = React.lazy(() => import('./pages/BgCanvasPlaygroundPage'));
 
 export const resolveRoute = (): string => {
@@ -17,42 +16,22 @@ export const resolveRoute = (): string => {
   if (hash === 'ui-elements') return 'ui-elements';
 
   const path = window.location.pathname.replace(/^\/|\/$/g, '');
-  const isBgCanvasPath = path === 'bg-canvas' || path.startsWith('bg-canvas/');
-  const isBgPath = path === 'bg' || path.startsWith('bg/');
+  const isBgCanvasPath = path === 'bg-canvas' || path.startsWith('bg-canvas/') || path === 'bg' || path.startsWith('bg/');
 
   const isBgCanvasHash =
     hash === 'bg-canvas' ||
-    hash.startsWith('bg-canvas#') ||
-    hash.startsWith('bg-canvas/') ||
-    hash.startsWith('bg-canvas?') ||
-    /(?:^|[#/&?])bg-canvas(?:[#/&?]|$)/.test(rawHash);
-
-  // If hash explicitly points to bg-canvas
-  if (isBgCanvasHash) {
-    return 'bg-canvas';
-  }
-
-  // If hash is explicitly #off while already on a bg-canvas pathname
-  if (isBgCanvasPath && (hash === 'off' || /(?:^|[#/&?])off(?:[#/&?]|$)/.test(rawHash)) && !hash.includes('bg')) {
-    return 'bg-canvas';
-  }
-
-  const isBgHash =
     hash === 'bg' ||
     hash === 'off' ||
+    hash.startsWith('bg-canvas') ||
     hash.startsWith('bg#') ||
     hash.startsWith('bg/') ||
     hash.startsWith('bg?') ||
-    /(?:^|[#/&?])bg(?:[#/&?]|$)/.test(rawHash) ||
-    (/(?:^|[#/&?])off(?:[#/&?]|$)/.test(rawHash) && !hash.includes('ui-elements'));
+    /(?:^|[#/&?])(bg-canvas|bg|off)(?:[#/&?]|$)/.test(rawHash);
 
-  if (isBgHash) {
-    return 'bg';
+  if (isBgCanvasHash || isBgCanvasPath) {
+    return 'bg-canvas';
   }
 
-  // Fallback to pathname when no hash route matches
-  if (isBgCanvasPath) return 'bg-canvas';
-  if (isBgPath) return 'bg';
   return 'home';
 };
 
@@ -80,8 +59,6 @@ export const App: React.FC = () => {
           <React.Suspense fallback={<div className="min-h-screen bg-[#021319]" />}>
             {route === 'bg-canvas' ? (
               <BgCanvasPlaygroundPage />
-            ) : route === 'bg' ? (
-              <BgPlaygroundPage />
             ) : route === 'ui-elements' ? (
               <UiElementsPage />
             ) : (
@@ -90,7 +67,7 @@ export const App: React.FC = () => {
           </React.Suspense>
 
           {/* Persistent Floating Bubbles */}
-          {route !== 'bg' && route !== 'bg-canvas' && (
+          {route !== 'bg-canvas' && (
             <>
               <KofiButton />
               <ThemeToggle />
