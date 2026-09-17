@@ -68,13 +68,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           e.preventDefault();
           document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
         }}
-        className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] dark:text-cyan-400/80 dark:hover:text-cyan-200 transition-all duration-200 group cursor-pointer select-none px-3.5 py-1 rounded-full bg-white/80 dark:bg-transparent backdrop-blur-xs border border-[rgba(0,139,163,0.25)] dark:border-transparent shadow-[0_2px_8px_rgba(6,38,48,0.06)] dark:shadow-none"
+        className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1 text-xs text-[var(--text-primary)] hover:text-[var(--brand-primary)] dark:text-cyan-400/80 dark:hover:text-cyan-200 transition-all duration-200 group cursor-pointer select-none px-3.5 py-1"
         aria-label="Scroll to projects"
       >
-        <span className="text-[11px] font-semibold tracking-wider uppercase opacity-85 group-hover:opacity-100 transition-opacity">
+        <span className="text-[11px] font-semibold tracking-wider uppercase dark:opacity-85 group-hover:opacity-100 transition-opacity">
           {t(uiTranslations.hero.scrollButton)}
         </span>
-        <span className="inline-block animate-bounce-slow text-base leading-none text-[var(--brand-primary)]">↓</span>
+        <span className="inline-block animate-bounce-slow text-base leading-none text-[var(--text-primary)] group-hover:text-[var(--brand-primary)] dark:text-[var(--brand-primary)]">
+          ↓
+        </span>
       </a>
     </section>
   );

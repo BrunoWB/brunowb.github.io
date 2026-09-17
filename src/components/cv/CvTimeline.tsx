@@ -136,7 +136,7 @@ export const CvTimeline: React.FC = () => {
                 onMouseLeave={() => {
                   if (pos.company) setHoveredJobId(null);
                 }}
-                className={`sticky bg-[var(--bg-paper)]/95 dark:bg-[var(--bg-paper)]/95 backdrop-blur-md py-1.5 -mx-2 px-2 rounded-lg transition-opacity duration-200 shadow-xs ${
+                className={`sticky bg-[var(--bg-paper)]/95 dark:bg-[var(--bg-paper)]/95 backdrop-blur-md py-1.5 -mx-2 px-2 rounded-lg transition-opacity duration-200 ${
                   isItemActive ? 'opacity-100' : 'opacity-30'
                 }`}
               >

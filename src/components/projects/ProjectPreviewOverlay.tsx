@@ -114,27 +114,29 @@ export const ProjectPreviewOverlay: React.FC<ProjectPreviewOverlayProps> = ({ ac
             className="absolute inset-0 w-full h-full bg-[#03131a] shadow-[-20px_0_50px_rgba(0,0,0,0.5)] will-change-transform"
           >
             {/* Media Content */}
-            <div className="relative w-full h-full">
-              {preview.type === 'video' ? (
-                <video
-                  key={preview.src}
-                  src={preview.src}
-                  poster={preview.poster}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  preload="auto"
-                  className="w-full h-full object-cover object-left"
-                />
-              ) : (
-                <img
-                  key={preview.src}
-                  src={preview.src}
-                  alt={project.title}
-                  className="w-full h-full object-cover object-left"
-                />
-              )}
+            <div className="relative w-full h-full overflow-hidden">
+              <div className="absolute inset-y-0 left-0 w-[112.5%] h-full">
+                {preview.type === 'video' ? (
+                  <video
+                    key={preview.src}
+                    src={preview.src}
+                    poster={preview.poster}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    preload="auto"
+                    className="w-full h-full object-cover object-center"
+                  />
+                ) : (
+                  <img
+                    key={preview.src}
+                    src={preview.src}
+                    alt={project.title}
+                    className="w-full h-full object-cover object-center"
+                  />
+                )}
+              </div>
 
               {/* Gradient Scrims for Atmosphere & Mode Integration */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/15 dark:from-[var(--bg-section)]/80 dark:to-[var(--bg-section)]/40 pointer-events-none" />

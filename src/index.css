@@ -451,4 +451,23 @@ html:not(.dark) .greeting-punct {
   }
 }
 
+/* ==========================================================================
+   Project Visual SVG Utility Classes
+   ========================================================================== */
+.visual-svg-wrapper {
+  filter: drop-shadow(0 2px 6px rgba(6, 38, 48, 0.05));
+  transition: filter 0.3s ease, transform 0.3s ease;
+}
+html.dark .visual-svg-wrapper {
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+}
+.group:hover .visual-svg-wrapper,
+.visual-svg-wrapper:hover {
+  filter: drop-shadow(0 4px 12px rgba(6, 38, 48, 0.1));
+}
+html.dark .group:hover .visual-svg-wrapper,
+html.dark .visual-svg-wrapper:hover {
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.45));
+}
+
 

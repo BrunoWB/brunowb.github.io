@@ -28,27 +28,25 @@ export const BwpxSvg: React.FC<{ className?: string }> = ({ className = '' }) =>
 
   return (
     <svg
-      className={`w-[170px] h-[85px] transition-all duration-300 drop-shadow-[0_2px_8px_rgba(0,210,235,0.15)] group-hover:scale-105 group-hover:drop-shadow-[0_4px_16px_rgba(0,229,255,0.35)] ${className}`}
+      className={`w-[170px] h-[85px] transition-all duration-300 visual-svg-wrapper group-hover:scale-105 ${className}`}
       viewBox="0 0 160 80"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-label="Freeform wolf pixel art editor canvas"
     >
       <defs>
-        {/* Brand Radial Gradient: Violet to Signature Cyan */}
-        <radialGradient
+        {/* Brand Theme Gradient: Brand Secondary (Purple) to Brand Primary (Cyan) */}
+        <linearGradient
           id={wolfGradId}
-          cx="100%"
-          cy="100%"
-          r="135%"
-          gradientUnits="userSpaceOnUse"
-          fx="31"
-          fy="29"
+          x1="0%"
+          y1="0%"
+          x2="100%"
+          y2="100%"
         >
-          <stop offset="0%" stopColor="#a855f7" />
-          <stop offset="55%" stopColor="#00d2eb" />
-          <stop offset="100%" stopColor="#00f0ff" />
-        </radialGradient>
+          <stop offset="0%" stopColor="var(--brand-secondary)" style={{ stopColor: 'var(--brand-secondary)' }} />
+          <stop offset="55%" stopColor="var(--brand-secondary)" style={{ stopColor: 'var(--brand-secondary)' }} />
+          <stop offset="100%" stopColor="var(--brand-primary)" style={{ stopColor: 'var(--brand-primary)' }} />
+        </linearGradient>
 
         {/* 2x2px Freeform Pixel Editor Grid Mesh Pattern */}
         <pattern
@@ -60,7 +58,7 @@ export const BwpxSvg: React.FC<{ className?: string }> = ({ className = '' }) =>
           <path
             d="M 2 0 L 0 0 0 2"
             fill="none"
-            stroke="rgba(0, 210, 235, 0.15)"
+            stroke="var(--border-subtle)"
             strokeWidth="0.25"
           />
         </pattern>
@@ -73,10 +71,10 @@ export const BwpxSvg: React.FC<{ className?: string }> = ({ className = '' }) =>
         width="132"
         height="68"
         rx="6"
-        fill="rgba(0, 210, 235, 0.02)"
-        stroke="rgba(0, 210, 235, 0.25)"
-        strokeWidth="1"
-        className="transition-all duration-200 group-hover:stroke-[#00d2eb] group-hover:fill-[rgba(0,210,235,0.05)]"
+        fill="var(--bg-section)"
+        stroke="var(--border-subtle)"
+        strokeWidth="1.2"
+        className="transition-colors duration-200 group-hover:stroke-[var(--brand-secondary)]"
       />
 
       {/* Subtle Pixel Grid Texture across the canvas */}
@@ -93,7 +91,7 @@ export const BwpxSvg: React.FC<{ className?: string }> = ({ className = '' }) =>
       {/* Freeform Coordinate Crosshairs at Outer Canvas Corners */}
       <path
         d="M 10 6 L 14 6 M 14 2 L 14 6 M 150 6 L 146 6 M 146 2 L 146 6 M 10 74 L 14 74 M 14 78 L 14 74 M 150 74 L 146 74 M 146 78 L 146 74"
-        stroke="rgba(0, 210, 235, 0.45)"
+        stroke="var(--border-subtle)"
         strokeWidth="1"
         strokeLinecap="round"
       />
@@ -102,7 +100,7 @@ export const BwpxSvg: React.FC<{ className?: string }> = ({ className = '' }) =>
       <text
         x="18"
         y="11.5"
-        fill="rgba(0, 210, 235, 0.7)"
+        fill="var(--text-muted)"
         fontSize="3.8"
         fontFamily="ui-monospace, monospace"
         fontWeight="700"
@@ -113,7 +111,7 @@ export const BwpxSvg: React.FC<{ className?: string }> = ({ className = '' }) =>
       <text
         x="142"
         y="11.5"
-        fill="#f97316"
+        fill="var(--brand-secondary)"
         fontSize="3.8"
         fontFamily="ui-monospace, monospace"
         fontWeight="700"
@@ -129,20 +127,20 @@ export const BwpxSvg: React.FC<{ className?: string }> = ({ className = '' }) =>
         y1={activeY + scale / 2}
         x2="146"
         y2={activeY + scale / 2}
-        stroke="#f97316"
+        stroke="var(--brand-accent)"
         strokeWidth="0.6"
         strokeDasharray="2 2"
-        opacity="0.45"
+        opacity="0.55"
       />
       <line
         x1={activeX + scale / 2}
         y1="6"
         x2={activeX + scale / 2}
         y2="74"
-        stroke="#f97316"
+        stroke="var(--brand-accent)"
         strokeWidth="0.6"
         strokeDasharray="2 2"
-        opacity="0.45"
+        opacity="0.55"
       />
 
       {/* The Scyan Wolf Pixel Art Mascot */}
@@ -151,20 +149,20 @@ export const BwpxSvg: React.FC<{ className?: string }> = ({ className = '' }) =>
         <path
           d={WOLF_BODY_PATH}
           fill={`url(#${wolfGradId})`}
-          className="transition-all duration-300 drop-shadow-[0_0_6px_rgba(0,210,235,0.4)] group-hover:drop-shadow-[0_0_10px_rgba(0,240,255,0.7)]"
+          className="transition-opacity duration-300 opacity-95 group-hover:opacity-100"
         />
 
         {/* Wolf Eye Cutouts */}
         <path
           d={WOLF_EYES_PATH}
-          className="fill-[var(--bg-app)]"
+          fill="var(--bg-section)"
         />
 
-        {/* Glowing Orange Wolf Pupils */}
+        {/* Wolf Pupils */}
         <path
           d={WOLF_PUPILS_PATH}
-          fill="#f97316"
-          className="drop-shadow-[0_0_3px_#f97316] group-hover:drop-shadow-[0_0_5px_#ff8c38] transition-all"
+          fill="var(--brand-accent)"
+          className="transition-all"
         />
       </g>
 
@@ -177,10 +175,9 @@ export const BwpxSvg: React.FC<{ className?: string }> = ({ className = '' }) =>
           height={scale * 2 + 2.4}
           rx="1"
           fill="none"
-          stroke="#f97316"
+          stroke="var(--brand-accent)"
           strokeWidth="0.7"
           strokeDasharray="2 1.5"
-          className="drop-shadow-[0_0_3px_#f97316]"
         />
       </g>
 
@@ -189,17 +186,16 @@ export const BwpxSvg: React.FC<{ className?: string }> = ({ className = '' }) =>
         {/* Pencil body */}
         <path
           d="M 0 0 L 2.5 -1.2 L 9 5.5 L 6.5 8 Z"
-          fill="#cbd5e1"
-          stroke="#475569"
+          fill="var(--bg-card)"
+          stroke="var(--text-muted)"
           strokeWidth="0.5"
         />
         {/* Pencil tip pointing to pupil */}
         <polygon
           points="0,0 -3,-3 0.5,-3.5"
-          fill="#f97316"
-          stroke="#ea580c"
+          fill="var(--brand-accent)"
+          stroke="var(--brand-accent)"
           strokeWidth="0.4"
-          className="drop-shadow-[0_0_4px_#f97316]"
         />
         {/* Purple eraser accent */}
         <rect
@@ -208,7 +204,7 @@ export const BwpxSvg: React.FC<{ className?: string }> = ({ className = '' }) =>
           width="2.2"
           height="3"
           rx="0.5"
-          fill="#a855f7"
+          fill="var(--brand-secondary)"
           transform="rotate(45 9.5 6)"
         />
       </g>
