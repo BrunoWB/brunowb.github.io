@@ -13,7 +13,7 @@ export const ProjectsSection: React.FC = () => {
   return (
     <section
       id="projects"
-      className="relative w-full min-h-screen bg-[var(--bg-section)]/95 backdrop-blur-md border-t border-[var(--border-subtle)] shadow-[0_-10px_25px_rgba(0,0,0,0.04)] dark:shadow-[0_-25px_60px_rgba(0,0,0,0.25)] transition-colors duration-300"
+      className="relative z-10 w-full min-h-screen bg-[var(--bg-section)]/95 backdrop-blur-md border-t border-[var(--border-subtle)] shadow-[0_-10px_25px_rgba(0,0,0,0.04)] dark:shadow-[0_-25px_60px_rgba(0,0,0,0.25)] transition-colors duration-300"
     >
       {/* Divider Line separating top header from projects */}
       <div

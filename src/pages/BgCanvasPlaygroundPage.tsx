@@ -57,8 +57,8 @@ export const BgCanvasPlaygroundPage: React.FC = () => {
 
   // Water distortion & reflection state
   const [reflectionEnabled, setReflectionEnabled] = useState<boolean>(true);
-  const [reflectionOpacity, setReflectionOpacity] = useState<number>(0.8);
-  const [reflectionBlendMode, setReflectionBlendMode] = useState<ReflectionBlendMode>('normal');
+  const [reflectionOpacity, setReflectionOpacity] = useState<number>(0.4);
+  const [reflectionBlendMode, setReflectionBlendMode] = useState<ReflectionBlendMode>('hard-light');
   const [waterDistortionEnabled, setWaterDistortionEnabled] = useState<boolean>(!isInitialOff);
   const [waterReactiveMode, setWaterReactiveMode] = useState<boolean>(false);
   const [waterRestingScale, setWaterRestingScale] = useState<number>(0.0);
@@ -342,7 +342,8 @@ export const BgCanvasPlaygroundPage: React.FC = () => {
       setReverseHorizontalParallax(true);
       setTurmoilEnabled(false);
       setReflectionEnabled(true);
-      setReflectionOpacity(0.8);
+      setReflectionOpacity(0.4);
+      setReflectionBlendMode('hard-light');
       setWaterDistortionEnabled(true);
       setWaterReactiveMode(false);
       setWaterRestingScale(0.0);
@@ -401,7 +402,8 @@ export const BgCanvasPlaygroundPage: React.FC = () => {
       setReverseHorizontalParallax(false);
       setTurmoilEnabled(false);
       setReflectionEnabled(true);
-      setReflectionOpacity(0.8);
+      setReflectionOpacity(0.4);
+      setReflectionBlendMode('hard-light');
       setWaterDistortionEnabled(true);
       setWaterReactiveMode(false);
       setWaterRestingScale(0.0);
@@ -436,7 +438,8 @@ export const BgCanvasPlaygroundPage: React.FC = () => {
       setReverseHorizontalParallax(false);
       setTurmoilEnabled(false);
       setReflectionEnabled(true);
-      setReflectionOpacity(0.8);
+      setReflectionOpacity(0.4);
+      setReflectionBlendMode('hard-light');
       setWaterDistortionEnabled(true);
       setWaterReactiveMode(false);
       setWaterDistortionScale(45);
@@ -493,7 +496,8 @@ export const BgCanvasPlaygroundPage: React.FC = () => {
       setReverseHorizontalParallax(false);
       setTurmoilEnabled(true);
       setReflectionEnabled(true);
-      setReflectionOpacity(0.8);
+      setReflectionOpacity(0.4);
+      setReflectionBlendMode('hard-light');
       setWaterDistortionEnabled(true);
       setWaterReactiveMode(false);
       setWaterDistortionScale(55);
@@ -526,7 +530,8 @@ export const BgCanvasPlaygroundPage: React.FC = () => {
       setReverseHorizontalParallax(false);
       setTurmoilEnabled(false);
       setReflectionEnabled(true);
-      setReflectionOpacity(0.8);
+      setReflectionOpacity(0.4);
+      setReflectionBlendMode('hard-light');
       setWaterDistortionEnabled(false);
       setWaterReactiveMode(false);
       setWaterRestingScale(0);
@@ -568,8 +573,8 @@ export const BgCanvasPlaygroundPage: React.FC = () => {
     setParallaxEnabled(true);
     setReverseHorizontalParallax(true);
     setReflectionEnabled(true);
-    setReflectionOpacity(0.8);
-    setReflectionBlendMode('normal');
+    setReflectionOpacity(0.4);
+    setReflectionBlendMode('hard-light');
     setWaterDistortionEnabled(true);
     setWaterReactiveMode(false);
     setWaterRestingScale(0.0);

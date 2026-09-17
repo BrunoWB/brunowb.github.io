@@ -51,8 +51,8 @@ export const BgPlaygroundPage: React.FC = () => {
 
   // Water distortion & reflection state
   const [reflectionEnabled, setReflectionEnabled] = useState<boolean>(true);
-  const [reflectionOpacity, setReflectionOpacity] = useState<number>(0.8);
-  const [reflectionBlendMode, setReflectionBlendMode] = useState<ReflectionBlendMode>('normal');
+  const [reflectionOpacity, setReflectionOpacity] = useState<number>(0.4);
+  const [reflectionBlendMode, setReflectionBlendMode] = useState<ReflectionBlendMode>('hard-light');
   const [waterDistortionEnabled, setWaterDistortionEnabled] = useState<boolean>(true);
   const [waterReactiveMode, setWaterReactiveMode] = useState<boolean>(true);
   const [waterRestingScale, setWaterRestingScale] = useState<number>(0.0);
@@ -296,7 +296,8 @@ export const BgPlaygroundPage: React.FC = () => {
       setReverseHorizontalParallax(true);
       setTurmoilEnabled(false);
       setReflectionEnabled(true);
-      setReflectionOpacity(0.8);
+      setReflectionOpacity(0.4);
+      setReflectionBlendMode('hard-light');
       setWaterDistortionEnabled(true);
       setWaterReactiveMode(true);
       setWaterRestingScale(0.0);
@@ -333,7 +334,8 @@ export const BgPlaygroundPage: React.FC = () => {
       setReverseHorizontalParallax(false);
       setTurmoilEnabled(false);
       setReflectionEnabled(true);
-      setReflectionOpacity(0.8);
+      setReflectionOpacity(0.4);
+      setReflectionBlendMode('hard-light');
       setWaterReactiveMode(true);
       setWaterRestingScale(0.0); // Completely still like glass until mouse passes
       setWaterDistortionScale(24);
@@ -357,7 +359,8 @@ export const BgPlaygroundPage: React.FC = () => {
       setReverseHorizontalParallax(false);
       setTurmoilEnabled(false);
       setReflectionEnabled(true);
-      setReflectionOpacity(0.8);
+      setReflectionOpacity(0.4);
+      setReflectionBlendMode('hard-light');
       setWaterDistortionEnabled(true);
       setWaterReactiveMode(false);
       setWaterDistortionScale(14);
@@ -390,7 +393,8 @@ export const BgPlaygroundPage: React.FC = () => {
       setReverseHorizontalParallax(false);
       setTurmoilEnabled(true);
       setReflectionEnabled(true);
-      setReflectionOpacity(0.8);
+      setReflectionOpacity(0.4);
+      setReflectionBlendMode('hard-light');
       setWaterDistortionEnabled(true);
       setWaterReactiveMode(false);
       setWaterDistortionScale(30);
@@ -414,7 +418,8 @@ export const BgPlaygroundPage: React.FC = () => {
       setReverseHorizontalParallax(false);
       setTurmoilEnabled(false);
       setReflectionEnabled(true);
-      setReflectionOpacity(0.8);
+      setReflectionOpacity(0.4);
+      setReflectionBlendMode('hard-light');
       setWaterReactiveMode(true);
       setWaterRestingScale(0);
       setWaterDistortionScale(8);
@@ -448,8 +453,8 @@ export const BgPlaygroundPage: React.FC = () => {
     setParallaxEnabled(true);
     setReverseHorizontalParallax(true);
     setReflectionEnabled(true);
-    setReflectionOpacity(0.8);
-    setReflectionBlendMode('normal');
+    setReflectionOpacity(0.4);
+    setReflectionBlendMode('hard-light');
     setWaterDistortionEnabled(true);
     setWaterReactiveMode(true);
     setWaterRestingScale(0.0);

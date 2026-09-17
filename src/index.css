@@ -96,6 +96,7 @@ html, html.dark {
   --bg-app: #03141a;
   --bg-section: #021319;
   --bg-gradient: radial-gradient(circle at center, rgba(9, 71, 87, 0.45) 0%, rgba(3, 35, 44, 0.72) 60%, rgba(2, 19, 25, 0.88) 100%), url('./assets/bgclean.webp');
+  --bg-dark-tint-opacity: 1;
   --bg-light-tint-opacity: 0;
   --bg-card: rgba(8, 40, 50, 0.65);
   --bg-card-hover: rgba(12, 55, 68, 0.85);
@@ -124,6 +125,7 @@ html.light {
   --bg-app: #eaf4f7;
   --bg-section: #f1f7f9;
   --bg-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(240, 248, 255, 0.22) 50%, rgba(228, 244, 250, 0.38) 100%), url('./assets/bgclean.webp');
+  --bg-dark-tint-opacity: 0;
   --bg-light-tint-opacity: 0.85;
   --bg-card: #ffffff;
   --bg-card-hover: #f8fafc;

@@ -3,6 +3,7 @@ import { HeroSection } from '../components/hero/HeroSection';
 import { ProjectsSection } from '../components/projects/ProjectsSection';
 import { CvPaperModal } from '../components/cv/CvPaperModal';
 import { FloatingAvatar } from '../components/common/FloatingAvatar';
+import { CanvasBackground } from '../components/background/CanvasBackground';
 
 interface FloatingState {
   startRect: DOMRect;
@@ -173,6 +174,7 @@ export const HomePage: React.FC = () => {
 
   return (
     <main className="relative min-h-screen">
+      <CanvasBackground />
       <HeroSection
         onOpenCv={handleOpenCv}
         isAvatarHidden={isAvatarHidden}

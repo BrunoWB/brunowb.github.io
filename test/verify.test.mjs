@@ -370,7 +370,10 @@ assert.ok(!canvasBgContent.includes('for (let y = 0; y < waterHeight; y += strip
 assert.ok(!canvasBgContent.includes('waveExcitationRef'), 'CanvasBackground must remove mouse wave excitation loop');
 assert.ok(canvasBgContent.includes('bigStarFlareSize'), 'CanvasBackground must draw big star shine flare');
 assert.ok(canvasBgContent.includes('cloudDriftEnabled'), 'CanvasBackground must support slow drifting clouds');
-assert.ok(canvasBgContent.includes('mistDisperseEnabled'), 'CanvasBackground must support phased mist dispersion');
+assert.ok(canvasBgContent.includes('darkScrimEnabled'), 'CanvasBackground must support darkScrimEnabled prop');
+assert.ok(canvasBgContent.includes('var(--bg-dark-tint-opacity'), 'CanvasBackground must apply dark theme ambient darkening and center glow scrim');
+assert.ok(indexCssContent.includes('--bg-dark-tint-opacity: 1;'), 'index.css must declare --bg-dark-tint-opacity for dark theme');
+assert.ok(indexCssContent.includes('--bg-dark-tint-opacity: 0;'), 'index.css must declare --bg-dark-tint-opacity for light theme');
 assert.ok(canvasBgContent.includes('onFpsUpdate'), 'CanvasBackground must provide FPS telemetry callback');
 
 // Cloud reflections verification in bgLayersData & CanvasBackground
@@ -387,8 +390,9 @@ assert.ok(canvasBgContent.includes('isCloud && p.cloudDriftEnabled'), 'CanvasBac
 assert.ok(canvasBgContent.includes('isCloud && p.cloudDistortionEnabled'), 'CanvasBackground reflection pass must apply cloud scale breathing');
 assert.ok(canvasBgContent.includes('ctx.rect(0, BG_HORIZON_Y, BG_CANVAS_WIDTH, waterHeight)'), 'CanvasBackground must clip reflection blit to horizon boundary');
 
-// BgCanvasPlaygroundPage features
+// BgCanvasPlaygroundPage and HomePage features
 assert.ok(bgCanvasPlaygroundContent.includes('<CanvasBackground'), 'BgCanvasPlaygroundPage must render CanvasBackground');
+assert.ok(homePageContent.includes('<CanvasBackground'), 'HomePage must render CanvasBackground');
 assert.ok(bgCanvasPlaygroundContent.includes('FPS'), 'BgCanvasPlaygroundPage must display FPS counter');
 assert.ok(bgCanvasPlaygroundContent.includes('isOffRequested'), 'BgCanvasPlaygroundPage must support isOffRequested');
 assert.ok(bgCanvasPlaygroundContent.includes('applySoloLayer0'), 'BgCanvasPlaygroundPage must support applySoloLayer0');

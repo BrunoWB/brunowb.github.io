@@ -92,6 +92,7 @@ export interface CanvasBackgroundProps {
   cometCoreDiffusionEnabled?: boolean;
   cometCoreDiffusionScale?: number;
   useCleanComposite?: boolean;
+  darkScrimEnabled?: boolean;
   layerOverrides?: Record<string, { visible?: boolean; opacity?: number }>;
   className?: string;
   canvasOffsetY?: number;
@@ -152,8 +153,8 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
   outputBlack = 0,
   outputWhite = 255,
   reflectionEnabled = true,
-  reflectionOpacity = 0.8,
-  reflectionBlendMode = 'normal',
+  reflectionOpacity = 0.4,
+  reflectionBlendMode = 'hard-light',
   waterDistortionEnabled = true,
   waterReactiveMode = false,
   waterRestingScale = 0.0,
@@ -188,30 +189,31 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
   turmoilEnabled = false,
   shootingStarEnabled = false,
   cometEnabled = true,
-  cometFlameTailEnabled,
-  cometFlameTailSpeed,
+  cometFlameTailEnabled = true,
+  cometFlameTailSpeed = 0.2,
   cometFlameTailIntensity,
-  cometTailTurbulence,
+  cometTailTurbulence = 0.2,
   cometTailWaveAmplitude,
-  cometTailFlickerIntensity,
-  cometTailFlickerSpeed,
-  cometTailSpreadFactor,
-  cometTailFadePower,
-  cometCorePulseEnabled,
-  cometCoreBaseOpacity,
-  cometCorePulseSpeed,
-  cometCoreStretchScale,
+  cometTailFlickerIntensity = 1.1,
+  cometTailFlickerSpeed = 0.2,
+  cometTailSpreadFactor = 2.2,
+  cometTailFadePower = 0.50,
+  cometCorePulseEnabled = true,
+  cometCoreBaseOpacity = 0.75,
+  cometCorePulseSpeed = 0.2,
+  cometCoreStretchScale = 1.5,
   cometCoreStretchLength,
-  cometCorePeakBrightness,
+  cometCorePeakBrightness = 0.74,
   cometCorePulsePeakBrightness,
-  cometCoreBaselineOpacity,
+  cometCoreBaselineOpacity = 0.04,
   cometCorePulseScale,
-  cometTailWaveEnabled = true,
-  cometTailWaveSpeed = 1.0,
-  cometTailWaveIntensity = 1.0,
-  cometCoreDiffusionEnabled = true,
-  cometCoreDiffusionScale = 1.0,
+  cometTailWaveEnabled,
+  cometTailWaveSpeed,
+  cometTailWaveIntensity,
+  cometCoreDiffusionEnabled,
+  cometCoreDiffusionScale,
   useCleanComposite = false,
+  darkScrimEnabled = true,
   layerOverrides = {},
   className = '',
   canvasOffsetY = 0,
@@ -234,7 +236,7 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
   const resolvedTailTurbulence = cometTailTurbulence ?? cometTailWaveAmplitude ?? cometFlameTailIntensity ?? cometTailWaveIntensity ?? 0.2;
   const resolvedTailFlickerIntensity = cometTailFlickerIntensity ?? cometFlameTailIntensity ?? cometTailWaveIntensity ?? 1.1;
   const resolvedTailFlickerSpeed = cometTailFlickerSpeed ?? 0.2;
-  const resolvedTailSpreadFactor = cometTailSpreadFactor ?? cometFlameTailIntensity ?? cometTailWaveIntensity ?? 2.2;
+  const resolvedTailSpreadFactor = cometTailSpreadFactor ?? 2.2;
   const resolvedTailFadePower = cometTailFadePower ?? 0.50;
 
   const resolvedCorePulseEnabled = cometCorePulseEnabled ?? cometCoreDiffusionEnabled ?? true;
@@ -838,7 +840,7 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
         const tailTurbulence = p.cometTailTurbulence ?? p.cometTailWaveAmplitude ?? p.cometFlameTailIntensity ?? p.cometTailWaveIntensity ?? 0.2;
         const tailFlickerIntensity = p.cometTailFlickerIntensity ?? p.cometFlameTailIntensity ?? p.cometTailWaveIntensity ?? 1.1;
         const tailFlickerSpeed = p.cometTailFlickerSpeed ?? 0.2;
-        const tailSpreadFactor = p.cometTailSpreadFactor ?? p.cometFlameTailIntensity ?? p.cometTailWaveIntensity ?? 2.2;
+        const tailSpreadFactor = p.cometTailSpreadFactor ?? 2.2;
         const tailFadePower = p.cometTailFadePower ?? 0.50;
 
         // Layer-specific seed offsets and lateral spread multipliers for volumetric flame variation
@@ -1267,7 +1269,7 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
       if (p.reflectionEnabled && seaVisible && reflCanvas && reflCtx) {
         // Clear offscreen reflection canvas
         reflCtx.clearRect(0, 0, BG_CANVAS_WIDTH, waterHeight);
-        const masterReflOpacity = p.reflectionOpacity ?? 0.8;
+        const masterReflOpacity = p.reflectionOpacity ?? 0.4;
         reflCtx.save();
 
         // Transform: mirror across horizon (y = 725)
@@ -1469,7 +1471,7 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
         ctx.clip();
 
         let currentFilter = 'none';
-        const reflBlendOp = getCompositeOperation(p.reflectionBlendMode ?? 'normal');
+        const reflBlendOp = getCompositeOperation(p.reflectionBlendMode ?? 'hard-light');
 
         if (!p.waterDistortionEnabled || activeWaterScale <= 0) {
           // Direct single-blit reflection plane for static mirror mode
@@ -2015,6 +2017,18 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
           filter: colorGradingEnabled && !useCleanComposite ? 'url(#canvas-color-grading)' : undefined,
         }}
       />
+
+      {/* Dark Theme Ambient Darkening & Center Glow Scrim (matches original landing page) */}
+      {darkScrimEnabled && (
+        <div
+          className="absolute inset-0 pointer-events-none transition-opacity duration-500"
+          style={{
+            background:
+              'radial-gradient(circle at center, rgba(9, 71, 87, 0.45) 0%, rgba(3, 35, 44, 0.72) 60%, rgba(2, 19, 25, 0.88) 100%)',
+            opacity: 'var(--bg-dark-tint-opacity, 1)',
+          }}
+        />
+      )}
 
       {/* Light Theme Ambient Lighting Scrim */}
       <div

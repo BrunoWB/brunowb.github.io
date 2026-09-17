@@ -118,8 +118,8 @@ export interface WaterSettings {
   enabled: boolean;
   distortionScale: number; // 0 to 40 (default ~16)
   distortionSpeed: number; // 0.1 to 3.0 (default 1.0)
-  reflectionOpacity: number; // 0 to 1 (default 0.7)
-  reflectionBlendMode?: ReflectionBlendMode;
+  reflectionOpacity: number; // 0 to 1 (default 0.4)
+  reflectionBlendMode?: ReflectionBlendMode; // default 'hard-light'
   blurAmount: number; // 0 to 8 px (default 1.5)
   blurTransitionSpeed?: number;
   farBackBlur?: number;

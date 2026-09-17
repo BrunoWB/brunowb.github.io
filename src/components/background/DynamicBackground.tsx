@@ -53,6 +53,7 @@ export interface DynamicBackgroundProps {
   turmoilEnabled?: boolean;
   shootingStarEnabled?: boolean;
   useCleanComposite?: boolean;
+  darkScrimEnabled?: boolean;
   layerOverrides?: Record<string, { visible?: boolean; opacity?: number }>;
   className?: string;
   canvasOffsetY?: number;
@@ -81,8 +82,8 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
   outputBlack = 0,
   outputWhite = 255,
   reflectionEnabled = true,
-  reflectionOpacity = 0.8,
-  reflectionBlendMode = 'normal',
+  reflectionOpacity = 0.4,
+  reflectionBlendMode = 'hard-light',
   waterDistortionEnabled = true,
   waterReactiveMode = true,
   waterRestingScale = 0.0,
@@ -113,6 +114,7 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
   turmoilEnabled = false,
   shootingStarEnabled = false,
   useCleanComposite = false,
+  darkScrimEnabled = true,
   layerOverrides = {},
   className = '',
   canvasOffsetY = 0,
@@ -901,7 +903,19 @@ export const DynamicBackground: React.FC<DynamicBackgroundProps> = ({
           </>
         )}
 
-        {/* 9. Light Theme Ambient Lighting Scrim */}
+        {/* 9. Dark Theme Ambient Darkening & Center Glow Scrim (matches original landing page) */}
+        {darkScrimEnabled && (
+          <div
+            className="absolute inset-0 pointer-events-none transition-opacity duration-500"
+            style={{
+              background:
+                'radial-gradient(circle at center, rgba(9, 71, 87, 0.45) 0%, rgba(3, 35, 44, 0.72) 60%, rgba(2, 19, 25, 0.88) 100%)',
+              opacity: 'var(--bg-dark-tint-opacity, 1)',
+            }}
+          />
+        )}
+
+        {/* 10. Light Theme Ambient Lighting Scrim */}
         <div
           className="absolute inset-0 pointer-events-none transition-opacity duration-500"
           style={{
