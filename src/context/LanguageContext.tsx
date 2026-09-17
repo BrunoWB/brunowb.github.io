@@ -12,8 +12,11 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [selectedLang, setSelectedLangState] = useState<SupportedLanguage>('en');
+export const LanguageProvider: React.FC<{
+  children: React.ReactNode;
+  initialLang?: SupportedLanguage;
+}> = ({ children, initialLang = 'en' }) => {
+  const [selectedLang, setSelectedLangState] = useState<SupportedLanguage>(initialLang);
   const [previewLang, setPreviewLangState] = useState<SupportedLanguage | null>(null);
 
   const effectiveLang: SupportedLanguage = previewLang ?? selectedLang;

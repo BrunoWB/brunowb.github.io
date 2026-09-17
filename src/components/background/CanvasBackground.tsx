@@ -446,8 +446,11 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
 
   return (
     <div
-      className={`fixed inset-0 pointer-events-none select-none overflow-hidden ${className}`}
-      style={{ zIndex: 0 }}
+      className={`fixed top-0 left-0 w-full pointer-events-none select-none overflow-hidden ${className}`}
+      style={{
+        height: 'var(--fixed-vh, 100lvh)',
+        zIndex: 0,
+      }}
       aria-hidden="true"
     >
       {/* SVG Filter Definitions for GPU Post-Processing Color Grading */}
@@ -478,8 +481,8 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
         height={BG_CANVAS_HEIGHT}
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none will-change-transform"
         style={{
-          width: 'max(105vw, calc(105vh * 1920 / 1187))',
-          height: 'max(105vh, calc(105vw * 1187 / 1920))',
+          width: 'max(105vw, calc(var(--fixed-105vh, 105lvh) * 1920 / 1187))',
+          height: 'max(var(--fixed-105vh, 105lvh), calc(105vw * 1187 / 1920))',
           aspectRatio: '1920 / 1187',
           backgroundColor: '#021319',
           top: canvasOffsetY ? `calc(50% + ${canvasOffsetY}px)` : undefined,

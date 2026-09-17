@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
+import { Printer } from 'lucide-react';
 import { TypewriterText } from '../common/TypewriterText';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTypewriterController } from '../../context/TypewriterContext';
+import { usePrintMode } from '../../context/PrintModeContext';
 import { cvData } from '../../data/cvData';
 import { uiTranslations } from '../../data/uiTranslations';
 
@@ -19,6 +21,7 @@ export const CvHeader: React.FC<CvHeaderProps> = ({
   isScrolled = false,
 }) => {
   const { t } = useLanguage();
+  const { triggerPrint } = usePrintMode();
   const { currentStep, isSkipped, advanceStep } = useTypewriterController();
 
   // Advance from step 0 (paper slide-down / avatar dock) to step 1 (name typing)
@@ -35,9 +38,28 @@ export const CvHeader: React.FC<CvHeaderProps> = ({
     <div className="relative w-full overflow-visible bg-transparent">
       {/* Top Banner Area - Completely Transparent to allow website background to show through */}
       <div className="relative h-24 sm:h-28 md:h-32 w-full overflow-visible bg-transparent">
-        {/* Top Control Bar: Close Button */}
-        <div className="absolute top-3 right-3 sm:top-4 sm:right-5 z-30">
+        {/* Top Control Bar: Print & Close Buttons */}
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-5 z-30 flex items-center gap-2 print:hidden">
           <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              triggerPrint('paper');
+            }}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              triggerPrint('digital');
+            }}
+            title={t(uiTranslations.cvModal.print)}
+            aria-label={t(uiTranslations.cvModal.print)}
+            className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/70 text-slate-300 hover:text-white border border-white/20 backdrop-blur-md cursor-pointer transition-all duration-200 group"
+          >
+            <Printer className="w-4 h-4 sm:w-4.5 sm:h-4.5 group-hover:text-[var(--brand-primary)] transition-colors duration-200" />
+          </button>
+
+          <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               onClose();

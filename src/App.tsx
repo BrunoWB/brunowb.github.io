@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { PrintModeProvider } from './context/PrintModeContext';
 import { HomePage } from './pages/HomePage';
 import { ThemeToggle } from './components/common/ThemeToggle';
 import { KofiButton } from './components/common/KofiButton';
@@ -54,26 +55,28 @@ export const App: React.FC = () => {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <div className="relative min-h-screen text-[var(--text-primary)] transition-colors duration-300">
-          {/* Main Route Switcher */}
-          <React.Suspense fallback={<div className="min-h-screen bg-[#021319]" />}>
-            {route === 'bg-canvas' ? (
-              <BgCanvasPlaygroundPage />
-            ) : route === 'ui-elements' ? (
-              <UiElementsPage />
-            ) : (
-              <HomePage />
-            )}
-          </React.Suspense>
+        <PrintModeProvider>
+          <div className="relative min-h-screen text-[var(--text-primary)] transition-colors duration-300">
+            {/* Main Route Switcher */}
+            <React.Suspense fallback={<div className="min-h-screen bg-[#021319]" />}>
+              {route === 'bg-canvas' ? (
+                <BgCanvasPlaygroundPage />
+              ) : route === 'ui-elements' ? (
+                <UiElementsPage />
+              ) : (
+                <HomePage />
+              )}
+            </React.Suspense>
 
-          {/* Persistent Floating Bubbles */}
-          {route !== 'bg-canvas' && (
-            <>
-              <KofiButton />
-              <ThemeToggle />
-            </>
-          )}
-        </div>
+            {/* Persistent Floating Bubbles */}
+            {route !== 'bg-canvas' && (
+              <div className="print:hidden">
+                <KofiButton />
+                <ThemeToggle />
+              </div>
+            )}
+          </div>
+        </PrintModeProvider>
       </LanguageProvider>
     </ThemeProvider>
   );

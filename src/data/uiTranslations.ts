@@ -28,6 +28,7 @@ export interface UiTranslations {
     close: LocalizedString;
     skipPrompt: LocalizedString;
     downloadPdf: LocalizedString;
+    print: LocalizedString;
   };
 }
 
@@ -110,6 +111,11 @@ export const uiTranslations: UiTranslations = {
       en: 'Download CV PDF',
       fr: 'Télécharger le CV PDF',
       pt: 'Baixar CV em PDF',
+    },
+    print: {
+      en: 'Print (Cmd+P) • Right-click for Digital PDF',
+      fr: 'Imprimer (Cmd+P) • Clic droit pour PDF numérique',
+      pt: 'Imprimir (Cmd+P) • Botão direito para PDF digital',
     },
   },
 };

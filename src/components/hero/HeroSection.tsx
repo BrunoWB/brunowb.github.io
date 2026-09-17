@@ -20,7 +20,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const { t } = useLanguage();
 
   return (
-    <section className="relative h-screen min-h-[640px] flex flex-col items-center justify-center text-center px-6 py-12 overflow-hidden">
+    <section className="relative h-[100svh] min-h-[640px] flex flex-col items-center justify-center text-center px-6 py-12 overflow-hidden">
       {/* Background Radial Aura for central text contrast */}
       <div
         className="absolute inset-0 pointer-events-none opacity-25 dark:opacity-40"

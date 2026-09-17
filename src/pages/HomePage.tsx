@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { HeroSection } from '../components/hero/HeroSection';
 import { ProjectsSection } from '../components/projects/ProjectsSection';
 import { CvPaperModal } from '../components/cv/CvPaperModal';
+import { CvPrintDocument } from '../components/cv/CvPrintDocument';
 import { FloatingAvatar } from '../components/common/FloatingAvatar';
 import { CanvasBackground } from '../components/background/CanvasBackground';
 
@@ -31,11 +32,15 @@ export const HomePage: React.FC = () => {
 
   const isTransitioningRef = useRef(false);
   const cancelScrollRef = useRef<(() => void) | null>(null);
+  const openRafRef = useRef<number | null>(null);
 
   useEffect(() => {
     return () => {
       if (cancelScrollRef.current) {
         cancelScrollRef.current();
+      }
+      if (openRafRef.current) {
+        cancelAnimationFrame(openRafRef.current);
       }
     };
   }, []);
@@ -85,23 +90,43 @@ export const HomePage: React.FC = () => {
       document.body.style.overflow = 'hidden';
     }
 
-    // Keep hero avatar visible for the 1 frame until floating avatar mounts to prevent blackout
+    // Keep hero avatar visible until floating avatar mounts to prevent blackout
     setIsAvatarDocked(false);
     setIsCvClosing(false);
     setIsCvOpen(true);
 
-    // Measure fresh CV and hero destination on next animation frame once modal is rendered
-    requestAnimationFrame(() => {
-      if (!heroAvatarRef.current || !cvAvatarRef.current) {
+    if (openRafRef.current) {
+      cancelAnimationFrame(openRafRef.current);
+      openRafRef.current = null;
+    }
+
+    // Measure fresh CV and hero destination once modal is rendered in DOM
+    let frameCount = 0;
+    const maxFrames = 20;
+
+    const measureAndAnimate = () => {
+      frameCount++;
+      const heroEl = heroAvatarRef.current;
+      const cvEl = cvAvatarRef.current;
+
+      if (!heroEl || !cvEl) {
+        if (frameCount < maxFrames) {
+          openRafRef.current = requestAnimationFrame(measureAndAnimate);
+          return;
+        }
         setIsAvatarHidden(true);
         setIsAvatarDocked(true);
         isTransitioningRef.current = false;
         return;
       }
 
-      const heroRect = heroAvatarRef.current.getBoundingClientRect();
-      const cvRect = cvAvatarRef.current.getBoundingClientRect();
-      if (cvRect.width === 0 || cvRect.height === 0) {
+      const heroRect = heroEl.getBoundingClientRect();
+      const cvRect = cvEl.getBoundingClientRect();
+      if (cvRect.width === 0 || cvRect.height === 0 || heroRect.width === 0) {
+        if (frameCount < maxFrames) {
+          openRafRef.current = requestAnimationFrame(measureAndAnimate);
+          return;
+        }
         setIsAvatarHidden(true);
         setIsAvatarDocked(true);
         isTransitioningRef.current = false;
@@ -115,7 +140,10 @@ export const HomePage: React.FC = () => {
         endRect: cvRect,
         direction: 'to-cv',
       });
-    });
+      openRafRef.current = null;
+    };
+
+    openRafRef.current = requestAnimationFrame(measureAndAnimate);
   };
 
   const handleOpenCv = (updateHash = true) => {
@@ -178,7 +206,8 @@ export const HomePage: React.FC = () => {
     cancelScrollRef.current = cleanup;
     window.addEventListener('scroll', checkScroll, { passive: true });
     window.addEventListener('scrollend', onScrollComplete, { once: true });
-    timeoutId = setTimeout(onScrollComplete, 600);
+    const scrollTimeout = Math.max(1200, Math.min(2500, Math.round(currentScrollY * 1.5)));
+    timeoutId = setTimeout(onScrollComplete, scrollTimeout);
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -186,6 +215,10 @@ export const HomePage: React.FC = () => {
   const handleCloseCv = (updateHash = true) => {
     if (cancelScrollRef.current) {
       cancelScrollRef.current();
+    }
+    if (openRafRef.current) {
+      cancelAnimationFrame(openRafRef.current);
+      openRafRef.current = null;
     }
 
     if (isTransitioningRef.current || floatingState || isCvClosing || !isCvOpen) return;
@@ -249,28 +282,31 @@ export const HomePage: React.FC = () => {
 
   return (
     <main className="relative min-h-screen">
-      <CanvasBackground />
-      <HeroSection
-        onOpenCv={handleOpenCv}
-        isAvatarHidden={isAvatarHidden}
-        avatarRef={heroAvatarRef}
-      />
-      <ProjectsSection />
-      <CvPaperModal
-        isOpen={isCvOpen}
-        isClosing={isCvClosing}
-        onClose={handleCloseCv}
-        isAvatarDocked={isAvatarDocked}
-        cvAvatarRef={cvAvatarRef}
-      />
-      {floatingState && (
-        <FloatingAvatar
-          startRect={floatingState.startRect}
-          endRect={floatingState.endRect}
-          direction={floatingState.direction}
-          onComplete={handleFloatingComplete}
+      <div className="print:hidden">
+        <CanvasBackground />
+        <HeroSection
+          onOpenCv={handleOpenCv}
+          isAvatarHidden={isAvatarHidden}
+          avatarRef={heroAvatarRef}
         />
-      )}
+        <ProjectsSection />
+        <CvPaperModal
+          isOpen={isCvOpen}
+          isClosing={isCvClosing}
+          onClose={handleCloseCv}
+          isAvatarDocked={isAvatarDocked}
+          cvAvatarRef={cvAvatarRef}
+        />
+        {floatingState && (
+          <FloatingAvatar
+            startRect={floatingState.startRect}
+            endRect={floatingState.endRect}
+            direction={floatingState.direction}
+            onComplete={handleFloatingComplete}
+          />
+        )}
+      </div>
+      <CvPrintDocument />
     </main>
   );
 };

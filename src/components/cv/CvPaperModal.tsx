@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { TypewriterProvider, useTypewriterController } from '../../context/TypewriterContext';
 import { CvHoverProvider } from '../../context/CvHoverContext';
+import { usePrintMode } from '../../context/PrintModeContext';
 import { CvHeader, CvPaperTitleBar, CvSmallHeader } from './CvHeader';
 import { CvSidebar } from './CvSidebar';
 import { CvTimeline } from './CvTimeline';
@@ -126,8 +127,9 @@ export const CvPaperModal: React.FC<CvPaperModalProps> = ({
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const { triggerPrint } = usePrintMode();
 
-  // Close on Escape key
+  // Keyboard shortcuts: Escape to close, Cmd+P / Ctrl+P to print
   useEffect(() => {
     if (!isOpen || isClosing) return;
 
@@ -135,12 +137,15 @@ export const CvPaperModal: React.FC<CvPaperModalProps> = ({
       if (e.key === 'Escape') {
         e.preventDefault();
         onClose();
+      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        triggerPrint('paper');
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, isClosing, onClose]);
+  }, [isOpen, isClosing, onClose, triggerPrint]);
 
   // Lock body scroll when modal is open and not closing
   useLayoutEffect(() => {

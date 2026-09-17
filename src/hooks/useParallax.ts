@@ -69,10 +69,10 @@ export const useParallax = ({
     isIdleRef.current = false;
   }, []);
 
-  // Scroll handler
+  // Scroll handler (clamped to 0 to prevent mobile iOS rubber-band bounce jitter)
   const handleScroll = useCallback(() => {
     if (typeof window === 'undefined') return;
-    scrollRef.current = window.scrollY || window.pageYOffset || 0;
+    scrollRef.current = Math.max(0, window.scrollY || window.pageYOffset || 0);
   }, []);
 
   useEffect(() => {

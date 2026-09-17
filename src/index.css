@@ -143,6 +143,17 @@ html.light {
   --border-focus: rgba(0, 139, 163, 0.6);
   --timeline-line: #cbd5e1;
   --timeline-node: #008ba3;
+
+  /* Mobile address-bar immune fixed viewport units */
+  --fixed-vh: 100lvh;
+  --fixed-105vh: 105lvh;
+}
+
+@supports not (height: 100lvh) {
+  :root {
+    --fixed-vh: 100vh;
+    --fixed-105vh: 105vh;
+  }
 }
 
 /* Base resets & layout */
@@ -171,12 +182,20 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+  min-height: 100lvh;
   background: var(--bg-gradient);
   background-position: center top;
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
   overflow-x: hidden;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  body {
+    /* Prevent mobile scroll repaint stutter caused by background-attachment: fixed */
+    background-attachment: scroll;
+  }
 }
 
 /* Animations */
@@ -469,5 +488,130 @@ html.dark .group:hover .visual-svg-wrapper,
 html.dark .visual-svg-wrapper:hover {
   filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.45));
 }
+
+/* ==========================================================================
+   Print Stylesheet (1-Page Light Mode CV & Digital PDF)
+   ========================================================================== */
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+@media print {
+  /* Hide interactive web UI */
+  .print-hidden,
+  .print\:hidden,
+  canvas,
+  header:not(.cv-print-sheet header),
+  nav,
+  button,
+  [role="dialog"],
+  .fixed:not(.cv-print-sheet),
+  .sticky {
+    display: none !important;
+  }
+
+  img {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Override dark theme semantic tokens during print to match crisp light mode */
+  html.dark {
+    --brand-primary: #008ba3 !important;
+    --brand-secondary: #7e22ce !important;
+    --brand-accent: #c2410c !important;
+    --bg-app: #ffffff !important;
+    --bg-paper: #ffffff !important;
+    --text-primary: #062630 !important;
+    --text-secondary: #164e5b !important;
+    --text-muted: #48737e !important;
+    --border-subtle: rgba(0, 139, 163, 0.22) !important;
+    --timeline-line: #cbd5e1 !important;
+    --timeline-node: #008ba3 !important;
+  }
+
+  /* --------------------------------------------------------------------------
+     Paper Print Mode (Default: Clean White 1-Page Document)
+     -------------------------------------------------------------------------- */
+  html:not([data-print-mode="digital"]),
+  html:not([data-print-mode="digital"]) body {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    color: #062630 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .cv-print-sheet.cv-print-paper {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 6mm 8mm !important;
+    background: #ffffff !important;
+    color: #062630 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  /* --------------------------------------------------------------------------
+     Digital PDF Mode (Cosmic Spacetime Background Framing Floating Card)
+     -------------------------------------------------------------------------- */
+  html[data-print-mode="digital"],
+  html[data-print-mode="digital"] body {
+    background-color: #03141a !important;
+    background-image: radial-gradient(circle at center, rgba(9, 71, 87, 0.45) 0%, rgba(3, 35, 44, 0.65) 60%, rgba(2, 19, 25, 0.95) 100%), url('./assets/bgclean.webp') !important;
+    background-size: cover !important;
+    background-repeat: no-repeat !important;
+    background-position: center top !important;
+    color: #062630 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    min-height: 100% !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .cv-print-sheet.cv-print-digital {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 297mm !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 8mm 10mm !important;
+    background-color: #03141a !important;
+    background-image: radial-gradient(circle at center, rgba(9, 71, 87, 0.45) 0%, rgba(3, 35, 44, 0.65) 60%, rgba(2, 19, 25, 0.95) 100%), url('./assets/bgclean.webp') !important;
+    background-size: cover !important;
+    background-repeat: no-repeat !important;
+    background-position: center top !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: avoid !important;
+  }
+
+  .cv-print-digital .cv-card {
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 210, 235, 0.25) !important;
+    border: 1.5px solid rgba(0, 210, 235, 0.45) !important;
+  }
+}
+
 
 
