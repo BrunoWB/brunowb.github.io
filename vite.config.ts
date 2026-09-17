@@ -9,4 +9,18 @@ export default defineConfig({
     tailwindcss(),
   ],
   base: './',
+  server: {
+    port: 5173,
+    proxy: {
+      '/scyan-zmk-studio': {
+        target: 'http://127.0.0.1:5174',
+        ws: true,
+      },
+      '/bwpx-editor': {
+        target: 'http://127.0.0.1:5175',
+        ws: true,
+      },
+    },
+  },
 });
+

@@ -5,7 +5,11 @@ import { CorneSvg } from './visuals/CorneSvg';
 import { BwpxSvg } from './visuals/BwpxSvg';
 import { ScreenMgrSvg } from './visuals/ScreenMgrSvg';
 
-export const ProjectCard: React.FC<{ project: ProjectItem }> = ({ project }) => {
+export const ProjectCard: React.FC<{
+  project: ProjectItem;
+  onHover?: (id: string) => void;
+  onLeave?: () => void;
+}> = ({ project, onHover, onLeave }) => {
   const { t } = useLanguage();
 
   const renderVisual = () => {
@@ -21,10 +25,18 @@ export const ProjectCard: React.FC<{ project: ProjectItem }> = ({ project }) => 
     }
   };
 
-  const primaryLink = project.liveUrl || project.repoUrl;
+  const isLocalSubproject =
+    import.meta.env.DEV && (project.id === 'scyan-zmk-studio' || project.id === 'bwpx-editor');
+  const primaryLink = isLocalSubproject ? `/${project.id}/` : (project.liveUrl || project.repoUrl);
 
   return (
-    <article className="group relative rounded-2xl p-6 sm:p-7 backdrop-blur-md transition-all duration-300 cursor-pointer bg-[var(--bg-card)]/90 border border-[var(--border-subtle)] hover:-translate-y-1 hover:border-[var(--brand-primary)] hover:shadow-[0_12px_30px_rgba(0,210,235,0.2)] hover:bg-[var(--bg-card-hover)] shadow-md">
+    <article
+      onMouseEnter={() => onHover?.(project.id)}
+      onMouseLeave={() => onLeave?.()}
+      onFocus={() => onHover?.(project.id)}
+      onBlur={() => onLeave?.()}
+      className="group relative rounded-2xl p-6 sm:p-7 backdrop-blur-md transition-all duration-300 cursor-pointer bg-[var(--bg-card)]/90 border border-[var(--border-subtle)] hover:-translate-y-1 hover:border-[var(--brand-primary)] hover:shadow-[0_12px_30px_rgba(0,210,235,0.2)] hover:bg-[var(--bg-card-hover)] shadow-md"
+    >
       {/* Primary Clickable Area */}
       <a
         href={primaryLink}

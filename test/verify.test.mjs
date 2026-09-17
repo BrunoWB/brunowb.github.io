@@ -1405,4 +1405,43 @@ assert.ok(domGradingResetCount >= 6, `BgPlaygroundPage must configure color grad
 
 console.log('✓ Photoshop Vibrance & Levels GPU SVG implementation, 1D LUT Levels formula, HUD card sliders, and preset parity verified.');
 
+// 22. Project Diagonal Panning Preview Overlay Verification
+console.log('22. Checking Project Diagonal Panning Preview overlay, assets, and hover binding...');
+const previewOverlayContent = fs.readFileSync(new URL('../src/components/projects/ProjectPreviewOverlay.tsx', import.meta.url), 'utf-8');
+const projectCardContent = fs.readFileSync(new URL('../src/components/projects/ProjectCard.tsx', import.meta.url), 'utf-8');
+
+// Assets existence
+assert.ok(fs.existsSync(new URL('../public/previews/scyan-zmk-studio.webm', import.meta.url)), 'Missing public/previews/scyan-zmk-studio.webm');
+assert.ok(fs.existsSync(new URL('../public/previews/bwpx-editor.webm', import.meta.url)), 'Missing public/previews/bwpx-editor.webm');
+assert.ok(fs.existsSync(new URL('../public/previews/plasma-screen-manager.webp', import.meta.url)), 'Missing public/previews/plasma-screen-manager.webp');
+assert.ok(fs.existsSync(new URL('../public/previews/scyan-zmk-studio-poster.webp', import.meta.url)), 'Missing public/previews/scyan-zmk-studio-poster.webp');
+assert.ok(fs.existsSync(new URL('../public/previews/bwpx-editor-poster.webp', import.meta.url)), 'Missing public/previews/bwpx-editor-poster.webp');
+
+// Data bindings
+assert.strictEqual(projectsData.length, 3);
+projectsData.forEach((project) => {
+  assert.ok(project.preview, `Project ${project.id} must have preview configured`);
+  assert.ok(project.preview.src.includes('previews/'), `Project ${project.id} preview src must point to previews/`);
+  if (project.preview.type === 'video') {
+    assert.ok(project.preview.poster?.includes('previews/'), `Project ${project.id} must have poster configured`);
+  }
+});
+
+// Overlay features
+assert.ok(previewOverlayContent.includes('polygon(25% 0%, 100% 0%, 100% 100%, 0% 100%)'), 'ProjectPreviewOverlay must use diagonal polygon mask');
+assert.ok(previewOverlayContent.includes('translateX(100%)') && previewOverlayContent.includes('translateX(0%)'), 'ProjectPreviewOverlay must animate translateX from 100% to 0%');
+assert.ok(previewOverlayContent.includes('onTransitionEnd'), 'ProjectPreviewOverlay must clean up older panels onTransitionEnd');
+assert.ok(previewOverlayContent.includes('x1="25"'), 'ProjectPreviewOverlay must render diagonal glowing edge line matching mask');
+
+// Card hover binding & debounce
+assert.ok(projectCardContent.includes('onHover'), 'ProjectCard must accept onHover callback');
+assert.ok(projectCardContent.includes('onLeave'), 'ProjectCard must accept onLeave callback');
+assert.ok(projectCardContent.includes('onMouseEnter'), 'ProjectCard must invoke onHover on mouse enter');
+assert.ok(projectCardContent.includes('onMouseLeave'), 'ProjectCard must invoke onLeave on mouse leave');
+assert.ok(projectsSectionContent.includes('debounceTimerRef') || projectsSectionContent.includes('handleLeave'), 'ProjectsSection must debounce hover preview triggers');
+assert.ok(projectsSectionContent.includes('ProjectPreviewOverlay'), 'ProjectsSection must render ProjectPreviewOverlay');
+
+console.log('✓ Project Diagonal Panning Preview overlay, media assets, diagonal clip-path, hover debounce, and card bindings verified.');
+
 console.log('--- ALL TESTS PASSED SUCCESSFULLY! ---');
+

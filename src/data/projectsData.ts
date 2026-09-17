@@ -1,5 +1,8 @@
 import type { ProjectItem } from '../types/projects';
 
+const rawBase = (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || './';
+const base = rawBase.endsWith('/') ? rawBase : `${rawBase}/`;
+
 export const projectsData: ProjectItem[] = [
   {
     id: 'scyan-zmk-studio',
@@ -19,6 +22,11 @@ export const projectsData: ProjectItem[] = [
       pt: 'Studio web interativo para layouts de display 2-Atlas, widgets e gráficos de teclados ZMK.',
     },
     visualType: 'corne',
+    preview: {
+      type: 'video',
+      src: `${base}previews/scyan-zmk-studio.webm`,
+      poster: `${base}previews/scyan-zmk-studio-poster.webp`,
+    },
   },
   {
     id: 'bwpx-editor',
@@ -38,6 +46,11 @@ export const projectsData: ProjectItem[] = [
       pt: 'Editor de pixels monocromático 1-bit e sandbox em canvas de alta performance para telas OLED, sprites retrô e firmware embarcado.',
     },
     visualType: 'bwpx',
+    preview: {
+      type: 'video',
+      src: `${base}previews/bwpx-editor.webm`,
+      poster: `${base}previews/bwpx-editor-poster.webp`,
+    },
   },
   {
     id: 'plasma-screen-manager',
@@ -57,5 +70,9 @@ export const projectsData: ProjectItem[] = [
       pt: 'Widget de gerenciamento rápido de múltiplos monitores, renomeação de telas e modo apresentação para KDE Plasma 6.',
     },
     visualType: 'screen-manager',
+    preview: {
+      type: 'image',
+      src: `${base}previews/plasma-screen-manager.webp`,
+    },
   },
 ];
