@@ -38,7 +38,7 @@ export const HeroActions: React.FC<HeroActionsProps> = ({ onOpenCv }) => {
           className={`relative z-10 inline-flex items-center gap-2.5 px-6 py-3 rounded-full font-semibold text-sm sm:text-base backdrop-blur-md transition-all duration-300 shadow-md group-hover:-translate-y-0.5 group-active:translate-y-0 ${
             isDark
               ? 'border border-cyan-400/50 group-hover:border-cyan-300 text-white shadow-cyan-950/50 group-hover:shadow-[0_0_25px_rgba(0,229,255,0.45)]'
-              : 'border border-[var(--border-subtle)] group-hover:border-[var(--brand-primary)] text-[var(--text-primary)] shadow-sm group-hover:shadow-lg group-hover:shadow-cyan-500/10'
+              : 'border border-cyan-700/30 group-hover:border-cyan-700/70 text-[var(--text-primary)] shadow-[0_4px_16px_rgba(0,139,163,0.14)] group-hover:shadow-[0_8px_24px_rgba(0,139,163,0.25)]'
           }`}
         >
           {/* Base Background Gradient */}
@@ -46,7 +46,7 @@ export const HeroActions: React.FC<HeroActionsProps> = ({ onOpenCv }) => {
             className={`absolute inset-0 rounded-full transition-opacity duration-300 pointer-events-none ${
               isDark
                 ? 'bg-gradient-to-r from-cyan-950/80 via-purple-950/70 to-orange-950/60'
-                : 'bg-[var(--bg-card)]/95'
+                : 'bg-gradient-to-r from-cyan-50/95 via-purple-50/90 to-orange-50/80'
             }`}
             aria-hidden="true"
           />
@@ -56,7 +56,7 @@ export const HeroActions: React.FC<HeroActionsProps> = ({ onOpenCv }) => {
             className={`absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none ${
               isDark
                 ? 'bg-gradient-to-r from-cyan-900/90 via-purple-900/80 to-purple-900/80'
-                : 'bg-[var(--bg-card)]'
+                : 'bg-gradient-to-r from-cyan-100/95 via-purple-100/90 to-orange-100/90'
             }`}
             aria-hidden="true"
           />

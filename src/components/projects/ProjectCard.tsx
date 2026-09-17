@@ -35,7 +35,7 @@ export const ProjectCard: React.FC<{
       onMouseLeave={() => onLeave?.()}
       onFocus={() => onHover?.(project.id)}
       onBlur={() => onLeave?.()}
-      className="group relative rounded-2xl p-6 sm:p-7 backdrop-blur-md transition-all duration-300 cursor-pointer bg-[var(--bg-card)]/90 border border-[var(--border-subtle)] hover:-translate-y-1 hover:border-[var(--brand-primary)] hover:shadow-[0_12px_30px_rgba(0,210,235,0.2)] hover:bg-[var(--bg-card-hover)] shadow-md"
+      className="group relative rounded-2xl p-6 sm:p-7 backdrop-blur-md transition-all duration-300 cursor-pointer bg-white dark:bg-[var(--bg-card)]/90 border border-[var(--border-subtle)] hover:-translate-y-1 hover:border-[var(--brand-primary)] shadow-[0_4px_20px_rgba(6,38,48,0.06),0_1px_3px_rgba(6,38,48,0.04)] dark:shadow-md hover:shadow-[0_16px_36px_rgba(0,112,132,0.16),0_2px_8px_rgba(0,112,132,0.08)] dark:hover:shadow-[0_12px_30px_rgba(0,210,235,0.2)] hover:bg-[var(--bg-card-hover)]"
     >
       {/* Primary Clickable Area */}
       <a

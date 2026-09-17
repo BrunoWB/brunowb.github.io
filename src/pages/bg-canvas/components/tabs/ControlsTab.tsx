@@ -7,11 +7,35 @@ import {
   Wind,
   Cloud,
   Contrast,
+  Sun,
+  Moon,
+  EyeOff,
 } from 'lucide-react';
-import { REFLECTION_BLEND_MODES, type ReflectionBlendMode } from '../../../../types/background';
+import { REFLECTION_BLEND_MODES, type ReflectionBlendMode, type ScrimMode } from '../../../../types/background';
+import { useTheme } from '../../../../context/ThemeContext';
 import type { PlaygroundPreset } from '../../types';
 
 interface ControlsTabProps {
+  // Ambient lighting & scrim
+  scrimMode: ScrimMode;
+  setScrimMode: (val: ScrimMode) => void;
+  darkScrimOpacity: number;
+  setDarkScrimOpacity: (val: number) => void;
+  lightScrimOpacity: number;
+  setLightScrimOpacity: (val: number) => void;
+  darkCenterGlowOpacity: number;
+  setDarkCenterGlowOpacity: (val: number) => void;
+  darkMidHazeOpacity: number;
+  setDarkMidHazeOpacity: (val: number) => void;
+  darkEdgeVignetteOpacity: number;
+  setDarkEdgeVignetteOpacity: (val: number) => void;
+  lightTopSkyOpacity: number;
+  setLightTopSkyOpacity: (val: number) => void;
+  lightMidAtmosphericOpacity: number;
+  setLightMidAtmosphericOpacity: (val: number) => void;
+  lightBottomHorizonOpacity: number;
+  setLightBottomHorizonOpacity: (val: number) => void;
+
   // Presets & Solo
   applyPreset: (preset: PlaygroundPreset | 'serene' | 'interactive' | 'clean' | 'solo0') => void;
   isSoloLayer0Active: boolean;
@@ -143,6 +167,24 @@ interface ControlsTabProps {
 }
 
 export const ControlsTab: React.FC<ControlsTabProps> = ({
+  scrimMode,
+  setScrimMode,
+  darkScrimOpacity,
+  setDarkScrimOpacity,
+  lightScrimOpacity,
+  setLightScrimOpacity,
+  darkCenterGlowOpacity,
+  setDarkCenterGlowOpacity,
+  darkMidHazeOpacity,
+  setDarkMidHazeOpacity,
+  darkEdgeVignetteOpacity,
+  setDarkEdgeVignetteOpacity,
+  lightTopSkyOpacity,
+  setLightTopSkyOpacity,
+  lightMidAtmosphericOpacity,
+  setLightMidAtmosphericOpacity,
+  lightBottomHorizonOpacity,
+  setLightBottomHorizonOpacity,
   applyPreset,
   isSoloLayer0Active,
   colorGradingEnabled,
@@ -255,8 +297,440 @@ export const ControlsTab: React.FC<ControlsTabProps> = ({
   cloudMorphSpeed,
   setCloudMorphSpeed,
 }) => {
+  const { setTheme } = useTheme();
+
+  const handleScrimModeChange = (mode: ScrimMode) => {
+    setScrimMode(mode);
+    if (mode === 'light') {
+      setTheme('light');
+    } else if (mode === 'dark') {
+      setTheme('dark');
+    }
+  };
+
   return (
     <div className="space-y-4">
+      {/* Ambient Lighting & Scrim Mode: None / Dark / Light */}
+      <div className="p-3 rounded-xl bg-[var(--bg-card)]/40 border border-[var(--border-subtle)]/50 space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+            Ambient Lighting & Scrim
+          </label>
+          <span
+            className={`text-[10px] font-mono px-2 py-0.5 rounded uppercase font-bold tracking-wider border ${
+              scrimMode === 'dark'
+                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
+                : scrimMode === 'light'
+                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                : 'bg-slate-700/50 text-slate-400 border-slate-600/50'
+            }`}
+          >
+            {scrimMode === 'none'
+              ? 'None (Raw)'
+              : scrimMode === 'dark'
+              ? `Dark (${Math.round(darkScrimOpacity * 100)}%)`
+              : `Light (${Math.round(lightScrimOpacity * 100)}%)`}
+          </span>
+        </div>
+
+        {/* None / Dark / Light Radio Toggle */}
+        <div
+          className="grid grid-cols-3 gap-1.5 p-1 bg-slate-900/60 rounded-xl border border-slate-800"
+          role="radiogroup"
+          aria-label="Ambient lighting and scrim mode"
+        >
+          {(
+            [
+              { id: 'none', label: 'None', icon: EyeOff },
+              { id: 'dark', label: 'Dark', icon: Moon },
+              { id: 'light', label: 'Light', icon: Sun },
+            ] as const
+          ).map((item) => {
+            const isSelected = scrimMode === item.id;
+            const Icon = item.icon;
+            return (
+              <label
+                key={item.id}
+                className={`flex items-center justify-center gap-2 px-2.5 py-1.5 rounded-lg cursor-pointer transition-all text-xs font-semibold select-none border ${
+                  isSelected
+                    ? item.id === 'dark'
+                      ? 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.25)]'
+                      : item.id === 'light'
+                      ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.25)]'
+                      : 'bg-slate-700/60 border-slate-500 text-slate-200 shadow-sm'
+                    : 'border-transparent text-[var(--text-muted)] hover:text-white hover:bg-slate-800/50'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="ambient-scrim-mode"
+                  value={item.id}
+                  checked={isSelected}
+                  onChange={() => handleScrimModeChange(item.id)}
+                  className="sr-only"
+                />
+                <span
+                  className={`w-2 h-2 rounded-full border transition-all ${
+                    isSelected
+                      ? item.id === 'dark'
+                        ? 'bg-cyan-400 border-cyan-300 shadow-[0_0_6px_#22d3ee]'
+                        : item.id === 'light'
+                        ? 'bg-amber-400 border-amber-300 shadow-[0_0_6px_#fbbf24]'
+                        : 'bg-slate-300 border-white'
+                      : 'border-slate-500 bg-transparent'
+                  }`}
+                />
+                <Icon className="w-3.5 h-3.5 opacity-90" />
+                <span>{item.label}</span>
+              </label>
+            );
+          })}
+        </div>
+
+        {/* When in Dark: Show values of Darkening */}
+        {scrimMode === 'dark' && (
+          <div className="space-y-2 p-2.5 rounded-xl bg-slate-900/60 border border-slate-700/50 text-xs animate-fadeIn">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold text-cyan-200 uppercase tracking-wider flex items-center gap-1.5">
+                <Moon className="w-3.5 h-3.5 text-cyan-400" />
+                Darkening Scrim (Ambient Center Glow)
+              </span>
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan-950/70 text-cyan-300 border border-cyan-500/30 uppercase">
+                Radial Gradient
+              </span>
+            </div>
+
+            {/* Darkening Opacity Slider */}
+            <div>
+              <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                <span>Darkening Opacity</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-mono text-cyan-300 font-semibold">
+                    {Math.round(darkScrimOpacity * 100)}% ({darkScrimOpacity.toFixed(2)})
+                  </span>
+                  {darkScrimOpacity !== 0.60 && (
+                    <button
+                      onClick={() => setDarkScrimOpacity(0.60)}
+                      className="text-[10px] text-[var(--text-muted)] hover:text-cyan-300 underline"
+                      title="Reset darkening opacity to default 0.60"
+                    >
+                      Reset (0.60)
+                    </button>
+                  )}
+                </div>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.02"
+                value={darkScrimOpacity}
+                onChange={(e) => setDarkScrimOpacity(parseFloat(e.target.value))}
+                className="w-full accent-cyan-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+              />
+            </div>
+
+            {/* Color Stops & Values breakdown */}
+            <div className="space-y-1 pt-1.5 border-t border-slate-800 text-[10px] font-mono">
+              <div className="text-[10px] text-[var(--text-muted)] font-sans font-medium mb-1">
+                Darkening Formula & Calibration Stops:
+              </div>
+              {/* Stop 1: Center Glow (0%) */}
+              <div className="space-y-1 bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-3 h-3 rounded-full border border-white/20 shadow-sm transition-colors"
+                      style={{ backgroundColor: `rgba(9, 71, 87, ${darkCenterGlowOpacity})` }}
+                    />
+                    <span className="text-slate-300 font-sans text-xs">Center Glow (0%)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-mono">
+                    <span className="text-cyan-300">
+                      rgba(9, 71, 87, {darkCenterGlowOpacity.toFixed(2)})
+                    </span>
+                    {darkCenterGlowOpacity !== 0.38 && (
+                      <button
+                        onClick={() => setDarkCenterGlowOpacity(0.38)}
+                        className="text-[9px] text-[var(--text-muted)] hover:text-cyan-300 underline font-sans"
+                        title="Reset Center Glow opacity to 0.38"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={darkCenterGlowOpacity}
+                  onChange={(e) => setDarkCenterGlowOpacity(parseFloat(e.target.value))}
+                  aria-label="Center Glow (0%) opacity"
+                  className="w-full accent-cyan-400 h-1 bg-slate-800 rounded cursor-pointer"
+                />
+              </div>
+
+              {/* Stop 2: Mid Haze (60%) */}
+              <div className="space-y-1 bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-3 h-3 rounded-full border border-white/20 shadow-sm transition-colors"
+                      style={{ backgroundColor: `rgba(3, 35, 44, ${darkMidHazeOpacity})` }}
+                    />
+                    <span className="text-slate-300 font-sans text-xs">Mid Haze (60%)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-mono">
+                    <span className="text-cyan-300">
+                      rgba(3, 35, 44, {darkMidHazeOpacity.toFixed(2)})
+                    </span>
+                    {darkMidHazeOpacity !== 0.49 && (
+                      <button
+                        onClick={() => setDarkMidHazeOpacity(0.49)}
+                        className="text-[9px] text-[var(--text-muted)] hover:text-cyan-300 underline font-sans"
+                        title="Reset Mid Haze opacity to 0.49"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={darkMidHazeOpacity}
+                  onChange={(e) => setDarkMidHazeOpacity(parseFloat(e.target.value))}
+                  aria-label="Mid Haze (60%) opacity"
+                  className="w-full accent-cyan-400 h-1 bg-slate-800 rounded cursor-pointer"
+                />
+              </div>
+
+              {/* Stop 3: Edge Vignette (100%) */}
+              <div className="space-y-1 bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-3 h-3 rounded-full border border-white/20 shadow-sm transition-colors"
+                      style={{ backgroundColor: `rgba(2, 19, 25, ${darkEdgeVignetteOpacity})` }}
+                    />
+                    <span className="text-slate-300 font-sans text-xs">Edge Vignette (100%)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-mono">
+                    <span className="text-cyan-300">
+                      rgba(2, 19, 25, {darkEdgeVignetteOpacity.toFixed(2)})
+                    </span>
+                    {darkEdgeVignetteOpacity !== 0.83 && (
+                      <button
+                        onClick={() => setDarkEdgeVignetteOpacity(0.83)}
+                        className="text-[9px] text-[var(--text-muted)] hover:text-cyan-300 underline font-sans"
+                        title="Reset Edge Vignette opacity to 0.83"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={darkEdgeVignetteOpacity}
+                  onChange={(e) => setDarkEdgeVignetteOpacity(parseFloat(e.target.value))}
+                  aria-label="Edge Vignette (100%) opacity"
+                  className="w-full accent-cyan-400 h-1 bg-slate-800 rounded cursor-pointer"
+                />
+              </div>
+              <div className="flex items-center justify-between text-[9px] text-[var(--text-muted)] px-1 pt-0.5">
+                <span>CSS Token: --bg-dark-tint-opacity</span>
+                <span>Target: #021319 Deep Space</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* When in Light: Show values of Lightening */}
+        {scrimMode === 'light' && (
+          <div className="space-y-2 p-2.5 rounded-xl bg-slate-900/60 border border-slate-700/50 text-xs animate-fadeIn">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-semibold text-amber-200 uppercase tracking-wider flex items-center gap-1.5">
+                <Sun className="w-3.5 h-3.5 text-amber-400" />
+                Lightening Scrim (Ambient Center Glow)
+              </span>
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-950/70 text-amber-300 border border-amber-500/30 uppercase">
+                Radial Gradient
+              </span>
+            </div>
+
+            {/* Lightening Opacity Slider */}
+            <div>
+              <div className="flex justify-between text-[var(--text-muted)] text-xs mb-1">
+                <span>Lightening Opacity</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-mono text-amber-300 font-semibold">
+                    {Math.round(lightScrimOpacity * 100)}% ({lightScrimOpacity.toFixed(2)})
+                  </span>
+                  {lightScrimOpacity !== 0.40 && (
+                    <button
+                      onClick={() => setLightScrimOpacity(0.40)}
+                      className="text-[10px] text-[var(--text-muted)] hover:text-amber-300 underline"
+                      title="Reset lightening opacity to default 0.40"
+                    >
+                      Reset (0.40)
+                    </button>
+                  )}
+                </div>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.02"
+                value={lightScrimOpacity}
+                onChange={(e) => setLightScrimOpacity(parseFloat(e.target.value))}
+                className="w-full accent-amber-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+              />
+            </div>
+
+            {/* Color Stops & Values breakdown */}
+            <div className="space-y-1 pt-1.5 border-t border-slate-800 text-[10px] font-mono">
+              <div className="text-[10px] text-[var(--text-muted)] font-sans font-medium mb-1">
+                Lightening Formula & Calibration Stops:
+              </div>
+              {/* Stop 1: Center Sky (0%) */}
+              <div className="space-y-1 bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-3 h-3 rounded-full border border-white/20 shadow-sm transition-colors"
+                      style={{ backgroundColor: `rgba(235, 246, 250, ${lightTopSkyOpacity})` }}
+                    />
+                    <span className="text-slate-300 font-sans text-xs">Center Sky (0%)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-mono">
+                    <span className="text-amber-200">
+                      rgba(235, 246, 250, {lightTopSkyOpacity.toFixed(2)})
+                    </span>
+                    {lightTopSkyOpacity !== 0.86 && (
+                      <button
+                        onClick={() => setLightTopSkyOpacity(0.86)}
+                        className="text-[9px] text-[var(--text-muted)] hover:text-amber-300 underline font-sans"
+                        title="Reset Center Sky opacity to 0.86"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={lightTopSkyOpacity}
+                  onChange={(e) => setLightTopSkyOpacity(parseFloat(e.target.value))}
+                  aria-label="Center Sky (0%) opacity"
+                  className="w-full accent-amber-400 h-1 bg-slate-800 rounded cursor-pointer"
+                />
+              </div>
+
+              {/* Stop 2: Mid Atmospheric (55%) */}
+              <div className="space-y-1 bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-3 h-3 rounded-full border border-white/20 shadow-sm transition-colors"
+                      style={{ backgroundColor: `rgba(218, 238, 246, ${lightMidAtmosphericOpacity})` }}
+                    />
+                    <span className="text-slate-300 font-sans text-xs">Mid Atmospheric (55%)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-mono">
+                    <span className="text-amber-200">
+                      rgba(218, 238, 246, {lightMidAtmosphericOpacity.toFixed(2)})
+                    </span>
+                    {lightMidAtmosphericOpacity !== 0.44 && (
+                      <button
+                        onClick={() => setLightMidAtmosphericOpacity(0.44)}
+                        className="text-[9px] text-[var(--text-muted)] hover:text-amber-300 underline font-sans"
+                        title="Reset Mid Atmospheric opacity to 0.44"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={lightMidAtmosphericOpacity}
+                  onChange={(e) => setLightMidAtmosphericOpacity(parseFloat(e.target.value))}
+                  aria-label="Mid Atmospheric (55%) opacity"
+                  className="w-full accent-amber-400 h-1 bg-slate-800 rounded cursor-pointer"
+                />
+              </div>
+
+              {/* Stop 3: Edge Horizon (100%) */}
+              <div className="space-y-1 bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-3 h-3 rounded-full border border-white/20 shadow-sm transition-colors"
+                      style={{ backgroundColor: `rgba(195, 226, 238, ${lightBottomHorizonOpacity})` }}
+                    />
+                    <span className="text-slate-300 font-sans text-xs">Edge Horizon (100%)</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-mono">
+                    <span className="text-amber-200">
+                      rgba(195, 226, 238, {lightBottomHorizonOpacity.toFixed(2)})
+                    </span>
+                    {lightBottomHorizonOpacity !== 0.19 && (
+                      <button
+                        onClick={() => setLightBottomHorizonOpacity(0.19)}
+                        className="text-[9px] text-[var(--text-muted)] hover:text-amber-300 underline font-sans"
+                        title="Reset Edge Horizon opacity to 0.19"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={lightBottomHorizonOpacity}
+                  onChange={(e) => setLightBottomHorizonOpacity(parseFloat(e.target.value))}
+                  aria-label="Edge Horizon (100%) opacity"
+                  className="w-full accent-amber-400 h-1 bg-slate-800 rounded cursor-pointer"
+                />
+              </div>
+              <div className="flex items-center justify-between text-[9px] text-[var(--text-muted)] px-1 pt-0.5">
+                <span>CSS Token: --bg-light-tint-opacity</span>
+                <span>Target: Clean Paper Wash</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* When in None: Clean Stack notice */}
+        {scrimMode === 'none' && (
+          <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-700/50 text-[11px] text-[var(--text-muted)] flex items-center justify-between animate-fadeIn">
+            <span>Raw Canvas: Ambient darkening & lightening overlays disabled</span>
+            <span className="text-[10px] font-mono font-bold text-slate-400 uppercase bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700">
+              Clean Stack
+            </span>
+          </div>
+        )}
+      </div>
+
       {/* Presets */}
       <div>
         <label className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-muted)] mb-2 block">

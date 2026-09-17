@@ -55,9 +55,9 @@ export const UiElementsPage: React.FC = () => {
         : 'Light canvas scaling downward to crisp white cards and paper modals',
       tokens: [
         { name: 'App Canvas', varName: '--bg-app', value: isDark ? '#03141a' : '#eaf4f7', bg: 'bg-[var(--bg-app)]', border: true },
-        { name: 'Section Alternate', varName: '--bg-section', value: isDark ? '#021319' : '#f1f7f9', bg: 'bg-[var(--bg-section)]', border: true },
+        { name: 'Section Alternate', varName: '--bg-section', value: isDark ? '#021319' : '#e2edf1', bg: 'bg-[var(--bg-section)]', border: true },
         { name: 'Card Surface', varName: '--bg-card', value: isDark ? 'rgba(8, 40, 50, 0.65)' : '#ffffff', bg: 'bg-[var(--bg-card)]', border: true },
-        { name: 'Card Hover', varName: '--bg-card-hover', value: isDark ? 'rgba(12, 55, 68, 0.85)' : '#f8fafc', bg: 'bg-[var(--bg-card-hover)]', border: true },
+        { name: 'Card Hover', varName: '--bg-card-hover', value: isDark ? 'rgba(12, 55, 68, 0.85)' : '#f4f9fb', bg: 'bg-[var(--bg-card-hover)]', border: true },
         { name: 'Paper / Modal', varName: '--bg-paper', value: isDark ? '#08212b' : '#ffffff', bg: 'bg-[var(--bg-paper)]', border: true },
         { name: 'Bubble / Pill', varName: '--bg-bubble', value: isDark ? '#061e26' : '#ffffff', bg: 'bg-[var(--bg-bubble)]', border: true },
         { name: 'Avatar Base', varName: '--bg-avatar', value: isDark ? '#0b323c' : '#e0f2f6', bg: 'bg-[var(--bg-avatar)]', border: true },

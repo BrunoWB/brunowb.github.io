@@ -81,6 +81,24 @@ export const BgCanvasPlaygroundPage: React.FC = () => {
     outputWhite,
     handleFpsUpdate,
     handleWaterTelemetry,
+    scrimMode,
+    setScrimMode,
+    darkScrimOpacity,
+    setDarkScrimOpacity,
+    lightScrimOpacity,
+    setLightScrimOpacity,
+    darkCenterGlowOpacity,
+    setDarkCenterGlowOpacity,
+    darkMidHazeOpacity,
+    setDarkMidHazeOpacity,
+    darkEdgeVignetteOpacity,
+    setDarkEdgeVignetteOpacity,
+    lightTopSkyOpacity,
+    setLightTopSkyOpacity,
+    lightMidAtmosphericOpacity,
+    setLightMidAtmosphericOpacity,
+    lightBottomHorizonOpacity,
+    setLightBottomHorizonOpacity,
   } = state;
 
   const toggleFullscreen = useCallback(() => {
@@ -98,6 +116,15 @@ export const BgCanvasPlaygroundPage: React.FC = () => {
         interactive={parallaxEnabled}
         parallaxIntensity={parallaxIntensity}
         reverseHorizontalParallax={reverseHorizontalParallax}
+        scrimMode={scrimMode}
+        darkScrimOpacity={darkScrimOpacity}
+        lightScrimOpacity={lightScrimOpacity}
+        darkCenterGlowOpacity={darkCenterGlowOpacity}
+        darkMidHazeOpacity={darkMidHazeOpacity}
+        darkEdgeVignetteOpacity={darkEdgeVignetteOpacity}
+        lightTopSkyOpacity={lightTopSkyOpacity}
+        lightMidAtmosphericOpacity={lightMidAtmosphericOpacity}
+        lightBottomHorizonOpacity={lightBottomHorizonOpacity}
         colorGradingEnabled={colorGradingEnabled}
         vibrance={vibrance}
         saturation={saturation}
@@ -231,6 +258,24 @@ export const BgCanvasPlaygroundPage: React.FC = () => {
           <div className="p-4 overflow-y-auto max-h-[calc(84vh-60px)] space-y-4 text-xs">
             {activeTab === 'controls' && (
               <ControlsTab
+                scrimMode={scrimMode}
+                setScrimMode={setScrimMode}
+                darkScrimOpacity={darkScrimOpacity}
+                setDarkScrimOpacity={setDarkScrimOpacity}
+                lightScrimOpacity={lightScrimOpacity}
+                setLightScrimOpacity={setLightScrimOpacity}
+                darkCenterGlowOpacity={darkCenterGlowOpacity}
+                setDarkCenterGlowOpacity={setDarkCenterGlowOpacity}
+                darkMidHazeOpacity={darkMidHazeOpacity}
+                setDarkMidHazeOpacity={setDarkMidHazeOpacity}
+                darkEdgeVignetteOpacity={darkEdgeVignetteOpacity}
+                setDarkEdgeVignetteOpacity={setDarkEdgeVignetteOpacity}
+                lightTopSkyOpacity={lightTopSkyOpacity}
+                setLightTopSkyOpacity={setLightTopSkyOpacity}
+                lightMidAtmosphericOpacity={lightMidAtmosphericOpacity}
+                setLightMidAtmosphericOpacity={setLightMidAtmosphericOpacity}
+                lightBottomHorizonOpacity={lightBottomHorizonOpacity}
+                setLightBottomHorizonOpacity={setLightBottomHorizonOpacity}
                 applyPreset={state.applyPreset}
                 isSoloLayer0Active={state.isSoloLayer0Active}
                 colorGradingEnabled={state.colorGradingEnabled}

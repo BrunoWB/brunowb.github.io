@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { bgLayers } from '../../../data/bgLayersData';
 import type { ReflectionBlendMode } from '../../../types/background';
-import type { LayerState, PlaygroundPreset } from '../types';
+import type { LayerState, PlaygroundPreset, ScrimMode } from '../types';
 
 export const isOffRequested = (): boolean => {
   if (typeof window === 'undefined') return false;
@@ -22,6 +22,21 @@ export const useCanvasPlaygroundState = () => {
   // Performance telemetry state
   const [fps, setFps] = useState<number>(60);
   const [frameTimeMs, setFrameTimeMs] = useState<number>(16.6);
+
+  // Ambient lighting & scrim state (none / dark / light)
+  const [scrimMode, setScrimMode] = useState<ScrimMode>('dark');
+  const [darkScrimOpacity, setDarkScrimOpacity] = useState<number>(0.60);
+  const [lightScrimOpacity, setLightScrimOpacity] = useState<number>(0.40);
+
+  // Individual stop opacities for Dark mode
+  const [darkCenterGlowOpacity, setDarkCenterGlowOpacity] = useState<number>(0.38);
+  const [darkMidHazeOpacity, setDarkMidHazeOpacity] = useState<number>(0.49);
+  const [darkEdgeVignetteOpacity, setDarkEdgeVignetteOpacity] = useState<number>(0.83);
+
+  // Individual stop opacities for Light mode
+  const [lightTopSkyOpacity, setLightTopSkyOpacity] = useState<number>(0.86);
+  const [lightMidAtmosphericOpacity, setLightMidAtmosphericOpacity] = useState<number>(0.44);
+  const [lightBottomHorizonOpacity, setLightBottomHorizonOpacity] = useState<number>(0.19);
 
   // Parallax & Camera state
   const [parallaxIntensity, setParallaxIntensity] = useState<number>(0.5);
@@ -95,7 +110,7 @@ export const useCanvasPlaygroundState = () => {
 
   // Photoshop Vibrance & Levels Color Grading state
   const [colorGradingEnabled, setColorGradingEnabled] = useState<boolean>(!isInitialOff);
-  const [vibrance, setVibrance] = useState<number>(10);
+  const [vibrance, setVibrance] = useState<number>(37);
   const [saturation, setSaturation] = useState<number>(-5);
   const [inputBlack, setInputBlack] = useState<number>(19);
   const [gamma, setGamma] = useState<number>(0.85);
@@ -341,7 +356,7 @@ export const useCanvasPlaygroundState = () => {
       setCometCoreStretchScale(1.5);
       setCometCorePeakBrightness(0.74);
       setColorGradingEnabled(true);
-      setVibrance(10);
+      setVibrance(37);
       setSaturation(-5);
       setInputBlack(19);
       setGamma(0.85);
@@ -578,7 +593,7 @@ export const useCanvasPlaygroundState = () => {
     setCometCorePeakBrightness(0.74);
     setCometCoreBaselineOpacity(0.04);
     setColorGradingEnabled(true);
-    setVibrance(10);
+    setVibrance(37);
     setSaturation(-5);
     setInputBlack(19);
     setGamma(0.85);
@@ -586,6 +601,15 @@ export const useCanvasPlaygroundState = () => {
     setOutputBlack(0);
     setOutputWhite(255);
     setUseCleanComposite(false);
+    setScrimMode('dark');
+    setDarkScrimOpacity(0.60);
+    setLightScrimOpacity(0.40);
+    setDarkCenterGlowOpacity(0.38);
+    setDarkMidHazeOpacity(0.49);
+    setDarkEdgeVignetteOpacity(0.83);
+    setLightTopSkyOpacity(0.86);
+    setLightMidAtmosphericOpacity(0.44);
+    setLightBottomHorizonOpacity(0.19);
     const initial: Record<string, LayerState> = {};
     bgLayers.forEach((l) => {
       initial[l.id] = { visible: l.defaultVisible, opacity: l.defaultOpacity };
@@ -742,6 +766,24 @@ export const useCanvasPlaygroundState = () => {
     handleReset,
     handleFpsUpdate,
     handleWaterTelemetry,
+    scrimMode,
+    setScrimMode,
+    darkScrimOpacity,
+    setDarkScrimOpacity,
+    lightScrimOpacity,
+    setLightScrimOpacity,
+    darkCenterGlowOpacity,
+    setDarkCenterGlowOpacity,
+    darkMidHazeOpacity,
+    setDarkMidHazeOpacity,
+    darkEdgeVignetteOpacity,
+    setDarkEdgeVignetteOpacity,
+    lightTopSkyOpacity,
+    setLightTopSkyOpacity,
+    lightMidAtmosphericOpacity,
+    setLightMidAtmosphericOpacity,
+    lightBottomHorizonOpacity,
+    setLightBottomHorizonOpacity,
   };
 };
 

@@ -30,6 +30,15 @@ export const HomePage: React.FC = () => {
   const cvAvatarRef = useRef<HTMLDivElement>(null);
 
   const isTransitioningRef = useRef(false);
+  const cancelScrollRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (cancelScrollRef.current) {
+        cancelScrollRef.current();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -60,10 +69,7 @@ export const HomePage: React.FC = () => {
     };
   }, [isCvOpen, isCvClosing]);
 
-  const handleOpenCv = (updateHash = true) => {
-    if (isTransitioningRef.current || floatingState || isCvOpen || isCvClosing) return;
-    isTransitioningRef.current = true;
-
+  const triggerOpenCv = (updateHash: boolean) => {
     if (updateHash && typeof window !== 'undefined' && window.location.hash !== '#resume') {
       window.history.pushState(null, '', '#resume');
     }
@@ -112,7 +118,76 @@ export const HomePage: React.FC = () => {
     });
   };
 
+  const handleOpenCv = (updateHash = true) => {
+    if (isTransitioningRef.current || floatingState || isCvOpen || isCvClosing) return;
+    isTransitioningRef.current = true;
+
+    if (cancelScrollRef.current) {
+      cancelScrollRef.current();
+    }
+
+    const currentScrollY =
+      typeof window !== 'undefined'
+        ? window.scrollY || document.documentElement.scrollTop || 0
+        : 0;
+
+    // If already scrolled to top (within 1px margin for subpixel rendering), open immediately
+    if (currentScrollY <= 1 || typeof window === 'undefined') {
+      triggerOpenCv(updateHash);
+      return;
+    }
+
+    const prefersReducedMotion =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion) {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      triggerOpenCv(updateHash);
+      return;
+    }
+
+    let completed = false;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    const cleanup = () => {
+      window.removeEventListener('scroll', checkScroll);
+      window.removeEventListener('scrollend', onScrollComplete);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      cancelScrollRef.current = null;
+    };
+
+    const onScrollComplete = () => {
+      if (completed) return;
+      completed = true;
+      cleanup();
+      window.scrollTo({ top: 0, behavior: 'auto' });
+      triggerOpenCv(updateHash);
+    };
+
+    const checkScroll = () => {
+      const y = window.scrollY || document.documentElement.scrollTop || 0;
+      if (y <= 1) {
+        onScrollComplete();
+      }
+    };
+
+    cancelScrollRef.current = cleanup;
+    window.addEventListener('scroll', checkScroll, { passive: true });
+    window.addEventListener('scrollend', onScrollComplete, { once: true });
+    timeoutId = setTimeout(onScrollComplete, 600);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleCloseCv = (updateHash = true) => {
+    if (cancelScrollRef.current) {
+      cancelScrollRef.current();
+    }
+
     if (isTransitioningRef.current || floatingState || isCvClosing || !isCvOpen) return;
     isTransitioningRef.current = true;
 

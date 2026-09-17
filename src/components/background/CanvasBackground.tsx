@@ -4,7 +4,7 @@ import {
   BG_CANVAS_WIDTH,
   BG_CANVAS_HEIGHT,
 } from '../../data/bgLayersData';
-import { ReflectionBlendMode } from '../../types/background';
+import type { ReflectionBlendMode, ScrimMode } from '../../types/background';
 import {
   computeLevelsTableValues,
   computeVibranceSaturationMatrix,
@@ -93,6 +93,15 @@ export interface CanvasBackgroundProps {
 
   useCleanComposite?: boolean;
   darkScrimEnabled?: boolean;
+  scrimMode?: ScrimMode;
+  darkScrimOpacity?: number;
+  lightScrimOpacity?: number;
+  darkCenterGlowOpacity?: number;
+  darkMidHazeOpacity?: number;
+  darkEdgeVignetteOpacity?: number;
+  lightTopSkyOpacity?: number;
+  lightMidAtmosphericOpacity?: number;
+  lightBottomHorizonOpacity?: number;
   layerOverrides?: Record<string, { visible?: boolean; opacity?: number }>;
   className?: string;
   canvasOffsetY?: number;
@@ -106,7 +115,7 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
   interactive = true,
   reverseHorizontalParallax = true,
   colorGradingEnabled = true,
-  vibrance = 10,
+  vibrance = 37,
   saturation = -5,
   inputBlack = 19,
   gamma = 0.85,
@@ -175,6 +184,15 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
   cometCoreDiffusionScale,
   useCleanComposite = false,
   darkScrimEnabled = true,
+  scrimMode,
+  darkScrimOpacity,
+  lightScrimOpacity,
+  darkCenterGlowOpacity = 0.38,
+  darkMidHazeOpacity = 0.49,
+  darkEdgeVignetteOpacity = 0.83,
+  lightTopSkyOpacity = 0.86,
+  lightMidAtmosphericOpacity = 0.44,
+  lightBottomHorizonOpacity = 0.19,
   layerOverrides = {},
   className = '',
   canvasOffsetY = 0,
@@ -183,6 +201,23 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
   onFpsUpdate,
   onWaterTelemetry,
 }) => {
+  const effectiveDarkOpacity =
+    scrimMode === 'none'
+      ? 0
+      : scrimMode === 'light'
+      ? 0
+      : darkScrimOpacity !== undefined
+      ? darkScrimOpacity
+      : 'var(--bg-dark-tint-opacity, 0.60)';
+
+  const effectiveLightOpacity =
+    scrimMode === 'none'
+      ? 0
+      : scrimMode === 'dark'
+      ? 0
+      : lightScrimOpacity !== undefined
+      ? lightScrimOpacity
+      : 'var(--bg-light-tint-opacity, 0.40)';
   // Photoshop Vibrance & Saturation Color Matrix
   const colorMatrixValues = useMemo(
     () => computeVibranceSaturationMatrix(vibrance, saturation),
@@ -457,9 +492,8 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
         <div
           className="absolute inset-0 pointer-events-none transition-opacity duration-500"
           style={{
-            background:
-              'radial-gradient(circle at center, rgba(9, 71, 87, 0.45) 0%, rgba(3, 35, 44, 0.72) 60%, rgba(2, 19, 25, 0.88) 100%)',
-            opacity: 'var(--bg-dark-tint-opacity, 1)',
+            background: `radial-gradient(circle at center, rgba(9, 71, 87, ${darkCenterGlowOpacity}) 0%, rgba(3, 35, 44, ${darkMidHazeOpacity}) 60%, rgba(2, 19, 25, ${darkEdgeVignetteOpacity}) 100%)`,
+            opacity: effectiveDarkOpacity,
           }}
         />
       )}
@@ -468,9 +502,8 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
       <div
         className="absolute inset-0 pointer-events-none transition-opacity duration-500"
         style={{
-          background:
-            'linear-gradient(180deg, rgba(240, 248, 255, 0.55) 0%, rgba(228, 244, 250, 0.72) 65%, rgba(215, 238, 246, 0.88) 100%)',
-          opacity: 'var(--bg-light-tint-opacity, 0)',
+          background: `radial-gradient(circle at center, rgba(235, 246, 250, ${lightTopSkyOpacity}) 0%, rgba(218, 238, 246, ${lightMidAtmosphericOpacity}) 55%, rgba(195, 226, 238, ${lightBottomHorizonOpacity}) 100%)`,
+          opacity: effectiveLightOpacity,
         }}
       />
     </div>

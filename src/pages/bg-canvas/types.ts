@@ -11,3 +11,5 @@ export interface WaterTelemetry {
   liveWaterSpeed: number;
   liveWaterBlur: number;
 }
+
+export type { ScrimMode } from '../../types/background';

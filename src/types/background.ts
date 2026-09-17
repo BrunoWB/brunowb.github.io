@@ -1,5 +1,7 @@
 export type BlendMode = 'normal' | 'overlay' | 'screen' | 'color-dodge' | 'hard-light';
 
+export type ScrimMode = 'none' | 'dark' | 'light';
+
 export type LayerCategory =
   | 'sky'
   | 'space'

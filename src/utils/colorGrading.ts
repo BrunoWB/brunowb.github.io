@@ -14,7 +14,7 @@ export interface ColorGradingValues {
 }
 
 export const DEFAULT_COLOR_GRADING: ColorGradingValues = {
-  vibrance: 10,
+  vibrance: 37,
   saturation: -5,
   inputBlack: 19,
   gamma: 0.85,

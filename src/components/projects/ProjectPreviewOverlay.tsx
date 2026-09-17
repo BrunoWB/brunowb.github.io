@@ -136,9 +136,9 @@ export const ProjectPreviewOverlay: React.FC<ProjectPreviewOverlayProps> = ({ ac
                 />
               )}
 
-              {/* Gradient Scrims for Atmosphere & Dark Integration */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[var(--bg-section)]/80 via-transparent to-[var(--bg-section)]/40 pointer-events-none" />
-              <div className="absolute inset-0 bg-gradient-to-r from-[var(--bg-section)]/60 via-transparent to-transparent pointer-events-none" />
+              {/* Gradient Scrims for Atmosphere & Mode Integration */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-black/15 dark:from-[var(--bg-section)]/80 dark:to-[var(--bg-section)]/40 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-transparent dark:from-[var(--bg-section)]/60 pointer-events-none" />
 
               {/* Glowing Diagonal Leading Edge Line */}
               <svg
