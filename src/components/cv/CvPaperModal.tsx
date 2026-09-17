@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { TypewriterProvider, useTypewriterController } from '../../context/TypewriterContext';
 import { CvHoverProvider } from '../../context/CvHoverContext';
-import { CvHeader, CvPaperTitleBar } from './CvHeader';
+import { CvHeader, CvPaperTitleBar, CvSmallHeader } from './CvHeader';
 import { CvSidebar } from './CvSidebar';
 import { CvTimeline } from './CvTimeline';
 
@@ -21,6 +21,49 @@ const CvPaperContent: React.FC<{
   isScrolled?: boolean;
 }> = ({ onClose, isAvatarDocked, cvAvatarRef, isClosing, isScrolled = false }) => {
   const { isSkipped, skipAll } = useTypewriterController();
+  const mobileHeaderRef = useRef<HTMLDivElement>(null);
+  const [mobileHeaderHeight, setMobileHeaderHeight] = useState(0);
+
+  useLayoutEffect(() => {
+    if (!isScrolled) {
+      setMobileHeaderHeight(0);
+      return;
+    }
+
+    const updateHeight = () => {
+      if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+        setMobileHeaderHeight(0);
+        return;
+      }
+      if (mobileHeaderRef.current) {
+        const rect = mobileHeaderRef.current.getBoundingClientRect();
+        const h = rect.height > 0 ? rect.height : mobileHeaderRef.current.offsetHeight;
+        if (h > 0) {
+          // Subtract 1px so the job sticky header overlaps the 1px bottom border, eliminating any subpixel gap
+          setMobileHeaderHeight(Math.max(0, Math.floor(h) - 1));
+          return;
+        }
+      }
+      setMobileHeaderHeight(window.innerWidth >= 640 ? 80 : 72);
+    };
+
+    updateHeight();
+
+    const ro = new ResizeObserver(() => {
+      updateHeight();
+    });
+
+    if (mobileHeaderRef.current) {
+      ro.observe(mobileHeaderRef.current);
+    }
+
+    window.addEventListener('resize', updateHeight);
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', updateHeight);
+    };
+  }, [isScrolled]);
 
   return (
     <CvHoverProvider>
@@ -43,8 +86,23 @@ const CvPaperContent: React.FC<{
         {/* The Actual Curriculum Paper Sheet */}
         <div
           id="resume"
+          style={{
+            ['--cv-sticky-top-offset' as any]: `${mobileHeaderHeight}px`,
+          }}
           className="relative rounded-2xl shadow-2xl bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-subtle)] overflow-visible"
         >
+          {/* Mobile Sticky Avatar & Title Header - Always sticky by itself on mobile */}
+          <div
+            ref={mobileHeaderRef}
+            className={`block lg:hidden sticky top-0 z-40 bg-[var(--bg-paper)]/95 backdrop-blur-md rounded-t-2xl transition-all duration-300 ease-out overflow-hidden ${
+              isScrolled
+                ? 'max-h-28 opacity-100 translate-y-0 px-6 sm:px-10 py-3 border-b border-[var(--border-subtle)] shadow-sm'
+                : 'max-h-0 opacity-0 -translate-y-3 p-0 pointer-events-none border-b-0'
+            }`}
+          >
+            <CvSmallHeader />
+          </div>
+
           {/* Paper Title & Contact Row */}
           <CvPaperTitleBar isScrolled={isScrolled} />
 

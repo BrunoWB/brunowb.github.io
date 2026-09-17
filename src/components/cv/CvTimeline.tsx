@@ -127,7 +127,7 @@ export const CvTimeline: React.FC = () => {
                   headerRefs.current[idx] = el;
                 }}
                 style={{
-                  top: `${stickyTops[idx] ?? getInitialStickyTop(idx)}px`,
+                  top: `calc(var(--cv-sticky-top-offset, 0px) + ${stickyTops[idx] ?? getInitialStickyTop(idx)}px)`,
                   zIndex: 35 - idx,
                 }}
                 onMouseEnter={() => {
@@ -136,7 +136,7 @@ export const CvTimeline: React.FC = () => {
                 onMouseLeave={() => {
                   if (pos.company) setHoveredJobId(null);
                 }}
-                className={`sticky top-2 sm:top-4 bg-[var(--bg-paper)]/95 dark:bg-[var(--bg-paper)]/95 backdrop-blur-md py-1.5 -mx-2 px-2 rounded-lg transition-opacity duration-200 shadow-xs ${
+                className={`sticky bg-[var(--bg-paper)]/95 dark:bg-[var(--bg-paper)]/95 backdrop-blur-md py-1.5 -mx-2 px-2 rounded-lg transition-opacity duration-200 shadow-xs ${
                   isItemActive ? 'opacity-100' : 'opacity-30'
                 }`}
               >

@@ -5,6 +5,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useTypewriterController } from '../../context/TypewriterContext';
 import { cvData } from '../../data/cvData';
 import { useCvHover } from '../../context/CvHoverContext';
+import { CvSmallHeader } from './CvHeader';
 
 interface CvSidebarProps {
   isScrolled?: boolean;
@@ -19,31 +20,15 @@ export const CvSidebar: React.FC<CvSidebarProps> = ({ isScrolled = false }) => {
 
   return (
     <aside className="w-full lg:w-[32%] lg:sticky lg:top-4 self-start flex flex-col gap-6 text-[var(--text-secondary)] border-b lg:border-b-0 lg:border-r border-[var(--border-subtle)] pr-0 lg:pr-6 pb-6 lg:pb-0 overflow-visible">
-      {/* Sticky Avatar & Title Header - Pushed to the left section on scroll */}
+      {/* Sticky Avatar & Title Header (Desktop) - Pushed to the left section on scroll */}
       <div
-        className={`transition-all duration-300 ease-out overflow-hidden ${
+        className={`hidden lg:block transition-all duration-300 ease-out overflow-hidden ${
           isScrolled
             ? 'max-h-28 opacity-100 translate-y-0 pb-4 border-b border-[var(--border-subtle)]'
             : 'max-h-0 opacity-0 -translate-y-3 pb-0 pointer-events-none'
         }`}
       >
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-[var(--brand-primary)] shadow-md overflow-hidden flex-shrink-0 bg-[var(--bg-avatar)]">
-            <img
-              src={cvData.header.avatarUrl}
-              alt={cvData.header.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h2 className="text-sm sm:text-base font-bold tracking-wider text-[var(--text-primary)] dark:text-white uppercase truncate">
-              {cvData.header.name}
-            </h2>
-            <p className="text-xs sm:text-sm font-semibold text-[var(--brand-primary)] truncate">
-              {t(cvData.header.title)}
-            </p>
-          </div>
-        </div>
+        <CvSmallHeader />
       </div>
 
       {/* Profile Summary */}

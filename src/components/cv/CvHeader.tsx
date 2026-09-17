@@ -19,7 +19,7 @@ export const CvHeader: React.FC<CvHeaderProps> = ({
   isScrolled = false,
 }) => {
   const { t } = useLanguage();
-  const { currentStep, isSkipped, skipAll, advanceStep } = useTypewriterController();
+  const { currentStep, isSkipped, advanceStep } = useTypewriterController();
 
   // Advance from step 0 (paper slide-down / avatar dock) to step 1 (name typing)
   useEffect(() => {
@@ -35,32 +35,14 @@ export const CvHeader: React.FC<CvHeaderProps> = ({
     <div className="relative w-full overflow-visible bg-transparent">
       {/* Top Banner Area - Completely Transparent to allow website background to show through */}
       <div className="relative h-24 sm:h-28 md:h-32 w-full overflow-visible bg-transparent">
-        {/* Top Control Bar: Skip Animation Badge & Close Button */}
-        <div className="absolute top-3 right-3 sm:top-4 sm:right-5 z-30 flex items-center gap-2.5">
-          {!isSkipped ? (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                skipAll();
-              }}
-              className="text-xs px-3 py-1.5 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-400/40 backdrop-blur-md cursor-pointer transition-all duration-200 shadow-sm"
-              title="Reveal all text"
-            >
-              {t(uiTranslations.cvModal.skipPrompt)}
-            </button>
-          ) : (
-            <div className="text-xs px-3 py-1 text-cyan-200/70 font-mono bg-black/40 rounded-full border border-cyan-500/20 backdrop-blur-xs">
-              {cvData.contact.linkedin}
-            </div>
-          )}
-
+        {/* Top Control Bar: Close Button */}
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-5 z-30">
           <button
             onClick={(e) => {
               e.stopPropagation();
               onClose();
             }}
             aria-label={t(uiTranslations.cvModal.close)}
-            title={t(uiTranslations.cvModal.close)}
             className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/70 text-slate-300 hover:text-white border border-white/20 backdrop-blur-md cursor-pointer transition-all duration-200"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -110,6 +92,30 @@ export const CvHeader: React.FC<CvHeaderProps> = ({
   );
 };
 
+export const CvSmallHeader: React.FC = () => {
+  const { t } = useLanguage();
+
+  return (
+    <div className="flex items-center gap-3">
+      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-[var(--brand-primary)] shadow-md overflow-hidden flex-shrink-0 bg-[var(--bg-avatar)]">
+        <img
+          src={cvData.header.avatarUrl}
+          alt={cvData.header.name}
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <div className="min-w-0 flex-1">
+        <h2 className="text-sm sm:text-base font-bold tracking-wider text-[var(--text-primary)] dark:text-white uppercase truncate">
+          {cvData.header.name}
+        </h2>
+        <p className="text-xs sm:text-sm font-semibold text-[var(--brand-primary)] truncate">
+          {t(cvData.header.title)}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 interface CvPaperTitleBarProps {
   isScrolled?: boolean;
 }
@@ -119,7 +125,13 @@ export const CvPaperTitleBar: React.FC<CvPaperTitleBarProps> = ({ isScrolled = f
   const { advanceStep } = useTypewriterController();
 
   return (
-    <div className="relative pt-3 sm:pt-3.5 pb-3.5 sm:pb-4 pl-34 sm:pl-44 md:pl-48 pr-6 sm:pr-10 border-b border-[var(--border-subtle)] overflow-hidden">
+    <div
+      className={`relative transition-all duration-300 ${
+        isScrolled
+          ? 'max-h-0 py-0 border-b-0 overflow-hidden lg:max-h-28 lg:pt-3.5 lg:pb-4 lg:border-b'
+          : 'max-h-28 pt-3 sm:pt-3.5 pb-3.5 sm:pb-4 border-b'
+      } pl-34 sm:pl-44 md:pl-48 pr-6 sm:pr-10 border-[var(--border-subtle)] overflow-hidden`}
+    >
       <div
         className={`flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 transition-all duration-300 ${
           isScrolled ? 'opacity-0 -translate-x-8 pointer-events-none' : 'opacity-100 translate-x-0'
