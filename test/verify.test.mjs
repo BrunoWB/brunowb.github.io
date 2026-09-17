@@ -340,7 +340,15 @@ console.log('✓ Solo Layer 0 isolation, #off URL parsing, and UI toggle verifie
 // 14. HTML5 Canvas Background Component & /bg-canvas Route Verification
 console.log('14. Checking HTML5 Canvas Background component and /bg-canvas route...');
 const canvasBgContent = fs.readFileSync(new URL('../src/components/background/CanvasBackground.tsx', import.meta.url), 'utf-8');
-const bgCanvasPlaygroundContent = fs.readFileSync(new URL('../src/pages/BgCanvasPlaygroundPage.tsx', import.meta.url), 'utf-8');
+const readBgCanvasPlayground = () => [
+  fs.readFileSync(new URL('../src/pages/BgCanvasPlaygroundPage.tsx', import.meta.url), 'utf-8'),
+  fs.readFileSync(new URL('../src/pages/bg-canvas/hooks/useCanvasPlaygroundState.ts', import.meta.url), 'utf-8'),
+  fs.readFileSync(new URL('../src/pages/bg-canvas/components/PlaygroundHeader.tsx', import.meta.url), 'utf-8'),
+  fs.readFileSync(new URL('../src/pages/bg-canvas/components/tabs/ControlsTab.tsx', import.meta.url), 'utf-8'),
+  fs.readFileSync(new URL('../src/pages/bg-canvas/components/tabs/LayersTab.tsx', import.meta.url), 'utf-8'),
+  fs.readFileSync(new URL('../src/pages/bg-canvas/components/tabs/BenchmarkTab.tsx', import.meta.url), 'utf-8'),
+].join('\n');
+const bgCanvasPlaygroundContent = readBgCanvasPlayground();
 
 // Route tests in App.tsx
 assert.ok(appContentUpdated.includes("path === 'bg-canvas'"), 'App.tsx must support /bg-canvas pathname route');
@@ -642,7 +650,7 @@ assert.ok(updatedCanvasBg.includes('effSkyY = star.y + ty'), 'CanvasBackground m
 assert.ok(!updatedCanvasBg.includes('starWaterY = 24.0 + d * 55.0 + ty'), 'CanvasBackground must not add ty directly to starWaterY which inverts vertical parallax');
 
 // BgCanvasPlaygroundPage slider calibration
-const updatedBgCanvasPage = fs.readFileSync(new URL('../src/pages/BgCanvasPlaygroundPage.tsx', import.meta.url), 'utf-8');
+const updatedBgCanvasPage = readBgCanvasPlayground();
 assert.ok(updatedBgCanvasPage.includes('max="0.15"'), 'BgCanvasPlaygroundPage star shine intensity slider max must be 0.15 (15%)');
 assert.ok(updatedBgCanvasPage.includes('max="26"'), 'BgCanvasPlaygroundPage star flare size slider max must be 26px');
 assert.ok(updatedBgCanvasPage.includes('min="6"'), 'BgCanvasPlaygroundPage star flare size slider min must be 6px');
@@ -793,7 +801,7 @@ console.log('✓ Continuous whole-raster cloud dynamics, seamless breathing, zer
 console.log('18. Checking Living Breathing Galaxy (Milky Way) subtle respiration, parameter bounds, zero-scale constraint, and UI controls...');
 
 const freshCanvasBg = fs.readFileSync(new URL('../src/components/background/CanvasBackground.tsx', import.meta.url), 'utf-8');
-const freshBgCanvasPage = fs.readFileSync(new URL('../src/pages/BgCanvasPlaygroundPage.tsx', import.meta.url), 'utf-8');
+const freshBgCanvasPage = readBgCanvasPlayground();
 
 // CanvasBackground props and state
 assert.ok(freshCanvasBg.includes('galaxyBreathingEnabled?: boolean'), 'CanvasBackgroundProps must define galaxyBreathingEnabled');
@@ -918,7 +926,7 @@ console.log('✓ Living Breathing Galaxy subtle respiration, parameter bounds, z
 console.log('19. Checking Perspective-Accurate Water Waves depth physics, non-linear perspective bands, dynamic wave excitation, and synchronized depth blur tiers...');
 
 const waterCanvasBg = fs.readFileSync(new URL('../src/components/background/CanvasBackground.tsx', import.meta.url), 'utf-8');
-const waterBgCanvasPage = fs.readFileSync(new URL('../src/pages/BgCanvasPlaygroundPage.tsx', import.meta.url), 'utf-8');
+const waterBgCanvasPage = readBgCanvasPlayground();
 
 // A. Props and defaults in CanvasBackground (scale 40px, power 3.0p, speed baseline 0.2)
 assert.ok(waterCanvasBg.includes('waterPerspectivePower?: number'), 'CanvasBackgroundProps must define waterPerspectivePower');
@@ -1176,7 +1184,7 @@ console.log('✓ Perspective-Accurate Water Waves depth physics, non-linear pers
 console.log('20. Checking reverse horizontal parallax motion, UI checkbox toggle, and parity...');
 const revCanvasBg = fs.readFileSync(new URL('../src/components/background/CanvasBackground.tsx', import.meta.url), 'utf-8');
 const revDynamicBg = fs.readFileSync(new URL('../src/components/background/DynamicBackground.tsx', import.meta.url), 'utf-8');
-const revBgCanvasPage = fs.readFileSync(new URL('../src/pages/BgCanvasPlaygroundPage.tsx', import.meta.url), 'utf-8');
+const revBgCanvasPage = readBgCanvasPlayground();
 const revBgPlaygroundPage = fs.readFileSync(new URL('../src/pages/BgPlaygroundPage.tsx', import.meta.url), 'utf-8');
 const revBgTypes = fs.readFileSync(new URL('../src/types/background.ts', import.meta.url), 'utf-8');
 
@@ -1356,7 +1364,7 @@ assert.ok(postDynamicBg.includes("filter: colorGradingEnabled && !useCleanCompos
 assert.ok(postDynamicBg.includes('!useCleanComposite'), 'DynamicBackground must bypass color grading when viewing static master (useCleanComposite)');
 
 // C. UI HUD Card, Sliders, and Preset Integration in PgPlayground Pages
-const postBgCanvasPage = fs.readFileSync(new URL('../src/pages/BgCanvasPlaygroundPage.tsx', import.meta.url), 'utf-8');
+const postBgCanvasPage = readBgCanvasPlayground();
 const postBgPlayPage = fs.readFileSync(new URL('../src/pages/BgPlaygroundPage.tsx', import.meta.url), 'utf-8');
 
 assert.ok(postBgCanvasPage.includes('Photoshop Vibrance & Levels'), 'BgCanvasPlaygroundPage must include Photoshop Vibrance & Levels HUD card');

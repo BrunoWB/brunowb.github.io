@@ -442,3 +442,5 @@ export const UiElementsPage: React.FC = () => {
     </div>
   );
 };
+
+export default UiElementsPage;

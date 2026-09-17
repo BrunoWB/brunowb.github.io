@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { HomePage } from './pages/HomePage';
-import { UiElementsPage } from './pages/UiElementsPage';
-import { BgPlaygroundPage } from './pages/BgPlaygroundPage';
-import { BgCanvasPlaygroundPage } from './pages/BgCanvasPlaygroundPage';
 import { ThemeToggle } from './components/common/ThemeToggle';
 import { KofiButton } from './components/common/KofiButton';
+
+const UiElementsPage = React.lazy(() => import('./pages/UiElementsPage'));
+const BgPlaygroundPage = React.lazy(() => import('./pages/BgPlaygroundPage'));
+const BgCanvasPlaygroundPage = React.lazy(() => import('./pages/BgCanvasPlaygroundPage'));
 
 export const resolveRoute = (): string => {
   if (typeof window === 'undefined') return 'home';
@@ -76,15 +77,17 @@ export const App: React.FC = () => {
       <LanguageProvider>
         <div className="relative min-h-screen text-[var(--text-primary)] transition-colors duration-300">
           {/* Main Route Switcher */}
-          {route === 'bg-canvas' ? (
-            <BgCanvasPlaygroundPage />
-          ) : route === 'bg' ? (
-            <BgPlaygroundPage />
-          ) : route === 'ui-elements' ? (
-            <UiElementsPage />
-          ) : (
-            <HomePage />
-          )}
+          <React.Suspense fallback={<div className="min-h-screen bg-[#021319]" />}>
+            {route === 'bg-canvas' ? (
+              <BgCanvasPlaygroundPage />
+            ) : route === 'bg' ? (
+              <BgPlaygroundPage />
+            ) : route === 'ui-elements' ? (
+              <UiElementsPage />
+            ) : (
+              <HomePage />
+            )}
+          </React.Suspense>
 
           {/* Persistent Floating Bubbles */}
           {route !== 'bg' && route !== 'bg-canvas' && (
