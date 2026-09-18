@@ -74,11 +74,8 @@ export const CvTimeline: React.FC = () => {
   return (
     <section className="w-full lg:w-[68%] pl-0 lg:pl-6 text-[var(--text-secondary)]">
       {/* Section Title */}
-      <h3 className="text-sm font-bold tracking-wider uppercase text-[var(--brand-primary)] mb-6 border-b border-[var(--border-subtle)] pb-1 flex items-center justify-between">
-        <span>{t(cvData.experience.title)}</span>
-        <span className="text-xs font-mono font-normal text-[var(--text-muted)]">
-          {cvData.experience.positions.filter((p) => p.company).length} Positions
-        </span>
+      <h3 className="text-sm font-bold tracking-wider uppercase text-[var(--brand-primary)] mb-6 border-b border-[var(--border-subtle)] pb-1">
+        {t(cvData.experience.title)}
       </h3>
 
       {/* Continuous Vertical Timeline */}

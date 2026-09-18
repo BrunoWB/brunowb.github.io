@@ -136,9 +136,9 @@ export const cvData: CvDictionary = {
         },
         company: 'Datagrid AI',
         period: {
-          en: 'Nov 2022 – Jan 2026',
-          fr: 'Nov. 2022 – Janv. 2026',
-          pt: 'Nov 2022 – Jan 2026',
+          en: '2022 – 2026',
+          fr: '2022 – 2026',
+          pt: '2022 – 2026',
         },
         location: {
           en: 'Montreal, Quebec, Canada · Hybrid',
@@ -179,9 +179,9 @@ export const cvData: CvDictionary = {
         },
         company: 'Hexoskin',
         period: {
-          en: 'Mar 2020 – Nov 2022',
-          fr: 'Mars 2020 – Nov. 2022',
-          pt: 'Mar 2020 – Nov 2022',
+          en: '2020 – 2022',
+          fr: '2020 – 2022',
+          pt: '2020 – 2022',
         },
         location: {
           en: 'Quebec, Canada · On-site',
@@ -219,9 +219,9 @@ export const cvData: CvDictionary = {
         },
         company: 'Nurun',
         period: {
-          en: 'Feb 2019 – Mar 2020',
-          fr: 'Févr. 2019 – Mars 2020',
-          pt: 'Fev 2019 – Mar 2020',
+          en: '2019 – 2020',
+          fr: '2019 – 2020',
+          pt: '2019 – 2020',
         },
         location: {
           en: 'Montreal, Canada Area · On-site',
@@ -259,9 +259,9 @@ export const cvData: CvDictionary = {
         },
         company: '3A Distribuidora',
         period: {
-          en: 'Jan 2014 – Dec 2016',
-          fr: 'Janv. 2014 – Déc. 2016',
-          pt: 'Jan 2014 – Dez 2016',
+          en: '2014 – 2016',
+          fr: '2014 – 2016',
+          pt: '2014 – 2016',
         },
         location: {
           en: 'Greater Rio de Janeiro, Brazil',
@@ -293,9 +293,9 @@ export const cvData: CvDictionary = {
         },
         company: 'Allus',
         period: {
-          en: 'Jan 2014 – Dec 2014',
-          fr: 'Janv. 2014 – Déc. 2014',
-          pt: 'Jan 2014 – Dez 2014',
+          en: '2014',
+          fr: '2014',
+          pt: '2014',
         },
         location: {
           en: 'Greater Rio de Janeiro, Brazil',
@@ -330,9 +330,9 @@ export const cvData: CvDictionary = {
         },
         company: 'Allus',
         period: {
-          en: 'Jul 2012 – Apr 2013',
-          fr: 'Juil. 2012 – Avr. 2013',
-          pt: 'Jul 2012 – Abr 2013',
+          en: '2012 – 2013',
+          fr: '2012 – 2013',
+          pt: '2012 – 2013',
         },
         location: {
           en: 'Greater Rio de Janeiro, Brazil',
@@ -364,9 +364,9 @@ export const cvData: CvDictionary = {
         },
         company: 'Barcellos Sports',
         period: {
-          en: 'Jan 2011 – Jun 2012',
-          fr: 'Janv. 2011 – Juin 2012',
-          pt: 'Jan 2011 – Jun 2012',
+          en: '2011 – 2012',
+          fr: '2011 – 2012',
+          pt: '2011 – 2012',
         },
         location: {
           en: 'Rio de Janeiro, Brazil',

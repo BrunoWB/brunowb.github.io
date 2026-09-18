@@ -78,7 +78,7 @@ describe('CvPrintDocument and Print Functionality', () => {
     expect(screen.getByText(/Freelance Web Services \| 3A Distribuidora/i)).toBeInTheDocument();
     expect(screen.getByText(/Backend Developer Trainee \| Allus/i)).toBeInTheDocument();
     expect(screen.getByText(/Web Designer \| Barcellos Sports/i)).toBeInTheDocument();
-    expect(screen.getByText('7 Positions')).toBeInTheDocument();
+    expect(screen.queryByText(/Positions/i)).not.toBeInTheDocument();
 
     // Class and attribute verification
     const sheet = container.querySelector('.cv-print-sheet');
@@ -104,8 +104,8 @@ describe('CvPrintDocument and Print Functionality', () => {
     expect(screen.queryByText(/Backend Developer Trainee \| Allus/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Web Designer \| Barcellos Sports/i)).not.toBeInTheDocument();
 
-    // Positions count badge reflects 5 positions with company
-    expect(screen.getByText('5 Positions')).toBeInTheDocument();
+    // Positions count badge is removed
+    expect(screen.queryByText(/Positions/i)).not.toBeInTheDocument();
 
     // Transparent header verification
     const transparentBanner = container.querySelector('.bg-transparent');

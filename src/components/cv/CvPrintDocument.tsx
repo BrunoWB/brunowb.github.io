@@ -133,13 +133,10 @@ export const CvPrintDocument: React.FC<CvPrintDocumentProps> = ({ mode: propMode
 
         {/* Right Column (69% width): Work Experience */}
         <section className="flex-1 pl-4 border-l border-[rgba(0,139,163,0.18)]">
-          <div className="flex justify-between items-baseline border-b border-[#008ba3]/25 pb-0.5 mb-2">
+          <div className="border-b border-[#008ba3]/25 pb-0.5 mb-2">
             <h3 className="text-xs font-bold tracking-wider uppercase text-[#008ba3]">
               {t(cvData.experience.title)}
             </h3>
-            <span className="text-[9px] font-mono text-[#48737e]">
-              {positions.filter((p) => p.company).length} Positions
-            </span>
           </div>
 
           {/* Vertical Timeline */}
