@@ -108,14 +108,14 @@ export const uiTranslations: UiTranslations = {
       pt: 'Pressione Espaço ou clique para revelar tudo',
     },
     downloadPdf: {
-      en: 'Download CV PDF',
-      fr: 'Télécharger le CV PDF',
-      pt: 'Baixar CV em PDF',
+      en: 'Download Digital PDF',
+      fr: 'Télécharger le PDF numérique',
+      pt: 'Baixar PDF digital',
     },
     print: {
-      en: 'Print (Cmd+P) • Right-click for Digital PDF',
-      fr: 'Imprimer (Cmd+P) • Clic droit pour PDF numérique',
-      pt: 'Imprimir (Cmd+P) • Botão direito para PDF digital',
+      en: 'Print (Cmd+P)',
+      fr: 'Imprimer (Cmd+P)',
+      pt: 'Imprimir (Cmd+P)',
     },
   },
 };

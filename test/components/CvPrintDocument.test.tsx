@@ -107,6 +107,10 @@ describe('CvPrintDocument and Print Functionality', () => {
     // Positions count badge reflects 5 positions with company
     expect(screen.getByText('5 Positions')).toBeInTheDocument();
 
+    // Transparent header verification
+    const transparentBanner = container.querySelector('.bg-transparent');
+    expect(transparentBanner).toBeInTheDocument();
+
     // Class and attribute verification
     const sheet = container.querySelector('.cv-print-sheet');
     expect(sheet).toHaveClass('cv-print-digital');
@@ -157,6 +161,31 @@ describe('CvPrintDocument and Print Functionality', () => {
     });
 
     expect(document.documentElement.getAttribute('data-print-mode')).toBe('paper');
+    expect(window.print).toHaveBeenCalledTimes(1);
+  });
+
+  it('triggers digital PDF print when clicking the Download PDF button in CvHeader', () => {
+    render(
+      <LanguageProvider defaultLang="en">
+        <PrintModeProvider>
+          <TypewriterProvider enabled={false}>
+            <CvHeader onClose={vi.fn()} />
+          </TypewriterProvider>
+        </PrintModeProvider>
+      </LanguageProvider>
+    );
+
+    const downloadButton = screen.getByRole('button', {
+      name: uiTranslations.cvModal.downloadPdf.en,
+    });
+    expect(downloadButton).toBeInTheDocument();
+
+    fireEvent.click(downloadButton);
+    act(() => {
+      vi.advanceTimersByTime(50);
+    });
+
+    expect(document.documentElement.getAttribute('data-print-mode')).toBe('digital');
     expect(window.print).toHaveBeenCalledTimes(1);
   });
 
