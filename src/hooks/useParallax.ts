@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
 export interface ParallaxMotion {
   x: number; // smoothed -1 to 1
@@ -19,8 +19,8 @@ export const useParallax = ({
   intensity = 1.0,
   smoothness = 0.08,
   autoDrift = true,
-}: UseParallaxOptions = {}) => {
-  const [motion, setMotion] = useState<ParallaxMotion>({
+}: UseParallaxOptions = {}): React.RefObject<ParallaxMotion> => {
+  const motionRef = useRef<ParallaxMotion>({
     x: 0,
     y: 0,
     scrollY: 0,
@@ -106,15 +106,30 @@ export const useParallax = ({
       currentRef.current.x += dx;
       currentRef.current.y += dy;
 
-      setMotion({
-        x: currentRef.current.x * intensity,
-        y: currentRef.current.y * intensity,
-        scrollY: scrollRef.current,
-        isIdle: isIdleRef.current,
-      });
+      // In-place mutation of ref coordinates to avoid triggering React re-renders and allocations
+      motionRef.current.x = currentRef.current.x * intensity;
+      motionRef.current.y = currentRef.current.y * intensity;
+      motionRef.current.scrollY = scrollRef.current;
+      motionRef.current.isIdle = isIdleRef.current;
 
       animFrameRef.current = requestAnimationFrame(update);
     };
+
+    const onVisibilityChange = () => {
+      if (typeof document !== 'undefined' && document.hidden) {
+        if (animFrameRef.current) {
+          cancelAnimationFrame(animFrameRef.current);
+          animFrameRef.current = null;
+        }
+      } else if (!animFrameRef.current && running) {
+        startTimeRef.current = Date.now();
+        animFrameRef.current = requestAnimationFrame(update);
+      }
+    };
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', onVisibilityChange, { passive: true });
+    }
 
     animFrameRef.current = requestAnimationFrame(update);
 
@@ -125,8 +140,12 @@ export const useParallax = ({
       if (window.DeviceOrientationEvent) {
         window.removeEventListener('deviceorientation', handleOrientation);
       }
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', onVisibilityChange);
+      }
       if (animFrameRef.current) {
         cancelAnimationFrame(animFrameRef.current);
+        animFrameRef.current = null;
       }
       if (idleTimerRef.current) {
         clearTimeout(idleTimerRef.current);
@@ -134,5 +153,6 @@ export const useParallax = ({
     };
   }, [enabled, intensity, smoothness, autoDrift, handleMouseMove, handleOrientation, handleScroll]);
 
-  return motion;
+  return motionRef;
 };
+

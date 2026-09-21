@@ -34,6 +34,7 @@ export const HomePage: React.FC = () => {
   const cancelScrollRef = useRef<(() => void) | null>(null);
   const openRafRef = useRef<number | null>(null);
 
+
   useEffect(() => {
     return () => {
       if (cancelScrollRef.current) {
@@ -290,6 +291,7 @@ export const HomePage: React.FC = () => {
           avatarRef={heroAvatarRef}
         />
         <ProjectsSection />
+
         <CvPaperModal
           isOpen={isCvOpen}
           isClosing={isCvClosing}

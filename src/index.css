@@ -187,16 +187,10 @@ body {
   background-position: center top;
   background-size: cover;
   background-repeat: no-repeat;
-  background-attachment: fixed;
+  background-attachment: scroll;
   overflow-x: hidden;
 }
 
-@media (hover: none) and (pointer: coarse) {
-  body {
-    /* Prevent mobile scroll repaint stutter caused by background-attachment: fixed */
-    background-attachment: scroll;
-  }
-}
 
 /* Animations */
 @keyframes avatar-breathe {
@@ -570,7 +564,7 @@ html.dark .visual-svg-wrapper:hover {
   html[data-print-mode="digital"],
   html[data-print-mode="digital"] body {
     background-color: #03141a !important;
-    background-image: radial-gradient(circle at center, rgba(9, 71, 87, 0.45) 0%, rgba(3, 35, 44, 0.65) 60%, rgba(2, 19, 25, 0.95) 100%), url('./assets/bgclean.webp') !important;
+    background-image: radial-gradient(circle at center, rgba(9, 71, 87, 0.45) 0%, rgba(3, 35, 44, 0.65) 60%, rgba(2, 19, 25, 0.95) 100%), url('./assets/bgprint.webp') !important;
     background-size: cover !important;
     background-repeat: no-repeat !important;
     background-position: center top !important;
@@ -596,7 +590,7 @@ html.dark .visual-svg-wrapper:hover {
     margin: 0 !important;
     padding: 8mm 10mm !important;
     background-color: #03141a !important;
-    background-image: radial-gradient(circle at center, rgba(9, 71, 87, 0.45) 0%, rgba(3, 35, 44, 0.65) 60%, rgba(2, 19, 25, 0.95) 100%), url('./assets/bgclean.webp') !important;
+    background-image: radial-gradient(circle at center, rgba(9, 71, 87, 0.45) 0%, rgba(3, 35, 44, 0.65) 60%, rgba(2, 19, 25, 0.95) 100%), url('./assets/bgprint.webp') !important;
     background-size: cover !important;
     background-repeat: no-repeat !important;
     background-position: center top !important;

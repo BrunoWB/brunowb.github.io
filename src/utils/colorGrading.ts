@@ -142,3 +142,109 @@ export function computeVibranceSaturationMatrix(
     '0', '0', '0', '1', '0'
   ].join(' ');
 }
+
+/**
+ * Computes a 3x3 column-major Float32Array for WebGL mat3 uniform.
+ * Follows exact ITU-R BT.709 sRGB luminance coefficients and channel-selective vibrance.
+ */
+export function computeVibranceSaturationMatrix3x3(
+  vibrance: number = 0,
+  saturation: number = 0
+): Float32Array {
+  const safeSat = Number.isFinite(saturation) ? saturation : 0;
+  const safeVib = Number.isFinite(vibrance) ? vibrance : 0;
+  const satMult = Math.max(0, 1 + safeSat / 100);
+  const vibNorm = Math.max(-1, Math.min(1, safeVib / 100));
+
+  let vibR: number;
+  let vibG: number;
+  let vibB: number;
+
+  if (vibNorm >= 0) {
+    vibR = 1 + vibNorm * 0.5;
+    vibG = 1 + vibNorm * 1.0;
+    vibB = 1 + vibNorm * 1.35;
+  } else {
+    vibR = 1 + vibNorm * 0.7;
+    vibG = 1 + vibNorm * 1.0;
+    vibB = 1 + vibNorm * 1.0;
+  }
+
+  const scaleR = Math.max(0, satMult * vibR);
+  const scaleG = Math.max(0, satMult * vibG);
+  const scaleB = Math.max(0, satMult * vibB);
+
+  const wr = 0.2126;
+  const wg = 0.7152;
+  const wb = 0.0722;
+
+  // Row 0: Red
+  const m00 = (1 - scaleR) * wr + scaleR;
+  const m01 = (1 - scaleR) * wg;
+  const m02 = (1 - scaleR) * wb;
+
+  // Row 1: Green
+  const m10 = (1 - scaleG) * wr;
+  const m11 = (1 - scaleG) * wg + scaleG;
+  const m12 = (1 - scaleG) * wb;
+
+  // Row 2: Blue
+  const m20 = (1 - scaleB) * wr;
+  const m21 = (1 - scaleB) * wg;
+  const m22 = (1 - scaleB) * wb + scaleB;
+
+  // WebGL column-major order: Column 0, Column 1, Column 2
+  return new Float32Array([
+    m00, m10, m20,
+    m01, m11, m21,
+    m02, m12, m22,
+  ]);
+}
+
+export interface CssColorGradingOptions {
+  colorGradingEnabled?: boolean;
+  useCleanComposite?: boolean;
+  vibrance?: number;
+  saturation?: number;
+  inputBlack?: number;
+  gamma?: number;
+  inputWhite?: number;
+  outputBlack?: number;
+  outputWhite?: number;
+}
+
+/**
+ * Computes standard CSS filter functions (contrast, brightness, saturate)
+ * for hardware-accelerated color grading in the browser compositor (0ms CPU).
+ */
+export function computeCssColorGradingFilter(options: CssColorGradingOptions): string | undefined {
+  if (!options.colorGradingEnabled || options.useCleanComposite) {
+    return undefined;
+  }
+
+  const inB = options.inputBlack ?? 19;
+  const inW = options.inputWhite ?? 255;
+  const outB = options.outputBlack ?? 0;
+  const outW = options.outputWhite ?? 255;
+  const gamma = Math.max(0.1, options.gamma ?? 0.85);
+  const sat = options.saturation ?? -5;
+  const vib = options.vibrance ?? 37;
+
+  // 1. Contrast: derived from input black/white range expansion
+  const inRange = Math.max(1, inW - inB);
+  const contrastFactor = +(255 / inRange).toFixed(3);
+
+  // 2. Brightness: derived from output range, input black pedestal, and gamma midtone curve
+  const outRange = (outW - outB) / 255;
+  const gammaShift = Math.pow(0.5, 1 / gamma) / 0.5;
+  const blackShift = 1 - inB / 510;
+  const brightnessFactor = +(outRange * gammaShift * blackShift + outB / 255).toFixed(3);
+
+  // 3. Saturation: combined channel saturation and vibrance boost
+  const vibFactor = vib >= 0 ? 1 + (vib / 100) * 0.35 : 1 + (vib / 100) * 0.5;
+  const satFactor = Math.max(0, 1 + sat / 100);
+  const saturateFactor = +(satFactor * vibFactor).toFixed(3);
+
+  return `contrast(${contrastFactor}) brightness(${brightnessFactor}) saturate(${saturateFactor})`;
+}
+

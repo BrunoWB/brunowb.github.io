@@ -42,6 +42,8 @@ export const ProjectsSection: React.FC = () => {
       id="projects"
       className="relative z-10 w-full min-h-screen bg-[var(--bg-section)]/95 backdrop-blur-md border-t border-[var(--border-subtle)] shadow-[0_-10px_25px_rgba(0,0,0,0.04)] dark:shadow-[0_-25px_60px_rgba(0,0,0,0.25)] transition-colors duration-300 overflow-x-clip"
     >
+
+
       {/* Divider Line separating top header from projects */}
       <div
         className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--brand-primary)]/50 to-transparent pointer-events-none z-20"

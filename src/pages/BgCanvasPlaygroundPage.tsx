@@ -182,6 +182,7 @@ export const BgCanvasPlaygroundPage: React.FC = () => {
         cometCorePeakBrightness={cometCorePeakBrightness}
         cometCoreBaselineOpacity={cometCoreBaselineOpacity}
         useCleanComposite={useCleanComposite}
+        enablePerformanceFallback={false}
         layerOverrides={layerOverrides}
         onFpsUpdate={handleFpsUpdate}
         onWaterTelemetry={handleWaterTelemetry}

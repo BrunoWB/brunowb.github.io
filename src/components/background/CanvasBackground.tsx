@@ -1,14 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useRef, useCallback, useEffect } from 'react';
 import {
   bgLayers,
   BG_CANVAS_WIDTH,
   BG_CANVAS_HEIGHT,
 } from '../../data/bgLayersData';
 import type { ReflectionBlendMode, ScrimMode } from '../../types/background';
-import {
-  computeLevelsTableValues,
-  computeVibranceSaturationMatrix,
-} from '../../utils/colorGrading';
+import { computeCssColorGradingFilter } from '../../utils/colorGrading';
 import { useCanvasEngine } from './canvas/hooks/useCanvasEngine';
 import { ResolvedCanvasParams } from './canvas/types';
 
@@ -92,6 +89,10 @@ export interface CanvasBackgroundProps {
   cometCoreDiffusionScale?: number;
 
   useCleanComposite?: boolean;
+  enablePerformanceFallback?: boolean;
+  fallbackFpsThreshold?: number;
+  fallbackDurationMs?: number;
+  onPerformanceFallback?: () => void;
   darkScrimEnabled?: boolean;
   scrimMode?: ScrimMode;
   darkScrimOpacity?: number;
@@ -105,6 +106,7 @@ export interface CanvasBackgroundProps {
   layerOverrides?: Record<string, { visible?: boolean; opacity?: number }>;
   className?: string;
   canvasOffsetY?: number;
+  isPaused?: boolean;
   onShootingStarTrigger?: () => void;
   onCometTrigger?: () => void;
   onFpsUpdate?: (fps: number, frameTimeMs: number) => void;
@@ -135,7 +137,7 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
   waterBlurTransitionSpeed = 1.8,
   waterFarBackBlur = 0.0,
   waterWaveMode = 'bands',
-  waterBandCount = 50,
+  waterBandCount = 32,
   waterBandOffset = 0.2,
   blurTransitionSpeed,
   farBackBlurPeak,
@@ -183,6 +185,10 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
   cometCoreDiffusionEnabled,
   cometCoreDiffusionScale,
   useCleanComposite = false,
+  enablePerformanceFallback = true,
+  fallbackFpsThreshold = 25,
+  fallbackDurationMs = 3500,
+  onPerformanceFallback,
   darkScrimEnabled = true,
   scrimMode,
   darkScrimOpacity,
@@ -196,11 +202,79 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
   layerOverrides = {},
   className = '',
   canvasOffsetY = 0,
+  isPaused = false,
   onShootingStarTrigger,
   onCometTrigger,
   onFpsUpdate,
   onWaterTelemetry,
 }) => {
+  const [isFallbackActive, setIsFallbackActive] = useState<boolean>(false);
+  const lowFpsStartRef = useRef<number | null>(null);
+  const mountTimeRef = useRef<number>(0);
+
+  useEffect(() => {
+    mountTimeRef.current = performance.now();
+  }, []);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        lowFpsStartRef.current = null;
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange, { passive: true });
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  const handleFpsUpdate = useCallback(
+    (fps: number, frameTimeMs: number) => {
+      onFpsUpdate?.(fps, frameTimeMs);
+
+      if (!enablePerformanceFallback || isFallbackActive || useCleanComposite) {
+        return;
+      }
+
+      // Ignore when tab is hidden
+      if (typeof document !== 'undefined' && document.hidden) {
+        lowFpsStartRef.current = null;
+        return;
+      }
+
+      // Initial grace period (1.5s) to allow mounting and image decodes to settle
+      const now = performance.now();
+      if (now - mountTimeRef.current < 1500) {
+        return;
+      }
+
+      if (fps < fallbackFpsThreshold) {
+        if (lowFpsStartRef.current === null) {
+          lowFpsStartRef.current = now;
+        } else if (now - lowFpsStartRef.current >= fallbackDurationMs) {
+          console.warn(
+            `[CanvasBackground] Low framerate detected (${fps.toFixed(1)} FPS < ${fallbackFpsThreshold} FPS for > ${(fallbackDurationMs / 1000).toFixed(1)}s). Gracefully switching to static master composite.`
+          );
+          setIsFallbackActive(true);
+          onPerformanceFallback?.();
+        }
+      } else {
+        lowFpsStartRef.current = null;
+      }
+    },
+    [
+      enablePerformanceFallback,
+      isFallbackActive,
+      useCleanComposite,
+      fallbackFpsThreshold,
+      fallbackDurationMs,
+      onFpsUpdate,
+      onPerformanceFallback,
+    ]
+  );
+
+  const effectiveUseCleanComposite = useCleanComposite || isFallbackActive;
+
   const effectiveDarkOpacity =
     scrimMode === 'none'
       ? 0
@@ -218,19 +292,36 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
       : lightScrimOpacity !== undefined
       ? lightScrimOpacity
       : 'var(--bg-light-tint-opacity, 0.40)';
-  // Photoshop Vibrance & Saturation Color Matrix
-  const colorMatrixValues = useMemo(
-    () => computeVibranceSaturationMatrix(vibrance, saturation),
-    [vibrance, saturation]
-  );
 
-  // Photoshop Levels 1D LUT tableValues
-  const levelsTableValues = useMemo(
-    () => computeLevelsTableValues(inputBlack, gamma, inputWhite, outputBlack, outputWhite),
-    [inputBlack, gamma, inputWhite, outputBlack, outputWhite]
+  // GPU-Composited Hardware Color Grading Filter
+  const colorGradingFilter = useMemo(
+    () =>
+      computeCssColorGradingFilter({
+        colorGradingEnabled,
+        useCleanComposite: effectiveUseCleanComposite,
+        vibrance,
+        saturation,
+        inputBlack,
+        gamma,
+        inputWhite,
+        outputBlack,
+        outputWhite,
+      }),
+    [
+      colorGradingEnabled,
+      effectiveUseCleanComposite,
+      vibrance,
+      saturation,
+      inputBlack,
+      gamma,
+      inputWhite,
+      outputBlack,
+      outputWhite,
+    ]
   );
 
   // Resolved comet configuration
+
   const cometConfig = useMemo(() => {
     const flameTailEnabled = cometFlameTailEnabled ?? cometTailWaveEnabled ?? true;
     const flameTailSpeed = cometFlameTailSpeed ?? cometTailWaveSpeed ?? 0.2;
@@ -340,7 +431,7 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
       resolvedLayers,
       interactive,
       reverseHorizontalParallax,
-      useCleanComposite,
+      useCleanComposite: effectiveUseCleanComposite,
       comet: cometConfig,
       galaxy: {
         breathingEnabled: galaxyBreathingEnabled,
@@ -385,7 +476,18 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
         bandCount: waterBandCount,
         bandOffset: waterBandOffset,
       },
-      onFpsUpdate,
+      colorGrading: {
+        colorGradingEnabled,
+        vibrance,
+        saturation,
+        inputBlack,
+        gamma,
+        inputWhite,
+        outputBlack,
+        outputWhite,
+      },
+      isPaused,
+      onFpsUpdate: handleFpsUpdate,
       onWaterTelemetry,
     }),
     [
@@ -396,7 +498,7 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
       resolvedLayers,
       interactive,
       reverseHorizontalParallax,
-      useCleanComposite,
+      effectiveUseCleanComposite,
       cometConfig,
       galaxyBreathingEnabled,
       galaxyBreathingSpeed,
@@ -433,10 +535,21 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
       waterWaveMode,
       waterBandCount,
       waterBandOffset,
-      onFpsUpdate,
+      colorGradingEnabled,
+      vibrance,
+      saturation,
+      inputBlack,
+      gamma,
+      inputWhite,
+      outputBlack,
+      outputWhite,
+      isPaused,
+      handleFpsUpdate,
       onWaterTelemetry,
     ]
   );
+
+
 
   const { canvasRef } = useCanvasEngine(
     resolvedParams,
@@ -453,27 +566,6 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
       }}
       aria-hidden="true"
     >
-      {/* SVG Filter Definitions for GPU Post-Processing Color Grading */}
-      <svg className="sr-only" aria-hidden="true" width="0" height="0">
-        <defs>
-          <filter
-            id="canvas-color-grading"
-            x="0%"
-            y="0%"
-            width="100%"
-            height="100%"
-            colorInterpolationFilters="sRGB"
-          >
-            <feColorMatrix type="matrix" values={colorMatrixValues} result="vibrance_sat" />
-            <feComponentTransfer in="vibrance_sat">
-              <feFuncR type="table" tableValues={levelsTableValues} />
-              <feFuncG type="table" tableValues={levelsTableValues} />
-              <feFuncB type="table" tableValues={levelsTableValues} />
-            </feComponentTransfer>
-          </filter>
-        </defs>
-      </svg>
-
       {/* Aspect-Ratio Locked Master HTML5 Canvas */}
       <canvas
         ref={canvasRef}
@@ -486,9 +578,10 @@ export const CanvasBackground: React.FC<CanvasBackgroundProps> = ({
           aspectRatio: '1920 / 1187',
           backgroundColor: '#021319',
           top: canvasOffsetY ? `calc(50% + ${canvasOffsetY}px)` : undefined,
-          filter: colorGradingEnabled && !useCleanComposite ? 'url(#canvas-color-grading)' : undefined,
+          filter: colorGradingFilter,
         }}
       />
+
 
       {/* Dark Theme Ambient Darkening & Center Glow Scrim */}
       {darkScrimEnabled && (

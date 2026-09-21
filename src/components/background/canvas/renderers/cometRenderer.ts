@@ -9,6 +9,45 @@ export const COMET_TAIL_X = 1680;
 export const COMET_TAIL_Y = 155;
 export const COMET_ANGLE = Math.atan2(COMET_TAIL_Y - COMET_HEAD_Y, COMET_TAIL_X - COMET_HEAD_X);
 
+interface CachedFadeGrad {
+  ctx: CanvasRenderingContext2D;
+  power: number;
+  gradient: CanvasGradient;
+}
+
+let cachedFadeGrad: CachedFadeGrad | null = null;
+
+function getCachedFadeGrad(
+  ctx: CanvasRenderingContext2D,
+  startX: number,
+  endX: number,
+  tailFadePower: number
+): CanvasGradient {
+  if (
+    cachedFadeGrad &&
+    cachedFadeGrad.ctx === ctx &&
+    cachedFadeGrad.power === tailFadePower
+  ) {
+    return cachedFadeGrad.gradient;
+  }
+
+  const grad = ctx.createLinearGradient(startX, 0, endX, 0);
+  const steps = 24;
+  for (let s = 0; s <= steps; s++) {
+    const u = s / steps;
+    const fadeAlpha = Math.max(0, 1.0 - 0.72 * Math.pow(u, tailFadePower));
+    grad.addColorStop(u, `rgba(0,0,0,${fadeAlpha})`);
+  }
+
+  cachedFadeGrad = {
+    ctx,
+    power: tailFadePower,
+    gradient: grad,
+  };
+
+  return grad;
+}
+
 export function renderCometTail(
   targetCtx: CanvasRenderingContext2D,
   layer: BgLayerConfig,
@@ -61,13 +100,7 @@ export function renderCometTail(
   const endX = 385;
   cometFlameCtx.save();
   cometFlameCtx.globalCompositeOperation = 'destination-in';
-  const fadeGrad = cometFlameCtx.createLinearGradient(startX, 0, endX, 0);
-  const steps = 24;
-  for (let s = 0; s <= steps; s++) {
-    const u = s / steps;
-    const fadeAlpha = Math.max(0, 1.0 - 0.72 * Math.pow(u, tailFadePower));
-    fadeGrad.addColorStop(u, `rgba(0,0,0,${fadeAlpha})`);
-  }
+  const fadeGrad = getCachedFadeGrad(cometFlameCtx, startX, endX, tailFadePower);
   cometFlameCtx.fillStyle = fadeGrad;
   cometFlameCtx.fillRect(0, 0, bufW, bufH);
   cometFlameCtx.restore();

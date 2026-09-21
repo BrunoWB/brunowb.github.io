@@ -104,7 +104,11 @@ export interface ResolvedCanvasParams {
   mist: CanvasMistConfig;
   star: CanvasStarConfig;
   water: CanvasWaterConfig;
+  colorGrading: CanvasColorGradingConfig;
+  isPaused?: boolean;
   onFpsUpdate?: (fps: number, frameTimeMs: number) => void;
   onWaterTelemetry?: (speed: number, blur: number) => void;
 }
+
+
 

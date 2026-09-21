@@ -37,7 +37,7 @@ export function useCanvasEngine(
   const cometFlameCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const cometPulseCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const motion = useParallax({
+  const motionRef = useParallax({
     enabled: params.interactive,
     intensity: 0.5,
     smoothness: 0.08,
@@ -64,10 +64,8 @@ export function useCanvasEngine(
     frameTime: 16.6,
   });
 
-  const motionRef = useRef(motion);
-  motionRef.current = motion;
-
   const animParamsRef = useRef(params);
+
   animParamsRef.current = params;
 
   // Water excitation listeners
@@ -190,15 +188,18 @@ export function useCanvasEngine(
     onCometTrigger?.();
   }, [onShootingStarTrigger, onCometTrigger]);
 
+  const updateRunningStateRef = useRef<(() => void) | null>(null);
+
   // Periodic automatic shooting stars
   useEffect(() => {
-    if (!params.star.shootingStarEnabled) return;
+    if (!params.star.shootingStarEnabled || params.isPaused) return;
     const intervalTime = 12000 + Math.random() * 8000;
     const timer = setInterval(() => {
       triggerShootingStar();
     }, intervalTime);
     return () => clearInterval(timer);
-  }, [params.star.shootingStarEnabled, triggerShootingStar]);
+  }, [params.star.shootingStarEnabled, params.isPaused, triggerShootingStar]);
+
 
   // Offscreen buffer setup
   useEffect(() => {
@@ -222,15 +223,19 @@ export function useCanvasEngine(
 
   // Main Render Loop
   useEffect(() => {
-    let animationId: number;
+    let animationId: number = 0;
+    let isLoopRunning = false;
     let frameCount = 0;
     let lastFpsReport = performance.now();
     let lastWaterTelemetryReport = performance.now();
 
     const canvas = canvasRef.current;
     if (!canvas) return;
+
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) return;
+
+
 
     const waterHeight = BG_CANVAS_HEIGHT - BG_HORIZON_Y;
     const reflCanvas = reflectionCanvasRef.current;
@@ -243,9 +248,11 @@ export function useCanvasEngine(
     const cometPulseCtx = cometPulseCanvas?.getContext('2d', { alpha: true });
 
     const render = (now: number) => {
+      if (!isLoopRunning) return;
       const p = animParamsRef.current;
       const currentMotion = motionRef.current;
       const timeSec = now / 1000;
+
 
       const dt = Math.max(0.001, Math.min(0.1, (now - lastFrameTimeRef.current) / 1000));
       lastFrameTimeRef.current = now;
@@ -266,6 +273,9 @@ export function useCanvasEngine(
       const blurTransitionSpeed = p.water.blurTransitionSpeed ?? 1.8;
       const blurAlpha = 1 - Math.exp(-dt * blurTransitionSpeed);
       waterBlurSmoothedRef.current += (targetWaterBlur - waterBlurSmoothedRef.current) * blurAlpha;
+      if (Math.abs(waterBlurSmoothedRef.current) < 0.01) {
+        waterBlurSmoothedRef.current = 0;
+      }
       const peakWaterBlur = waterBlurSmoothedRef.current;
 
       frameCount++;
@@ -316,6 +326,7 @@ export function useCanvasEngine(
         animationId = requestAnimationFrame(render);
         return;
       }
+
 
       // 2. Render Base Stack
       for (const layer of p.baseLayers) {
@@ -568,12 +579,63 @@ export function useCanvasEngine(
         renderBigStarsFlares(ctx, tx, ty, timeSec, p.star);
       }
 
+      if (isLoopRunning) {
+        animationId = requestAnimationFrame(render);
+      }
+    };
+
+    const startLoop = () => {
+      if (isLoopRunning) return;
+      isLoopRunning = true;
+      lastFrameTimeRef.current = performance.now();
       animationId = requestAnimationFrame(render);
     };
 
-    animationId = requestAnimationFrame(render);
-    return () => cancelAnimationFrame(animationId);
+    const stopLoop = () => {
+      if (!isLoopRunning) return;
+      isLoopRunning = false;
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = 0;
+      }
+    };
+
+    const checkShouldRun = () => {
+      if (typeof document !== 'undefined' && document.hidden) return false;
+      if (animParamsRef.current.isPaused) return false;
+      return true;
+    };
+
+    const updateRunningState = () => {
+      if (checkShouldRun()) {
+        startLoop();
+      } else {
+        stopLoop();
+      }
+    };
+
+    updateRunningStateRef.current = updateRunningState;
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', updateRunningState, { passive: true });
+    }
+
+    updateRunningState();
+
+    return () => {
+      stopLoop();
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', updateRunningState);
+      }
+      updateRunningStateRef.current = null;
+    };
   }, []);
+
+  useEffect(() => {
+    updateRunningStateRef.current?.();
+  }, [params.isPaused]);
+
+
 
   return {
     canvasRef,

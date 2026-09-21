@@ -777,16 +777,17 @@ export const ControlsTab: React.FC<ControlsTabProps> = ({
           </button>
         </div>
 
-        {/* GPU SVG Filter info badge */}
+        {/* Hardware GPU Compositor Post-Processing info badge */}
         <div className="p-2 rounded-lg bg-slate-900/60 border border-slate-700/40 text-[10px] text-[var(--text-muted)] space-y-1">
           <div className="flex items-center justify-between text-cyan-300 font-mono text-[9px] uppercase">
-            <span>GPU SVG &lt;feColorMatrix&gt; + &lt;feComponentTransfer&gt;</span>
+            <span>Hardware GPU Compositor Post-Processing</span>
             <span className="bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 px-1 rounded">60 FPS Locked</span>
           </div>
           <p className="leading-tight text-[10px]">
-            Zero CPU pixel iteration. 1D LUT tableValues calculated via Photoshop Levels formula: clamp((x - inB)/(inW - inB))^{`1/γ`} mapped to [outB, outW].
+            Zero CPU pixel iteration. Hardware compositor applies tone mapping, contrast, and vibrance scaling directly via GPU compositor shaders.
           </p>
         </div>
+
 
         {/* 1. Photoshop Vibrance & Saturation */}
         <div className="space-y-2 pt-1 border-t border-[var(--border-subtle)]/30">
