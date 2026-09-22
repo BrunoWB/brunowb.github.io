@@ -2,7 +2,7 @@ import React from 'react';
 import type { ProjectItem } from '../../types/projects';
 import { useLanguage } from '../../context/LanguageContext';
 import { CorneSvg } from './visuals/CorneSvg';
-import { BwpxSvg } from './visuals/BwpxSvg';
+import { PixelSvg } from './visuals/PixelSvg';
 import { ScreenMgrSvg } from './visuals/ScreenMgrSvg';
 
 export const ProjectCard: React.FC<{
@@ -17,7 +17,7 @@ export const ProjectCard: React.FC<{
       case 'corne':
         return <CorneSvg />;
       case 'bwpx':
-        return <BwpxSvg />;
+        return <PixelSvg />;
       case 'screen-manager':
         return <ScreenMgrSvg />;
       default:
@@ -26,7 +26,7 @@ export const ProjectCard: React.FC<{
   };
 
   const isLocalSubproject =
-    import.meta.env.DEV && (project.id === 'scyan-zmk-studio' || project.id === 'bwpx-editor');
+    import.meta.env.DEV && (project.id === 'scyan-zmk-studio' || project.id === 'scyan-pixel' || project.id === 'bwpx-editor');
   const primaryLink = isLocalSubproject ? `/${project.id}/` : (project.liveUrl || project.repoUrl);
 
   return (

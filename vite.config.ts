@@ -17,6 +17,10 @@ export default defineConfig({
         target: 'http://127.0.0.1:5174',
         ws: true,
       },
+      '/scyan-pixel': {
+        target: 'http://127.0.0.1:5175',
+        ws: true,
+      },
       '/bwpx-editor': {
         target: 'http://127.0.0.1:5175',
         ws: true,

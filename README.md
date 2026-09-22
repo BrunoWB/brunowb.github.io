@@ -4,7 +4,7 @@ Personal portal and landing page for [@BrunoWB](https://github.com/BrunoWB) host
 
 ## Features
 
-- **Projects list**: Accessible upon scrolling past 100vh, featuring open source projects such as [`brunowb/scyan-zmk-studio`](https://github.com/brunowb/scyan-zmk-studio), [`brunowb/bwpx-editor`](https://github.com/brunowb/bwpx-editor), and [`brunowb/plasma-screen-manager`](https://github.com/brunowb/plasma-screen-manager).
+- **Projects list**: Accessible upon scrolling past 100vh, featuring open source projects such as [`brunowb/scyan-zmk-studio`](https://github.com/brunowb/scyan-zmk-studio), [`brunowb/scyan-pixel`](https://github.com/brunowb/scyan-pixel), and [`brunowb/plasma-screen-manager`](https://github.com/brunowb/plasma-screen-manager).
 
 ## Local Development
 

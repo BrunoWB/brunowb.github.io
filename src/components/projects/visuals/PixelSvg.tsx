@@ -9,7 +9,7 @@ export const WOLF_EYES_PATH =
 
 export const WOLF_PUPILS_PATH = 'M12,14h1v2h-1zM20,14h1v2h-1z';
 
-export const BwpxSvg: React.FC<{ className?: string }> = ({ className = '' }) => {
+export const PixelSvg: React.FC<{ className?: string }> = ({ className = '' }) => {
   const uniqueId = useId().replace(/:/g, '');
   const wolfGradId = `wolfGrad_${uniqueId}`;
   const gridPatternId = `pixelGrid_${uniqueId}`;
@@ -211,3 +211,5 @@ export const BwpxSvg: React.FC<{ className?: string }> = ({ className = '' }) =>
     </svg>
   );
 };
+
+export const BwpxSvg = PixelSvg;

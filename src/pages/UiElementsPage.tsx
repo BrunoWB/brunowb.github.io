@@ -3,7 +3,7 @@ import { Avatar } from '../components/common/Avatar';
 import { TypewriterText } from '../components/common/TypewriterText';
 import { TypewriterProvider } from '../context/TypewriterContext';
 import { CorneSvg } from '../components/projects/visuals/CorneSvg';
-import { BwpxSvg } from '../components/projects/visuals/BwpxSvg';
+import { PixelSvg } from '../components/projects/visuals/PixelSvg';
 import { ScreenMgrSvg } from '../components/projects/visuals/ScreenMgrSvg';
 import { useTheme } from '../context/ThemeContext';
 
@@ -359,7 +359,7 @@ export const UiElementsPage: React.FC = () => {
           <div className="p-6 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-md flex flex-col items-center justify-center gap-4 transition-colors duration-300">
             <h4 className="text-sm font-bold text-[var(--brand-secondary)]">Pixel Editor Visual</h4>
             <div className="group p-4 rounded-xl bg-[var(--bg-section)] border border-[var(--border-subtle)]">
-              <BwpxSvg />
+              <PixelSvg />
             </div>
           </div>
 

@@ -11,7 +11,7 @@ Persistent architectural reference for Antigravity pair programming in `hello-we
 | **`hello-web`** *(Here)* | `Projects/Web/hello-web/` | React 19 / TS / Vite / Tailwind v4 | Public developer landing page & project portal with interactive CV. |
 | **`plasma-screen-manager`** | `Projects/Linux/plasma-screen-manager/` | QML / Python / KDE | Wayland multi-monitor manager plasmoid for KDE Plasma 6. |
 | **`scyan-zmk-studio`** | `Projects/Web/scyan-zmk-studio/` | React 19 / TS 6 / Vite | Visual display IDE & layout compiler to C header. |
-| **`bwpx-editor`** | `Projects/Web/bwpx-editor/` | React 19 / Vite | Upstream pixel editor & raster algorithm core (`BwpxGrid`). |
+| **`scyan-pixel`** | `Projects/Web/scyan-pixel/` | React 19 / Vite | Upstream pixel editor & raster algorithm core (`BwpxGrid`). |
 | **`scyan-zmk-module`** | `Projects/Firmware/scyan-zmk-module/` | Embedded C / Zephyr | Runtime 1bpp blitter, transform (90° rot), and widget engine. |
 | **`zmk-config`** | `Projects/Firmware/zmk-config/` | West / Kconfig / CI | Corne split keyboard config; CI builds `.uf2` on asset push. |
 
@@ -22,7 +22,7 @@ Persistent architectural reference for Antigravity pair programming in `hello-we
 `hello-web` is the personal landing page hosted on GitHub Pages (`https://brunowb.github.io`). It showcases Bruno's projects and tools:
 * `plasma-screen-manager` (KDE Store: `https://store.kde.org/p/2371012/`)
 * `scyan-zmk-studio` (Live at `https://brunowb.github.io/scyan-zmk-studio`)
-* `bwpx-editor` (Live at `https://brunowb.github.io/bwpx-editor`)
+* `scyan-pixel` (Live at `https://brunowb.github.io/scyan-pixel`)
 
 ---
 

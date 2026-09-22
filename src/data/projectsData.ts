@@ -29,11 +29,11 @@ export const projectsData: ProjectItem[] = [
     },
   },
   {
-    id: 'bwpx-editor',
-    title: 'Pixel Editor',
-    repo: 'BrunoWB/bwpx-editor',
-    repoUrl: 'https://github.com/BrunoWB/bwpx-editor',
-    liveUrl: 'https://brunowb.github.io/bwpx-editor/',
+    id: 'scyan-pixel',
+    title: 'Scyan Pixel',
+    repo: 'BrunoWB/scyan-pixel',
+    repoUrl: 'https://github.com/BrunoWB/scyan-pixel',
+    liveUrl: 'https://brunowb.github.io/scyan-pixel/',
     category: 'web',
     tag: {
       en: 'Pixel Sandbox',
@@ -48,8 +48,8 @@ export const projectsData: ProjectItem[] = [
     visualType: 'bwpx',
     preview: {
       type: 'video',
-      src: `${base}previews/bwpx-editor.webm`,
-      poster: `${base}previews/bwpx-editor-poster.webp`,
+      src: `${base}previews/scyan-pixel.webm`,
+      poster: `${base}previews/scyan-pixel-poster.webp`,
     },
   },
   {
