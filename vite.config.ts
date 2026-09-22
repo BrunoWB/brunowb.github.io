@@ -23,6 +23,7 @@ export default defineConfig({
       },
       '/bwpx-editor': {
         target: 'http://127.0.0.1:5175',
+        rewrite: (path) => path.replace(/^\/bwpx-editor/, '/scyan-pixel'),
         ws: true,
       },
     },
