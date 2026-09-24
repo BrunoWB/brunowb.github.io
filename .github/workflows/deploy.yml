@@ -34,10 +34,13 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Preserve nightly deployments
+      - name: Preserve nightly and v1 deployments
         run: |
           if [ -d "nightly" ]; then
             cp -r nightly dist/
+          fi
+          if [ -d "v1" ]; then
+            cp -r v1 dist/
           fi
 
       - name: Upload Pages artifact
