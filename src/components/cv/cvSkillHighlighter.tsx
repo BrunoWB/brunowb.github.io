@@ -13,7 +13,6 @@ export const SKILL_PATTERNS: { pattern: string; canonical: string }[] = [
   { pattern: 'Adobe Photoshop and Illustrator', canonical: 'Photoshop' },
   { pattern: 'Adobe Photoshop', canonical: 'Photoshop' },
   { pattern: 'Adobe Illustrator', canonical: 'Illustrator' },
-  { pattern: 'Tailwind CSS', canonical: 'Tailwind CSS' },
   { pattern: 'TypeScript', canonical: 'TypeScript' },
   { pattern: 'Highcharts', canonical: 'Highcharts' },
   { pattern: 'FreeMarker', canonical: 'FreeMarker' },

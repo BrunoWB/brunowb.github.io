@@ -38,7 +38,6 @@ export const cvData: CvDictionary = {
       'React 19',
       'NestJS',
       'HTML5 / Canvas',
-      'Tailwind CSS',
       'Angular',
       'Node.js',
       'gRPC',
