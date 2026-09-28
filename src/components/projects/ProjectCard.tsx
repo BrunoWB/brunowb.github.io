@@ -4,6 +4,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { CorneSvg } from './visuals/CorneSvg';
 import { PixelSvg } from './visuals/PixelSvg';
 import { ScreenMgrSvg } from './visuals/ScreenMgrSvg';
+import { AnimeSummarySvg } from './visuals/AnimeSummarySvg';
 
 export const ProjectCard: React.FC<{
   project: ProjectItem;
@@ -20,13 +21,15 @@ export const ProjectCard: React.FC<{
         return <PixelSvg />;
       case 'screen-manager':
         return <ScreenMgrSvg />;
+      case 'anime-summary':
+        return <AnimeSummarySvg />;
       default:
         return null;
     }
   };
 
   const isLocalSubproject =
-    import.meta.env.DEV && (project.id === 'scyan-zmk-studio' || project.id === 'scyan-pixel' || project.id === 'bwpx-editor');
+    import.meta.env.DEV && (project.id === 'scyan-zmk-studio' || project.id === 'scyan-pixel' || project.id === 'bwpx-editor' || project.id === 'anime-summary');
   const primaryLink = isLocalSubproject ? `/${project.id}/` : (project.liveUrl || project.repoUrl);
 
   return (

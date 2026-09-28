@@ -15,7 +15,7 @@ export interface ProjectItem {
   category: 'web' | 'other';
   tag: LocalizedString;
   description: LocalizedString;
-  visualType: 'corne' | 'bwpx' | 'screen-manager';
+  visualType: 'corne' | 'bwpx' | 'screen-manager' | 'anime-summary';
   preview?: ProjectPreview;
 }
 

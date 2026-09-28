@@ -53,6 +53,25 @@ export const projectsData: ProjectItem[] = [
     },
   },
   {
+    id: 'anime-summary',
+    title: 'Anime Summary',
+    repo: 'BrunoWB/anime-summary',
+    repoUrl: 'https://github.com/BrunoWB/anime-summary',
+    liveUrl: 'https://brunowb.github.io/anime-summary/',
+    category: 'web',
+    tag: {
+      en: 'Taste Analytics',
+      fr: 'Analyse des Goûts',
+      pt: 'Análise de Gosto',
+    },
+    description: {
+      en: 'Mathematical anime taste extraction, Bayesian affinity modeling, and steerable LLM recommendation profiler.',
+      fr: 'Extraction mathématique des goûts d\'anime, modélisation bayésienne des affinités et profileur orientable pour LLM.',
+      pt: 'Extração matemática de gosto de animes, modelagem de afinidade Bayesiana e perfilador direcionável para LLMs.',
+    },
+    visualType: 'anime-summary',
+  },
+  {
     id: 'plasma-screen-manager',
     title: 'Screen Manager',
     repo: 'BrunoWB/plasma-screen-manager',
