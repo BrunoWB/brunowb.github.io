@@ -355,11 +355,11 @@
           </div>
 
           <div class="btn-stack">
-            <a class="btn btn-primary" id="launch-btn" href="#">Open Installed App</a>
-            <a class="btn btn-browser" id="browser-join-btn" href="./play/">Play in Browser (No Install)</a>
+            <a class="btn btn-primary" id="launch-btn" href="#">Open in App</a>
+            <a class="btn btn-browser" id="browser-join-btn" href="./play/">Play in Browser</a>
           </div>
           <p class="status-note" id="launch-status">
-            Trying to open HellChess automatically...
+            Choose to open the installed app or play directly in your browser.
           </p>
         </div>
 
@@ -545,7 +545,7 @@
 
         if (code) {
           var deepLink = "hellchess://join/" + encodeURIComponent(code);
-          subtitle.textContent = "You have been invited to a live HellChess match";
+          subtitle.textContent = "How would you like to join this match?";
           invitePanel.classList.remove("hidden");
           manualPanel.classList.add("hidden");
 
@@ -573,18 +573,24 @@
             if (document.hidden) markOpened();
           });
 
-          setTimeout(function () {
-            triggerDeepLink(deepLink);
-          }, 120);
-
-          setTimeout(function () {
-            if (!appOpened && !document.hidden) {
-              var note = document.getElementById("launch-status");
-              note.classList.add("status-note--warn");
-              note.textContent =
-                "Installed app didn't open? Tap 'Open Installed App' or 'Play in Browser' above, or download below.";
+          launchBtn.addEventListener("click", function (e) {
+            var isFirefoxDesktop =
+              /firefox/i.test(navigator.userAgent || "") && !/android/i.test(navigator.userAgent || "");
+            if (isFirefoxDesktop) {
+              e.preventDefault();
+              triggerDeepLink(deepLink);
             }
-          }, 1900);
+            var note = document.getElementById("launch-status");
+            note.classList.remove("status-note--warn");
+            note.textContent = "Opening HellChess app...";
+            setTimeout(function () {
+              if (!appOpened && !document.hidden) {
+                note.classList.add("status-note--warn");
+                note.textContent =
+                  "App didn't open? Tap 'Play in Browser' above or download HellChess below.";
+              }
+            }, 1800);
+          });
         } else {
           var form = document.getElementById("manual-form");
           var input = document.getElementById("manual-code-input");
